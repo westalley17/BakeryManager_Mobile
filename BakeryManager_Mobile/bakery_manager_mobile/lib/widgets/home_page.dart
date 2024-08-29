@@ -1,4 +1,8 @@
+import 'package:bakery_manager_mobile/widgets/employee_login_page.dart';
+import 'package:bakery_manager_mobile/widgets/manager_login_page.dart';
+import 'package:bakery_manager_mobile/widgets/register_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -32,7 +36,14 @@ class HomePage extends StatelessWidget {
                 child: SizedBox(
                   width: 150,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => const ManagerLoginPage(),
+                        ),
+                      );
+                    },
                     style: ButtonStyle(
                       backgroundColor: WidgetStatePropertyAll(
                         Theme.of(context).colorScheme.secondary,
@@ -54,7 +65,14 @@ class HomePage extends StatelessWidget {
                 child: SizedBox(
                   width: 150,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => const EmployeeLoginPage(),
+                        ),
+                      );
+                    },
                     style: ButtonStyle(
                       backgroundColor: WidgetStatePropertyAll(
                         Theme.of(context).colorScheme.secondary,
@@ -76,7 +94,14 @@ class HomePage extends StatelessWidget {
                 child: SizedBox(
                   width: 100,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (context) => const RegisterPage(),
+                        ),
+                      );
+                    },
                     style: const ButtonStyle(
                       backgroundColor: WidgetStatePropertyAll(
                         Color(0xFFF6F3F3),
