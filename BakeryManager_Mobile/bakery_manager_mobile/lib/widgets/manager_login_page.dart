@@ -8,6 +8,9 @@ class ManagerLoginPage extends StatefulWidget {
 }
 
 class _ManagerLoginPageState extends State<ManagerLoginPage> {
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,9 +21,12 @@ class _ManagerLoginPageState extends State<ManagerLoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Manager Login Page"),
-              Text("Username"),
-              Text("Password"),
+              TextField(
+                controller: usernameController,
+              ),
+              TextField(
+                controller: passwordController,
+              ),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
