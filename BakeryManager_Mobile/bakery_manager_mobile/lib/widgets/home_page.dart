@@ -16,9 +16,15 @@ class HomePage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // add baker hat here :),
+              // add baker hat here :)
               Container(
-                margin: const EdgeInsets.fromLTRB(0, 100.0, 0, 10.0),
+                padding: const EdgeInsets.fromLTRB(40.0, 0, 0, 0),
+                width: 200.0,
+                height: 200.0,
+                child: Image.asset('assets/images/bakerHat.png'),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 60.0, 0, 10.0),
                 child: Text(
                   "Bakery Manager",
                   style: Theme.of(context).textTheme.titleLarge,
