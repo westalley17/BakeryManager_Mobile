@@ -17,3 +17,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/
+  fonts:
+    - family: BakeryManagerFont
+      fonts:
+        - asset: assets\fonts\RedHatDisplay-Italic-VariableFont_wght.ttf
+        - asset: assets\fonts\RedHatDisplay-VariableFont_wght.ttf
