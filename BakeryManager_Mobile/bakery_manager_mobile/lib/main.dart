@@ -12,6 +12,7 @@ class BakeryManager extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       // add comments to all this later, I'm eepy
+      // no longer eepy, just need to test Azure pipeline :)
       debugShowCheckedModeBanner: false,
       home: const HomePage(),
       theme: ThemeData(
