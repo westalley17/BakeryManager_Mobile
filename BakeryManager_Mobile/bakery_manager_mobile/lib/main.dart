@@ -1,5 +1,5 @@
-import 'package:bakery_manager_mobile/widgets/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:bakery_manager_mobile/widgets/home_page.dart';
 
 void main() {
   runApp(const BakeryManager());
@@ -10,8 +10,24 @@ class BakeryManager extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: LoginPage(),
+    return MaterialApp(
+      // add comments to all this later, I'm eepy
+      debugShowCheckedModeBanner: false,
+      home: const HomePage(),
+      theme: ThemeData(
+        primaryColor: const Color(0xFFFFFBED),
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          secondary: const Color(0xFF493936),
+        ),
+        fontFamily: "BakeryManagerFont",
+        textTheme: const TextTheme(
+          titleLarge: TextStyle(
+            color: Color(0xFF493936),
+            fontSize: 34.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
     );
   }
 }
