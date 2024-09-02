@@ -30,12 +30,18 @@ class HomePage extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
-              const Divider(
-                height: 10,
-                thickness: 0.5,
-                indent: 25,
-                endIndent: 25,
-                color: Colors.black,
+              Container(
+                constraints: const BoxConstraints(
+                  maxWidth: 450.0,
+                  maxHeight: 100.0,
+                ),
+                child: const Divider(
+                  height: 10,
+                  thickness: 0.5,
+                  indent: 25,
+                  endIndent: 25,
+                  color: Colors.black,
+                ),
               ),
               Container(
                 margin: const EdgeInsets.fromLTRB(0, 25.0, 0, 0),
@@ -67,7 +73,7 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               Container(
-                margin: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
+                margin: const EdgeInsets.fromLTRB(0, 10.0, 0, 0),
                 child: SizedBox(
                   width: 150,
                   child: ElevatedButton(
@@ -96,9 +102,9 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               Container(
-                margin: const EdgeInsets.fromLTRB(0, 15.0, 0, 0),
+                margin: const EdgeInsets.fromLTRB(0, 10.0, 0, 0),
                 child: SizedBox(
-                  width: 100,
+                  width: 130,
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.push(
@@ -114,7 +120,7 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      "Register",
+                      "Add Account",
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.secondary,
                         fontWeight: FontWeight.bold,
