@@ -31,7 +31,7 @@ class _ManagerLoginPageState extends State<ManagerLoginPage> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text("Return to Home Page"),
+                child: const Text("Return to Home Page"),
               ),
             ],
           ),

@@ -18,14 +18,14 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Employee Login Page"),
-              Text("Username"),
-              Text("Password"),
+              const Text("Employee Login Page"),
+              const Text("Username"),
+              const Text("Password"),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text("Return to Home Page"),
+                child: const Text("Return to Home Page"),
               ),
             ],
           ),
