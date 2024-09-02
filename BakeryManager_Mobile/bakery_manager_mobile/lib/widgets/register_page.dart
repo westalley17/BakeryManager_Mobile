@@ -18,16 +18,16 @@ class _RegisterPageState extends State<RegisterPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text("Account Creation"),
-              Text("Username"),
-              Text("Password"),
-              Text("First Name"),
-              Text("Last Name"),
+              const Text("Account Creation"),
+              const Text("Username"),
+              const Text("Password"),
+              const Text("First Name"),
+              const Text("Last Name"),
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text("Return to Home Page"),
+                child: const Text("Return to Home Page"),
               ),
             ],
           ),
