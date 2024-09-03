@@ -1,14 +1,14 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 
-class ManagerHomePage extends StatefulWidget {
-  const ManagerHomePage({super.key});
+class EmployeeHomePage extends StatefulWidget {
+  const EmployeeHomePage({super.key});
 
   @override
-  _ManagerHomePageState createState() => _ManagerHomePageState();
+  _EmployeeHomePageState createState() => _EmployeeHomePageState();
 }
 
-class _ManagerHomePageState extends State<ManagerHomePage> {
+class _EmployeeHomePageState extends State<EmployeeHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -16,7 +16,7 @@ class _ManagerHomePageState extends State<ManagerHomePage> {
     return Scaffold(
       key: _scaffoldKey, 
       appBar: AppBar(
-        title: const Text("Manager Dashboard"),
+        title: const Text("Employee Dashboard"),
         backgroundColor: Theme.of(context).primaryColor,
         leading: IconButton(
           icon: Image.asset('assets/images/leftcorner.png'), // Use the stack image
@@ -64,22 +64,6 @@ class _ManagerHomePageState extends State<ManagerHomePage> {
               },
             ),
             ListTile(
-              title: const Text('Inventory'),
-              leading: const Icon(Icons.inventory_2_outlined),
-              onTap: () {
-                Navigator.pop(context); 
-                // Add navigation or functionality here -- Addison reminder 
-              },
-            ),
-            ListTile(
-              title: const Text('Time Sheets'),
-              leading: const Icon(Icons.access_time),
-              onTap: () {
-                Navigator.pop(context);
-                // Add navigation or functionality here -- Addison reminder 
-              },
-            ),
-            ListTile(
               title: const Text('Clock In/Out'),
               leading: const Icon(Icons.lock_clock),
               onTap: () {
@@ -90,14 +74,6 @@ class _ManagerHomePageState extends State<ManagerHomePage> {
             ListTile(
               title: const Text('Settings'),
               leading: const Icon(Icons.settings_outlined),
-              onTap: () {
-                Navigator.pop(context); 
-                // Add navigation or functionality here -- Addison reminder 
-              },
-            ),
-            ListTile(
-              title: const Text('Admin'),
-              leading: const Icon(Icons.admin_panel_settings_sharp),
               onTap: () {
                 Navigator.pop(context); 
                 // Add navigation or functionality here -- Addison reminder 
@@ -131,7 +107,7 @@ class _ManagerHomePageState extends State<ManagerHomePage> {
                 Container(
                   margin: const EdgeInsets.only(bottom: 10.0), // Bottom margin
                   child: Text(
-                    'Welcome to your homepage, Manager!',
+                    'Welcome to your homepage, Employee!',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
