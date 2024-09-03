@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:bakery_manager_mobile/navagation/recipes.dart';
 import 'package:flutter/material.dart';
 
 class ManagerHomePage extends StatefulWidget {
@@ -59,8 +60,13 @@ class _ManagerHomePageState extends State<ManagerHomePage> {
               title: const Text('Recipes'),
               leading: const Icon(Icons.bakery_dining),
               onTap: () {
-                Navigator.pop(context); 
-                // Add navigation or functionality here -- Addison reminder 
+                Navigator.pop(context); // Close the drawer
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const RecipesPage(), // Navigate to RecipesPage
+                  ),
+                );
               },
             ),
             ListTile(
