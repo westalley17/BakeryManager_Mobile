@@ -21,7 +21,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   String? _errorTextFirstName; // simple length checking
   String? _errorTextLastName; // simple length checking
-  String? _errorTextUserName; // calls a GET to users to check availability
+  String? _errorTextUsername; // calls a GET to users to check availability
   String? _errorTextPassword; // RegEx matching to increase security
   String?
       _errorTextManagerID; // calls a GET to managers to check if ID is valid.
@@ -54,6 +54,59 @@ class _RegisterPageState extends State<RegisterPage> {
 
       if (_errorTextLastName!.isEmpty) {
         _errorTextLastName = null;
+      }
+    });
+  }
+
+  void _validateUsername(String username) {
+    setState(() {
+      _errorTextUsername = "";
+
+      // make a GET to backend to see if username already exists
+
+      if (_errorTextUsername!.isEmpty) {
+        _errorTextUsername = null;
+      }
+    });
+  }
+
+  void _validatePassword(String password) {
+    setState(() {
+      _errorTextPassword = null;
+
+      // RegEx matching for length and proper character use.
+      if (!RegExp(r'.{8,}').hasMatch(password)) {
+        _errorTextPassword = (_errorTextPassword ?? '') +
+            "Password must be at least 8 characters long.\n";
+      }
+      if (!RegExp(r'(?=.*[A-Z])').hasMatch(password)) {
+        _errorTextPassword = (_errorTextPassword ?? '') +
+            "Password must have at least one uppercase letter.\n";
+      }
+      if (!RegExp(r'(?=.*[a-z])').hasMatch(password)) {
+        _errorTextPassword = (_errorTextPassword ?? '') +
+            "Password must have at least one lowercase letter.\n";
+      }
+      if (!RegExp(r'(?=.*\d)').hasMatch(password)) {
+        _errorTextPassword = (_errorTextPassword ?? '') +
+            "Password must have at least one number.\n";
+      }
+      if (!RegExp(r'(?=.*[@$!%*?&])').hasMatch(password)) {
+        _errorTextPassword = (_errorTextPassword ?? '') +
+            "Password must have at least one special character.\n";
+      }
+    });
+  }
+
+  void _validateManagerID(String? managerID) {
+    setState(() {
+      _errorTextManagerID = null;
+
+      if (managerID == null) return;
+
+      if (managerID.length != 6) {
+        _errorTextManagerID = (_errorTextManagerID ?? '') +
+            "Manager ID must be exactly 6 digits.";
       }
     });
   }
@@ -145,9 +198,12 @@ class _RegisterPageState extends State<RegisterPage> {
                   margin: const EdgeInsets.fromLTRB(20, 25.0, 20, 10.0),
                   child: TextField(
                     controller: usernameController,
+                    onEditingComplete: () {
+                      _validateUsername(usernameController.text);
+                    },
                     decoration: InputDecoration(
                       labelText: 'Username',
-                      errorText: _errorTextUserName,
+                      errorText: _errorTextUsername,
                       border: const OutlineInputBorder(),
                       filled: true,
                       fillColor: Colors.white,
@@ -163,10 +219,13 @@ class _RegisterPageState extends State<RegisterPage> {
                   margin: const EdgeInsets.fromLTRB(20, 5.0, 20, 20.0),
                   child: TextField(
                     controller: passwordController,
+                    onChanged: (value) {
+                      _validatePassword(value);
+                    },
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      errorText: _errorTextPassword,
+                      errorText: _errorTextPassword != null ? '' : null,
                       border: const OutlineInputBorder(),
                       filled: true,
                       fillColor: Colors.white,
@@ -174,6 +233,15 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
                 ),
+
+                // error field below the password
+
+                if (_errorTextPassword !=
+                    null) // Only show if there is an error
+                  Text(
+                    _errorTextPassword!,
+                    style: const TextStyle(color: Colors.red, fontSize: 13.0),
+                  ),
                 Container(
                   constraints: const BoxConstraints(
                     maxWidth: 400.0,
@@ -182,6 +250,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   margin: const EdgeInsets.fromLTRB(20, 15.0, 20, 10.0),
                   child: TextField(
                     controller: managerIDController,
+                    onChanged: (value) {
+                      _validateManagerID(value);
+                    },
                     decoration: InputDecoration(
                       labelText: 'Manager ID (Optional)',
                       errorText: _errorTextManagerID,
