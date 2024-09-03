@@ -19,6 +19,45 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController managerIDController =
       TextEditingController(text: "");
 
+  String? _errorTextFirstName; // simple length checking
+  String? _errorTextLastName; // simple length checking
+  String? _errorTextUserName; // calls a GET to users to check availability
+  String? _errorTextPassword; // RegEx matching to increase security
+  String?
+      _errorTextManagerID; // calls a GET to managers to check if ID is valid.
+
+  // function to validate name length
+  void _validateFirstName(String name) {
+    setState(() {
+      _errorTextFirstName = "";
+
+      if (name.length < 3) {
+        _errorTextFirstName =
+            "${_errorTextFirstName!}First name must be 3 characters or more\n";
+      }
+
+      if (_errorTextFirstName!.isEmpty) {
+        _errorTextFirstName = null;
+      }
+    });
+  }
+
+  // function to validate name length
+  void _validateLastName(String name) {
+    setState(() {
+      _errorTextLastName = "";
+
+      if (name.length < 3) {
+        _errorTextLastName =
+            "${_errorTextLastName!}Last name must be 3 characters or more\n";
+      }
+
+      if (_errorTextLastName!.isEmpty) {
+        _errorTextLastName = null;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,13 +70,13 @@ class _RegisterPageState extends State<RegisterPage> {
               children: [
                 // baker hat added again cause I liked it here :)
                 Container(
-                  padding: const EdgeInsets.fromLTRB(40.0, 0, 0, 0),
+                  padding: const EdgeInsets.fromLTRB(40.0, 10.0, 0, 0),
                   width: 150.0,
                   height: 150.0,
                   child: Image.asset('assets/images/bakerHat.png'),
                 ),
                 Container(
-                  margin: const EdgeInsets.fromLTRB(0, 20.0, 0, 10.0),
+                  margin: const EdgeInsets.fromLTRB(0, 0.0, 0, 10.0),
                   child: Text(
                     "Create Account",
                     style: Theme.of(context).textTheme.titleLarge,
@@ -64,12 +103,16 @@ class _RegisterPageState extends State<RegisterPage> {
                   margin: const EdgeInsets.fromLTRB(20, 15.0, 20, 10.0),
                   child: TextField(
                     controller: firstNameController,
-                    decoration: const InputDecoration(
+                    onChanged: (value) {
+                      _validateFirstName(value);
+                    },
+                    decoration: InputDecoration(
                       labelText: 'First Name',
-                      border: OutlineInputBorder(),
+                      errorText: _errorTextFirstName,
+                      border: const OutlineInputBorder(),
                       filled: true,
                       fillColor: Colors.white,
-                      prefixIcon: Icon(Icons.person),
+                      prefixIcon: const Icon(Icons.person),
                     ),
                   ),
                 ),
@@ -81,12 +124,16 @@ class _RegisterPageState extends State<RegisterPage> {
                   margin: const EdgeInsets.fromLTRB(20, 5.0, 20, 10.0),
                   child: TextField(
                     controller: lastNameController,
-                    decoration: const InputDecoration(
+                    onChanged: (value) {
+                      _validateLastName(value);
+                    },
+                    decoration: InputDecoration(
                       labelText: 'Last Name',
-                      border: OutlineInputBorder(),
+                      errorText: _errorTextLastName,
+                      border: const OutlineInputBorder(),
                       filled: true,
                       fillColor: Colors.white,
-                      prefixIcon: Icon(Icons.person),
+                      prefixIcon: const Icon(Icons.person),
                     ),
                   ),
                 ),
@@ -98,12 +145,13 @@ class _RegisterPageState extends State<RegisterPage> {
                   margin: const EdgeInsets.fromLTRB(20, 25.0, 20, 10.0),
                   child: TextField(
                     controller: usernameController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Username',
-                      border: OutlineInputBorder(),
+                      errorText: _errorTextUserName,
+                      border: const OutlineInputBorder(),
                       filled: true,
                       fillColor: Colors.white,
-                      prefixIcon: Icon(Icons.person),
+                      prefixIcon: const Icon(Icons.person),
                     ),
                   ),
                 ),
@@ -116,12 +164,13 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: TextField(
                     controller: passwordController,
                     obscureText: true,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Password',
-                      border: OutlineInputBorder(),
+                      errorText: _errorTextPassword,
+                      border: const OutlineInputBorder(),
                       filled: true,
                       fillColor: Colors.white,
-                      prefixIcon: Icon(Icons.lock),
+                      prefixIcon: const Icon(Icons.lock),
                     ),
                   ),
                 ),
@@ -133,12 +182,13 @@ class _RegisterPageState extends State<RegisterPage> {
                   margin: const EdgeInsets.fromLTRB(20, 15.0, 20, 10.0),
                   child: TextField(
                     controller: managerIDController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Manager ID (Optional)',
-                      border: OutlineInputBorder(),
+                      errorText: _errorTextManagerID,
+                      border: const OutlineInputBorder(),
                       filled: true,
                       fillColor: Colors.white,
-                      prefixIcon: Icon(Icons.settings),
+                      prefixIcon: const Icon(Icons.settings),
                     ),
                   ),
                 ),
@@ -167,7 +217,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
                 Container(
-                  margin: const EdgeInsets.fromLTRB(0, 15.0, 0, 0),
+                  margin: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
                   child: TextButton(
                     onPressed: () {
                       Navigator.pop(context);

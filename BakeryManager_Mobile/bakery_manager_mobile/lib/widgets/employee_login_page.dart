@@ -109,7 +109,7 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
                   ),
                 ),
                 Container(
-                  margin: const EdgeInsets.fromLTRB(0, 15.0, 0, 0),
+                  margin: const EdgeInsets.fromLTRB(0, 5.0, 0, 0),
                   child: TextButton(
                     onPressed: () {
                       Navigator.pop(context);
