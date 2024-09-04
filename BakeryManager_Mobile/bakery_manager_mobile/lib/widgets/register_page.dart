@@ -235,13 +235,13 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
 
                 // error field below the password
-
-                if (_errorTextPassword !=
-                    null) // Only show if there is an error
+                if (_errorTextPassword != null) // Only show if there is an error
                   Text(
                     _errorTextPassword!,
                     style: const TextStyle(color: Colors.red, fontSize: 13.0),
                   ),
+                // error field end
+
                 Container(
                   constraints: const BoxConstraints(
                     maxWidth: 400.0,

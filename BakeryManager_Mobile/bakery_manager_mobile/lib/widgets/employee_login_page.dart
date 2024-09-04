@@ -12,6 +12,49 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  String? _errorTextUsername; // calls a GET to users to check availability
+  String? _errorTextPassword; // RegEx matching to increase security
+
+  void _validateUsername(String username) {
+    setState(() {
+      _errorTextUsername = "";
+
+      // make a GET to backend to see if username already exists
+
+      if (_errorTextUsername!.isEmpty) {
+        _errorTextUsername = null;
+      }
+    });
+  }
+
+  void _validatePassword(String password) {
+    setState(() {
+      _errorTextPassword = null;
+
+      // RegEx matching for length and proper character use.
+      if (!RegExp(r'.{8,}').hasMatch(password)) {
+        _errorTextPassword = (_errorTextPassword ?? '') +
+            "Password must be at least 8 characters long.\n";
+      }
+      if (!RegExp(r'(?=.*[A-Z])').hasMatch(password)) {
+        _errorTextPassword = (_errorTextPassword ?? '') +
+            "Password must have at least one uppercase letter.\n";
+      }
+      if (!RegExp(r'(?=.*[a-z])').hasMatch(password)) {
+        _errorTextPassword = (_errorTextPassword ?? '') +
+            "Password must have at least one lowercase letter.\n";
+      }
+      if (!RegExp(r'(?=.*\d)').hasMatch(password)) {
+        _errorTextPassword = (_errorTextPassword ?? '') +
+            "Password must have at least one number.\n";
+      }
+      if (!RegExp(r'(?=.*[@$!%*?&])').hasMatch(password)) {
+        _errorTextPassword = (_errorTextPassword ?? '') +
+            "Password must have at least one special character.\n";
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,12 +100,16 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
                   margin: const EdgeInsets.fromLTRB(20, 25.0, 20, 10.0),
                   child: TextField(
                     controller: usernameController,
-                    decoration: const InputDecoration(
+                    onEditingComplete: () {
+                      _validateUsername(usernameController.text);
+                    },
+                    decoration: InputDecoration(
                       labelText: 'Username',
-                      border: OutlineInputBorder(),
+                      errorText: _errorTextUsername,
+                      border: const OutlineInputBorder(),
                       filled: true,
                       fillColor: Colors.white,
-                      prefixIcon: Icon(Icons.person),
+                      prefixIcon: const Icon(Icons.person),
                     ),
                   ),
                 ),
@@ -71,19 +118,31 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
                     maxWidth: 400.0,
                     maxHeight: 100.0,
                   ),
-                  margin: const EdgeInsets.fromLTRB(20, 10.0, 20, 20.0),
+                  margin: const EdgeInsets.fromLTRB(20, 10.0, 20, 0.0),
                   child: TextField(
                     controller: passwordController,
+                    onChanged: (value) {
+                      _validatePassword(value);
+                    },
                     obscureText: true,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: 'Password',
-                      border: OutlineInputBorder(),
+                      errorText: _errorTextPassword != null ? '' : null,
+                      border: const OutlineInputBorder(),
                       filled: true,
                       fillColor: Colors.white,
-                      prefixIcon: Icon(Icons.lock),
+                      prefixIcon: const Icon(Icons.lock),
                     ),
                   ),
                 ),
+                // error field below the password
+                if (_errorTextPassword !=
+                    null) // Only show if there is an error
+                  Text(
+                    _errorTextPassword!,
+                    style: const TextStyle(color: Colors.red, fontSize: 13.0),
+                  ),
+                // error field end
                 Container(
                   margin: const EdgeInsets.fromLTRB(0, 20.0, 0, 0),
                   child: SizedBox(
