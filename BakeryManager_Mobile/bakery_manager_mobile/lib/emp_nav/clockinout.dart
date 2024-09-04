@@ -1,21 +1,31 @@
+import 'package:bakery_manager_mobile/man_nav/recipes.dart';
 import 'package:flutter/material.dart';
+import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
 
-class RecipesPage extends StatefulWidget {
-  const RecipesPage({super.key});
+class ClockPage extends StatefulWidget {
+  const ClockPage ({super.key});
 
   @override
-  _RecipesPageState createState() => _RecipesPageState();
+  _ClockPageState createState() => _ClockPageState();
 }
 
-class _RecipesPageState extends State<RecipesPage> {
+class _ClockPageState extends State<ClockPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  void _navigateToPage(Widget page) {
+    Navigator.pop(context); // Close the drawer
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text("Recipes"),
+        title: const Text("Clock In/Out"),
         backgroundColor: Theme.of(context).primaryColor,
         leading: IconButton(
           icon: Image.asset('assets/images/leftcorner.png'), // Use the stack image
@@ -55,35 +65,25 @@ class _RecipesPageState extends State<RecipesPage> {
               ),
             ),
             ListTile(
+              title: const Text('Dashboard'),
+              leading: const Icon(Icons.house_outlined),
+              onTap: () {
+                _navigateToPage(const EmployeeHomePage()); // Navigate to ManagerHomePage
+              },
+            ),
+            ListTile(
               title: const Text('Recipes'),
               leading: const Icon(Icons.bakery_dining),
               onTap: () {
-                Navigator.pop(context); 
-                // Add navigation or functionality here
+                _navigateToPage(const RecipesPage()); // Navigate to InventoryPage
               },
             ),
             ListTile(
-              title: const Text('Inventory'),
-              leading: const Icon(Icons.inventory_2_outlined),
-              onTap: () {
-                Navigator.pop(context); 
-                // Add navigation or functionality here
-              },
-            ),
-            ListTile(
-              title: const Text('Time Sheets'),
-              leading: const Icon(Icons.access_time),
+              title: const Text('Settings'),
+              leading: const Icon(Icons.settings_outlined),
               onTap: () {
                 Navigator.pop(context);
-                // Add navigation or functionality here
-              },
-            ),
-            ListTile(
-              title: const Text('Clock In/Out'),
-              leading: const Icon(Icons.lock_clock),
-              onTap: () {
-                Navigator.pop(context); 
-                // Add navigation or functionality here
+                // Add navigation or functionality here -- Addison reminder
               },
             ),
             // Add more items after getting these first ones to work right
