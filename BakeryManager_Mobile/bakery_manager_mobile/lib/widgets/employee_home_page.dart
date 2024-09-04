@@ -1,3 +1,6 @@
+import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
+import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
+import 'package:bakery_manager_mobile/emp_nav/settings.dart';
 import 'package:flutter/material.dart';
 
 class EmployeeHomePage extends StatefulWidget {
@@ -15,7 +18,7 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text("Employee Dashboard"),
+        title: const Text("Dashboard"),
         backgroundColor: Theme.of(context).primaryColor,
         leading: IconButton(
           icon: Image.asset(
@@ -60,8 +63,13 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
               title: const Text('Recipes'),
               leading: const Icon(Icons.bakery_dining),
               onTap: () {
-                Navigator.pop(context);
-                // Add navigation or functionality here -- Addison reminder
+                Navigator.pop(context); // Close the drawer
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const RecipesPage(), // Navigate to RecipesPage
+                  ),
+                );
               },
             ),
             ListTile(
@@ -69,7 +77,12 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
               leading: const Icon(Icons.lock_clock),
               onTap: () {
                 Navigator.pop(context);
-                // Add navigation or functionality here -- Addison reminder
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ClockPage(), // Navigate to ClockPage
+                  ),
+                );
               },
             ),
             ListTile(
@@ -77,7 +90,12 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
               leading: const Icon(Icons.settings_outlined),
               onTap: () {
                 Navigator.pop(context);
-                // Add navigation or functionality here -- Addison reminder
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsPage(), // Navigate to SettingsPage
+                  ),
+                );// Add navigation or functionality here -- Addison reminder
               },
             ),
             // Add more items after getting these first ones to work right - Addison reminder
