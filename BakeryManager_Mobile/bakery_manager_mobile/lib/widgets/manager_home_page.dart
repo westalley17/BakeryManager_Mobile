@@ -1,12 +1,11 @@
-import 'dart:ui';
-import 'package:bakery_manager_mobile/navagation/recipes.dart';
+import 'package:bakery_manager_mobile/navigation/recipes.dart';
 import 'package:flutter/material.dart';
 
 class ManagerHomePage extends StatefulWidget {
   const ManagerHomePage({super.key});
 
   @override
-  _ManagerHomePageState createState() => _ManagerHomePageState();
+  State<ManagerHomePage> createState() => _ManagerHomePageState();
 }
 
 class _ManagerHomePageState extends State<ManagerHomePage> {
@@ -15,12 +14,13 @@ class _ManagerHomePageState extends State<ManagerHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey, 
+      key: _scaffoldKey,
       appBar: AppBar(
         title: const Text("Manager Dashboard"),
         backgroundColor: Theme.of(context).primaryColor,
         leading: IconButton(
-          icon: Image.asset('assets/images/leftcorner.png'), // Use the stack image
+          icon: Image.asset(
+              'assets/images/leftcorner.png'), // Use the stack image
           onPressed: () {
             // Use the GlobalKey to open the drawer
             _scaffoldKey.currentState?.openDrawer();
@@ -41,7 +41,8 @@ class _ManagerHomePageState extends State<ManagerHomePage> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              padding: const EdgeInsets.only(top: 5.0, bottom: 0.0), // Adjusted padding
+              padding: const EdgeInsets.only(
+                  top: 5.0, bottom: 0.0), // Adjusted padding
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
               ),
@@ -50,8 +51,8 @@ class _ManagerHomePageState extends State<ManagerHomePage> {
                 child: Text(
                   'Menu',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.black,
-                  ),
+                        color: Colors.black,
+                      ),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -64,7 +65,8 @@ class _ManagerHomePageState extends State<ManagerHomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const RecipesPage(), // Navigate to RecipesPage
+                    builder: (context) =>
+                        const RecipesPage(), // Navigate to RecipesPage
                   ),
                 );
               },
@@ -73,8 +75,8 @@ class _ManagerHomePageState extends State<ManagerHomePage> {
               title: const Text('Inventory'),
               leading: const Icon(Icons.inventory_2_outlined),
               onTap: () {
-                Navigator.pop(context); 
-                // Add navigation or functionality here -- Addison reminder 
+                Navigator.pop(context);
+                // Add navigation or functionality here -- Addison reminder
               },
             ),
             ListTile(
@@ -82,31 +84,31 @@ class _ManagerHomePageState extends State<ManagerHomePage> {
               leading: const Icon(Icons.access_time),
               onTap: () {
                 Navigator.pop(context);
-                // Add navigation or functionality here -- Addison reminder 
+                // Add navigation or functionality here -- Addison reminder
               },
             ),
             ListTile(
               title: const Text('Clock In/Out'),
               leading: const Icon(Icons.lock_clock),
               onTap: () {
-                Navigator.pop(context); 
-                // Add navigation or functionality here -- Addison reminder 
+                Navigator.pop(context);
+                // Add navigation or functionality here -- Addison reminder
               },
             ),
             ListTile(
               title: const Text('Settings'),
               leading: const Icon(Icons.settings_outlined),
               onTap: () {
-                Navigator.pop(context); 
-                // Add navigation or functionality here -- Addison reminder 
+                Navigator.pop(context);
+                // Add navigation or functionality here -- Addison reminder
               },
             ),
             ListTile(
               title: const Text('Admin'),
               leading: const Icon(Icons.admin_panel_settings_sharp),
               onTap: () {
-                Navigator.pop(context); 
-                // Add navigation or functionality here -- Addison reminder 
+                Navigator.pop(context);
+                // Add navigation or functionality here -- Addison reminder
               },
             ),
             // Add more items after getting these first ones to work right - Addison reminder
@@ -115,22 +117,25 @@ class _ManagerHomePageState extends State<ManagerHomePage> {
       ),
       body: Container(
         color: Theme.of(context).primaryColor,
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0), // Adjusted padding
+        padding: const EdgeInsets.symmetric(
+            horizontal: 10.0, vertical: 6.0), // Adjusted padding
         child: Center(
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0), // Adjusted padding
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 10.0), // Adjusted padding
                   child: Column(
                     children: [
                       Image.asset(
                         'assets/images/bakerHat.png',
-                        width: 175.0, 
-                        height: 175.0, 
+                        width: 175.0,
+                        height: 175.0,
                       ),
-                      const SizedBox(height: 15.0), // Space between image and text
+                      const SizedBox(
+                          height: 15.0), // Space between image and text
                     ],
                   ),
                 ),
@@ -139,9 +144,9 @@ class _ManagerHomePageState extends State<ManagerHomePage> {
                   child: Text(
                     'Welcome to your homepage, Manager!',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
                     textAlign: TextAlign.center,
                     textScaleFactor: 1.3,
                   ),
