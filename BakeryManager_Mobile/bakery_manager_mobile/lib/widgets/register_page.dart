@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -58,16 +59,23 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
-  void _validateUsername(String username) {
-    setState(() {
-      _errorTextUsername = "";
+  Future<void> _validateUsername(String username) async {
+    _errorTextUsername = "";
+    // idfk what the endpoint is that will let me know this...
+    String url = "http://10.0.2.2:3000/users?email=$username";
 
-      // make a GET to backend to see if username already exists
+    // make a GET to backend to see if username already exists
+    final response = await http.get(Uri.parse(url));
 
-      if (_errorTextUsername!.isEmpty) {
-        _errorTextUsername = null;
-      }
-    });
+    if (response.statusCode == 200) {
+      // If the server returns an OK response, set the error to null so box isn't red.
+      _errorTextUsername = null;
+    } else {
+      // If the server returns an error response, set the error to a string so box IS red.
+      _errorTextUsername = "Username taken";
+    }
+
+    setState(() {}); // updates the state of the context
   }
 
   void _validatePassword(String password) {
@@ -198,8 +206,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   margin: const EdgeInsets.fromLTRB(20, 25.0, 20, 10.0),
                   child: TextField(
                     controller: usernameController,
-                    onEditingComplete: () {
-                      _validateUsername(usernameController.text);
+                    onSubmitted: (value) {
+                      //_validateUsername(value);
                     },
                     decoration: InputDecoration(
                       labelText: 'Username',
@@ -235,7 +243,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
 
                 // error field below the password
-                if (_errorTextPassword != null) // Only show if there is an error
+                if (_errorTextPassword !=
+                    null) // Only show if there is an error
                   Text(
                     _errorTextPassword!,
                     style: const TextStyle(color: Colors.red, fontSize: 13.0),
