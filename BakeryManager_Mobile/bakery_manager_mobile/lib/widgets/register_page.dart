@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -60,19 +61,36 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _validateUsername(String username) async {
-    _errorTextUsername = "";
+    _errorTextUsername = "POST FAILED ENTIRELY, SCARY AHH"; // temporary error checker
     // idfk what the endpoint is that will let me know this...
-    String url = "http://10.0.2.2:3000/users?email=$username";
+    // String url = "http://10.0.2.2:3000/register";
 
-    // make a GET to backend to see if username already exists
-    final response = await http.get(Uri.parse(url));
-
-    if (response.statusCode == 200) {
-      // If the server returns an OK response, set the error to null so box isn't red.
-      _errorTextUsername = null;
-    } else {
-      // If the server returns an error response, set the error to a string so box IS red.
-      _errorTextUsername = "Username taken";
+    // make a POST to backend to see if username already exists
+    final url = Uri.parse('http://10.0.2.2:3000/register');
+    final headers = {
+      'Content-Type': 'application/json',
+    };
+    final body = jsonEncode({
+      'email': '',
+      'password': '',
+      'username': username,
+    });
+    try {
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: body,
+      );
+      if (response.statusCode == 400) {
+        // the backend returns a 400 if the
+        // If the server returns an OK response, set the error to null so box isn't red.
+        _errorTextUsername = null;
+      } else {
+        // If the server returns an error response, set the error to a string so box IS red.
+        _errorTextUsername = "Username taken";
+      }
+    } catch (error) {
+      // error handle if POST fails entirely which it probably will
     }
 
     setState(() {}); // updates the state of the context
@@ -207,7 +225,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: TextField(
                     controller: usernameController,
                     onSubmitted: (value) {
-                      //_validateUsername(value);
+                      _validateUsername(value);
                     },
                     decoration: InputDecoration(
                       labelText: 'Username',
