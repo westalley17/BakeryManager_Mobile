@@ -61,27 +61,17 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _validateUsername(String username) async {
-    _errorTextUsername = "POST FAILED ENTIRELY, SCARY AHH"; // temporary error checker
-    // idfk what the endpoint is that will let me know this...
-    // String url = "http://10.0.2.2:3000/register";
+    _errorTextUsername =
+        "POST FAILED ENTIRELY, SCARY AHH"; // temporary error checker
 
     // make a POST to backend to see if username already exists
-    final url = Uri.parse('http://10.0.2.2:3000/register');
-    final headers = {
-      'Content-Type': 'application/json',
-    };
-    final body = jsonEncode({
-      'email': '',
-      'password': '',
-      'username': username,
-    });
+    // 10.0.2.2 is the IP of your actual pc relative to the emulator
+    final url = Uri.parse('http://10.0.2.2:3000/api/users?username=$username');
     try {
-      final response = await http.post(
+      final response = await http.get(
         url,
-        headers: headers,
-        body: body,
       );
-      if (response.statusCode == 400) {
+      if (response.statusCode == 200) {
         // the backend returns a 400 if the
         // If the server returns an OK response, set the error to null so box isn't red.
         _errorTextUsername = null;
@@ -91,6 +81,7 @@ class _RegisterPageState extends State<RegisterPage> {
       }
     } catch (error) {
       // error handle if POST fails entirely which it probably will
+      _errorTextUsername = "Username taken";
     }
 
     setState(() {}); // updates the state of the context
@@ -136,6 +127,14 @@ class _RegisterPageState extends State<RegisterPage> {
       }
     });
   }
+
+  // bool _checkInputFields() {
+  //   // just checks to make sure all the error fields are empty
+  //   return _errorTextFirstName!.isEmpty &&
+  //       _errorTextLastName!.isEmpty &&
+  //       _errorTextUsername!.isEmpty &&
+  //       _errorTextPassword!.isEmpty;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -295,7 +294,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: SizedBox(
                     width: 150,
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: // !_checkInputFields()
+                          // ? null
+                          //:
+                          () => {
                         // Handle register logic here
                       },
                       style: ButtonStyle(
