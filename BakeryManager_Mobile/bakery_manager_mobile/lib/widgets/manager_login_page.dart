@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ManagerLoginPage extends StatefulWidget {
   const ManagerLoginPage({super.key});
@@ -70,6 +74,59 @@ class _ManagerLoginPageState extends State<ManagerLoginPage> {
             "Manager ID must be exactly 6 digits.";
       }
     });
+  }
+
+  bool _checkInputs() {
+    _validateUsername(usernameController.text);
+    _validatePassword(passwordController.text);
+    _validateManagerID(managerIDController.text);
+
+    if (!(_errorTextUsername == null) ||
+        !(_errorTextPassword == null) ||
+        !(_errorTextManagerID == null)) {
+      setState(() {});
+      return false; // this block just makes the register button do nothing while errors are showing
+    }
+
+    return true;
+  }
+
+  Future<void> _loginUser() async {
+    if (_checkInputs()) {
+      final url = Uri.parse('http://10.0.2.2:3000/api/sessions/manager');
+      final headers = {
+        'Content-Type': 'application/json',
+      };
+      final body = jsonEncode({
+        'username': usernameController.text,
+        'password': passwordController.text,
+        'managerID': managerIDController.text,
+      });
+      try {
+        final response = await http.post(url, headers: headers, body: body);
+        if (response.statusCode == 200) {
+          var parsed = jsonDecode(response.body);
+          // login good, take them to the dashboard and store their SessionID in SharedPreferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('SessionID', parsed['session']);
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => const ManagerHomePage(),
+              ),
+            );
+          }
+        } else {
+          _errorTextPassword = response.body;
+          setState(() {});
+        }
+      } catch (error) {
+        // error handle if POST fails entirely which it probably will
+        _errorTextPassword = error.toString();
+        setState(() {});
+      }
+    }
   }
 
   @override
@@ -189,6 +246,7 @@ class _ManagerLoginPageState extends State<ManagerLoginPage> {
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle login logic here
+                        _loginUser();
                       },
                       style: ButtonStyle(
                         backgroundColor: WidgetStatePropertyAll(

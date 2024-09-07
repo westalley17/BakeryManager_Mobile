@@ -1,10 +1,15 @@
+import 'dart:convert';
 import 'package:bakery_manager_mobile/man_nav/admin.dart';
 import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/man_nav/inventory.dart';
 import 'package:bakery_manager_mobile/man_nav/recipes.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
 import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
+import 'package:bakery_manager_mobile/widgets/home_page.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class ManagerHomePage extends StatefulWidget {
   const ManagerHomePage({super.key});
@@ -15,6 +20,42 @@ class ManagerHomePage extends StatefulWidget {
 
 class _ManagerHomePageState extends State<ManagerHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Future<void> _logout() async {
+    String? sessionID;
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      sessionID = prefs.getString('SessionID');
+    } catch (error) {
+      // TODO
+      print('Error logging out $error');
+    }
+    final url = Uri.parse('http://10.0.2.2:3000/api/sessions');
+    final headers = {
+      'Content-Type': 'application/json',
+    };
+    final body = jsonEncode({
+      'sessionID': sessionID,
+    });
+    try {
+      final response = await http.delete(url, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        // logout good
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            CupertinoPageRoute(
+              builder: (context) => const HomePage(),
+            ),
+          );
+        }
+      } else {
+        // ?
+      }
+    } catch (error) {
+      // error handle if DELETE just craps the bed
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +77,7 @@ class _ManagerHomePageState extends State<ManagerHomePage> {
             icon: const Icon(Icons.logout),
             onPressed: () {
               // Maybe navigate back to the login page -- come back and do this later :)
-              Navigator.pop(context);
+              _logout();
             },
           ),
         ],

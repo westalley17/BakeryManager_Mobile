@@ -1,7 +1,13 @@
+import 'dart:convert';
+
 import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
 import 'package:bakery_manager_mobile/emp_nav/settings.dart';
+import 'package:bakery_manager_mobile/widgets/home_page.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EmployeeHomePage extends StatefulWidget {
   const EmployeeHomePage({super.key});
@@ -12,6 +18,42 @@ class EmployeeHomePage extends StatefulWidget {
 
 class _EmployeeHomePageState extends State<EmployeeHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Future<void> _logout() async {
+    String? sessionID;
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      sessionID = prefs.getString('SessionID');
+    } catch (error) {
+      // TODO
+      print('Error logging out $error');
+    }
+    final url = Uri.parse('http://10.0.2.2:3000/api/sessions');
+    final headers = {
+      'Content-Type': 'application/json',
+    };
+    final body = jsonEncode({
+      'sessionID': sessionID,
+    });
+    try {
+      final response = await http.delete(url, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        // logout good
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            CupertinoPageRoute(
+              builder: (context) => const HomePage(),
+            ),
+          );
+        }
+      } else {
+        // ?
+      }
+    } catch (error) {
+      // error handle if DELETE just craps the bed
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +75,7 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
             icon: const Icon(Icons.logout),
             onPressed: () {
               // Maybe navigate back to the login page -- come back and do this later :)
-              Navigator.pop(context);
+              _logout();
             },
           ),
         ],
@@ -67,7 +109,8 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const RecipesPage(), // Navigate to RecipesPage
+                    builder: (context) =>
+                        const RecipesPage(), // Navigate to RecipesPage
                   ),
                 );
               },
@@ -80,7 +123,8 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ClockPage(), // Navigate to ClockPage
+                    builder: (context) =>
+                        const ClockPage(), // Navigate to ClockPage
                   ),
                 );
               },
@@ -93,9 +137,10 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const SettingsPage(), // Navigate to SettingsPage
+                    builder: (context) =>
+                        const SettingsPage(), // Navigate to SettingsPage
                   ),
-                );// Add navigation or functionality here -- Addison reminder
+                ); // Add navigation or functionality here -- Addison reminder
               },
             ),
             // Add more items after getting these first ones to work right - Addison reminder

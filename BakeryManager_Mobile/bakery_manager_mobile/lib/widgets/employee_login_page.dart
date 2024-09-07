@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EmployeeLoginPage extends StatefulWidget {
   const EmployeeLoginPage({super.key});
@@ -17,12 +21,10 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
 
   void _validateUsername(String username) {
     setState(() {
-      _errorTextUsername = "";
+      _errorTextUsername = null;
 
-      // make a GET to backend to see if username already exists
-
-      if (_errorTextUsername!.isEmpty) {
-        _errorTextUsername = null;
+      if (usernameController.text == "") {
+        _errorTextUsername = "Username cannot be blank";
       }
     });
   }
@@ -53,6 +55,58 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
             "Password must have at least one special character.\n";
       }
     });
+  }
+
+  bool _checkInputs() {
+    _validateUsername(usernameController.text);
+    _validatePassword(passwordController.text);
+
+    if (!(_errorTextUsername == null) || !(_errorTextPassword == null)) {
+      setState(() {});
+      return false; // this block just makes the register button do nothing while errors are showing
+    }
+
+    return true;
+  }
+
+  Future<void> _loginUser() async {
+    if (_checkInputs()) {
+      final url = Uri.parse('http://10.0.2.2:3000/api/sessions/employee');
+      final headers = {
+        'Content-Type': 'application/json',
+      };
+      final body = jsonEncode({
+        'username': usernameController.text,
+        'password': passwordController.text,
+      });
+      try {
+        final response = await http.post(url, headers: headers, body: body);
+        if (response.statusCode == 200) {
+          var parsed = jsonDecode(response.body);
+          // login good, take them to the dashboard and store their SessionID in SharedPreferences
+          try {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setString('SessionID', parsed['session']);
+          } catch (error) {
+            print('Error saving SessionID: $error');
+          }
+
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => const EmployeeHomePage(),
+              ),
+            );
+          }
+        } else {
+          _errorTextPassword = response.statusCode.toString();
+        }
+      } catch (error) {
+        // error handle if POST fails entirely which it probably will
+        _errorTextPassword = error.toString();
+      }
+    }
   }
 
   @override
@@ -100,8 +154,8 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
                   margin: const EdgeInsets.fromLTRB(20, 25.0, 20, 10.0),
                   child: TextField(
                     controller: usernameController,
-                    onEditingComplete: () {
-                      _validateUsername(usernameController.text);
+                    onSubmitted: (value) {
+                      _validateUsername(value);
                     },
                     decoration: InputDecoration(
                       labelText: 'Username',
@@ -150,6 +204,7 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle login logic here
+                        _loginUser();
                       },
                       style: ButtonStyle(
                         backgroundColor: WidgetStatePropertyAll(
