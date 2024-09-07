@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:bakery_manager_mobile/widgets/employee_login_page.dart';
+import 'package:bakery_manager_mobile/widgets/manager_login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
@@ -60,7 +64,26 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
+  Future<bool> _checkInputs() async {
+    _validateFirstName(firstNameController.text);
+    _validateLastName(lastNameController.text);
+    await _validateUsername(usernameController.text);
+    _validatePassword(passwordController.text);
+    _validateManagerID(managerIDController.text);
+
+    if (!(_errorTextFirstName == null) ||
+        !(_errorTextLastName == null) ||
+        !(_errorTextUsername == null) ||
+        !(_errorTextPassword == null)) {
+      setState(() {});
+      return false; // this block just makes the register button do nothing while errors are showing
+    }
+
+    return true;
+  }
+
   Future<void> _validateUsername(String username) async {
+    if (usernameController.text == "") return;
     _errorTextUsername =
         "POST FAILED ENTIRELY, SCARY AHH"; // temporary error checker
 
@@ -128,13 +151,42 @@ class _RegisterPageState extends State<RegisterPage> {
     });
   }
 
-  // bool _checkInputFields() {
-  //   // just checks to make sure all the error fields are empty
-  //   return _errorTextFirstName!.isEmpty &&
-  //       _errorTextLastName!.isEmpty &&
-  //       _errorTextUsername!.isEmpty &&
-  //       _errorTextPassword!.isEmpty;
-  // }
+  Future<void> _registerUser() async {
+    if (await _checkInputs()) {
+      final url = Uri.parse('http://10.0.2.2:3000/api/users');
+      final headers = {
+        'Content-Type': 'application/json',
+      };
+      final body = jsonEncode({
+        'firstname': firstNameController.text,
+        'lastname': lastNameController.text,
+        'username': usernameController.text,
+        'password': passwordController.text,
+        'usertype': (managerIDController.text == '') ? 0 : 1
+      });
+      try {
+        final response = await http.post(url, headers: headers, body: body);
+        if (response.statusCode == 201) {
+          // successful register, let them know, and then take them to whichever login page.
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              CupertinoPageRoute(
+                builder: (context) => (managerIDController.text == '')
+                    ? EmployeeLoginPage()
+                    : ManagerLoginPage(),
+              ),
+            );
+          }
+        } else {
+          _errorTextManagerID = "CHECK BACKEND LOG :(";
+        }
+      } catch (error) {
+        // error handle if POST fails entirely which it probably will
+        _errorTextManagerID = "CHECK BACKEND LOG :(";
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -294,11 +346,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: SizedBox(
                     width: 150,
                     child: ElevatedButton(
-                      onPressed: // !_checkInputFields()
-                          // ? null
-                          //:
-                          () => {
+                      onPressed: () => {
                         // Handle register logic here
+                        _registerUser()
                       },
                       style: ButtonStyle(
                         backgroundColor: WidgetStatePropertyAll(
