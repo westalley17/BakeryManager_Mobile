@@ -22,8 +22,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController lastNameController = TextEditingController();
   // this will be an optional field that will automatically create a manager account
   // if presented with a valid manager ID
-  final TextEditingController managerIDController =
-      TextEditingController(text: "");
+  final TextEditingController managerIDController = TextEditingController();
 
   String? _errorTextFirstName; // simple length checking
   String? _errorTextLastName; // simple length checking
@@ -144,7 +143,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
       if (managerID == null) return;
 
-      if (managerID.length != 6) {
+      if (managerID.isNotEmpty && managerID.length != 6) {
         _errorTextManagerID = (_errorTextManagerID ?? '') +
             "Manager ID must be exactly 6 digits.";
       }
