@@ -1,7 +1,8 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/emp_nav/settings.dart';
 import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
-import 'package:flutter/material.dart';
 
 class RecipesPage extends StatefulWidget {
   final String category;
@@ -26,9 +27,9 @@ class _RecipesPageState extends State<RecipesPage> {
   @override
   Widget build(BuildContext context) {
     final Map<String, List<String>> recipes = {
-      'Cake': ['Chocolate Cake', 'Strawberrie Shortcake', 'French Vanilla'],
+      'Cake': ['Chocolate Cake', 'Strawberry Shortcake', 'French Vanilla'],
       'Bread': ['Baguette', 'Sourdough', 'Whole Wheat Bread'],
-      'Muffins': ['Pumpkin', 'Bannana', 'Blueberry'],
+      'Muffins': ['Pumpkin', 'Banana', 'Blueberry'],
     };
 
     final List<String> selectedRecipes = recipes[widget.category] ?? [];
@@ -80,7 +81,7 @@ class _RecipesPageState extends State<RecipesPage> {
                   padding: const EdgeInsets.only(left: 16.0),
                   child: ListTile(
                     title: const Text('Cake'),
-                    leading: Icon(Icons.cake_outlined),
+                    leading: const Icon(Icons.cake),
                     onTap: () {
                       _navigateToPage(const RecipesPage(category: 'Cake'));
                     },
@@ -125,16 +126,33 @@ class _RecipesPageState extends State<RecipesPage> {
           ],
         ),
       ),
-      body: ListView.builder(
-        itemCount: selectedRecipes.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(selectedRecipes[index]),
-            onTap: () {
-              // Handle navigation to recipe details, if needed
-            },
-          );
-        },
+      body: Container(
+        color: Colors.grey[200], // Set to the background color of the dashboard
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+        child: GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 16.0,
+            mainAxisSpacing: 16.0,
+          ),
+          itemCount: selectedRecipes.length,
+          itemBuilder: (context, index) {
+            return ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.black,
+                side: BorderSide(color: Colors.black),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+              onPressed: () {
+                // Handle button press
+              },
+              child: Text(selectedRecipes[index]),
+            );
+          },
+        ),
       ),
     );
   }
