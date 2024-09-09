@@ -5,7 +5,7 @@ import 'package:bakery_manager_mobile/man_nav/inventory.dart';
 import 'package:bakery_manager_mobile/man_nav/recipes.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
 import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
-import 'package:bakery_manager_mobile/widgets/home_page.dart';
+import 'package:bakery_manager_mobile/widgets/landing_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
