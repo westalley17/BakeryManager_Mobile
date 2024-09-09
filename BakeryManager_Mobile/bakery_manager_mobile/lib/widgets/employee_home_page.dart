@@ -18,6 +18,7 @@ class EmployeeHomePage extends StatefulWidget {
 
 class _EmployeeHomePageState extends State<EmployeeHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  //bool _isRecipesExpanded = false; // To manage the expansion state
 
   Future<void> _logout() async {
     String? sessionID;
@@ -25,7 +26,6 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       sessionID = prefs.getString('SessionID');
     } catch (error) {
-      // TODO
       print('Error logging out $error');
     }
     final url = Uri.parse('http://10.0.2.2:3000/api/sessions');
@@ -38,7 +38,6 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
     try {
       final response = await http.delete(url, headers: headers, body: body);
       if (response.statusCode == 200) {
-        // logout good
         if (mounted) {
           Navigator.pushReplacement(
             context,
@@ -48,11 +47,19 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
           );
         }
       } else {
-        // ?
+        // Handle error
       }
     } catch (error) {
-      // error handle if DELETE just craps the bed
+      // Handle error if DELETE fails
     }
+  }
+
+  void _navigateToPage(Widget page) {
+    Navigator.pop(context); // Close the drawer
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    );
   }
 
   @override
@@ -63,20 +70,15 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
         title: const Text("Dashboard"),
         backgroundColor: Theme.of(context).primaryColor,
         leading: IconButton(
-          icon: Image.asset(
-              'assets/images/leftcorner.png'), // Use the stack image
+          icon: Image.asset('assets/images/leftcorner.png'),
           onPressed: () {
-            // Use the GlobalKey to open the drawer
             _scaffoldKey.currentState?.openDrawer();
           },
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              // Maybe navigate back to the login page -- come back and do this later :)
-              _logout();
-            },
+            onPressed: _logout,
           ),
         ],
       ),
@@ -85,13 +87,12 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              padding: const EdgeInsets.only(
-                  top: 5.0, bottom: 0.0), // Adjusted padding
+              padding: const EdgeInsets.only(top: 5.0, bottom: 0.0),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
               ),
               child: Align(
-                alignment: Alignment.center, // Center the content if needed
+                alignment: Alignment.center,
                 child: Text(
                   'Menu',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -102,63 +103,75 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
               ),
             ),
             ListTile(
-              title: const Text('Recipes'),
-              leading: const Icon(Icons.bakery_dining),
+              title: const Text('Dashboard'),
+              leading: const Icon(Icons.house_outlined),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const RecipesPage(), // Navigate to RecipesPage
-                  ),
-                );
+                _navigateToPage(const EmployeeHomePage());
               },
+            ),
+            ExpansionTile(
+              leading: const Icon(Icons.restaurant_menu),
+              title: const Text('Recipes'),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Cake'),
+                    leading: Icon(Icons.cake_outlined),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Cake'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Bread'),
+                    leading: const Icon(Icons.bakery_dining),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Bread'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Muffins'),
+                    leading: const Icon(Icons.cake_outlined),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Muffins'));
+                    },
+                  ),
+                ),
+              ],
             ),
             ListTile(
               title: const Text('Clock In/Out'),
               leading: const Icon(Icons.lock_clock),
               onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const ClockPage(), // Navigate to ClockPage
-                  ),
-                );
+                _navigateToPage(const ClockPage());
               },
             ),
             ListTile(
               title: const Text('Settings'),
               leading: const Icon(Icons.settings_outlined),
               onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const SettingsPage(), // Navigate to SettingsPage
-                  ),
-                ); // Add navigation or functionality here -- Addison reminder
+                _navigateToPage(const SettingsPage());
               },
             ),
-            // Add more items after getting these first ones to work right - Addison reminder
           ],
         ),
       ),
       body: Container(
         color: Theme.of(context).primaryColor,
-        padding: const EdgeInsets.symmetric(
-            horizontal: 10.0, vertical: 6.0), // Adjusted padding
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
         child: Center(
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10.0), // Adjusted padding
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: Column(
                     children: [
                       Image.asset(
@@ -166,13 +179,12 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
                         width: 175.0,
                         height: 175.0,
                       ),
-                      const SizedBox(
-                          height: 15.0), // Space between image and text
+                      const SizedBox(height: 15.0),
                     ],
                   ),
                 ),
                 Container(
-                  margin: const EdgeInsets.only(bottom: 10.0), // Bottom margin
+                  margin: const EdgeInsets.only(bottom: 10.0),
                   child: Text(
                     'Welcome to your homepage, Employee!',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(

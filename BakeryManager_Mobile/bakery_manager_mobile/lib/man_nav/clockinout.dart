@@ -129,7 +129,7 @@ class _ClockPageState extends State<ClockPage> {
             const SizedBox(height: 20.0),
             Expanded(
               child: ListView(
-                children: [
+                children: const [
                   RecipeTile(
                     title: 'Chocolate Cake',
                     description: 'Delicious and rich chocolate cake recipe.',

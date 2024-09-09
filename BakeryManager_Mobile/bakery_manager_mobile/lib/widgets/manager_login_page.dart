@@ -41,24 +41,19 @@ class _ManagerLoginPageState extends State<ManagerLoginPage> {
 
       // RegEx matching for length and proper character use.
       if (!RegExp(r'.{8,}').hasMatch(password)) {
-        _errorTextPassword = (_errorTextPassword ?? '') +
-            "Password must be at least 8 characters long.\n";
+        _errorTextPassword = "${_errorTextPassword ?? ''}Password must be at least 8 characters long.\n";
       }
       if (!RegExp(r'(?=.*[A-Z])').hasMatch(password)) {
-        _errorTextPassword = (_errorTextPassword ?? '') +
-            "Password must have at least one uppercase letter.\n";
+        _errorTextPassword = "${_errorTextPassword ?? ''}Password must have at least one uppercase letter.\n";
       }
       if (!RegExp(r'(?=.*[a-z])').hasMatch(password)) {
-        _errorTextPassword = (_errorTextPassword ?? '') +
-            "Password must have at least one lowercase letter.\n";
+        _errorTextPassword = "${_errorTextPassword ?? ''}Password must have at least one lowercase letter.\n";
       }
       if (!RegExp(r'(?=.*\d)').hasMatch(password)) {
-        _errorTextPassword = (_errorTextPassword ?? '') +
-            "Password must have at least one number.\n";
+        _errorTextPassword = "${_errorTextPassword ?? ''}Password must have at least one number.\n";
       }
       if (!RegExp(r'(?=.*[@$!%*?&])').hasMatch(password)) {
-        _errorTextPassword = (_errorTextPassword ?? '') +
-            "Password must have at least one special character.\n";
+        _errorTextPassword = "${_errorTextPassword ?? ''}Password must have at least one special character.\n";
       }
     });
   }
@@ -70,8 +65,7 @@ class _ManagerLoginPageState extends State<ManagerLoginPage> {
       if (managerID == null) return;
 
       if (managerID.length != 6) {
-        _errorTextManagerID = (_errorTextManagerID ?? '') +
-            "Manager ID must be exactly 6 digits.";
+        _errorTextManagerID = "${_errorTextManagerID ?? ''}Manager ID must be exactly 6 digits.";
       }
     });
   }

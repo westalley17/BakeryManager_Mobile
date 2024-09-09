@@ -162,7 +162,7 @@ class _InventoryPageState extends State<InventoryPage> {
             const SizedBox(height: 20.0),
             Expanded(
               child: ListView(
-                children: [
+                children: const [
                   InventoryTile(
                     itemName: 'Flour',
                     quantity: '50 kg',

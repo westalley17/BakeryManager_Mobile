@@ -1,5 +1,6 @@
+import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
 import 'package:flutter/material.dart';
-import 'package:bakery_manager_mobile/widgets/home_page.dart';
+//import 'package:bakery_manager_mobile/widgets/home_page.dart';
 
 void main() {
   runApp(const BakeryManager());
@@ -14,7 +15,7 @@ class BakeryManager extends StatelessWidget {
       // add comments to all this later, I'm eepy
       // no longer eepy, just need to test Azure pipeline :)
       debugShowCheckedModeBanner: false,
-      home: const HomePage(),
+      home: const EmployeeHomePage(),
       theme: ThemeData(
         primaryColor: const Color(0xFFFFFBED),
         colorScheme: ColorScheme.fromSwatch().copyWith(
