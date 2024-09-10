@@ -1,8 +1,8 @@
 import 'dart:convert';
-
 import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
 import 'package:bakery_manager_mobile/emp_nav/settings.dart';
+import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:bakery_manager_mobile/widgets/landing_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,11 +24,11 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
     String? sessionID;
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      sessionID = prefs.getString('SessionID');
+      sessionID = await prefs.getString('SessionID');
     } catch (error) {
       print('Error logging out $error');
     }
-    final url = Uri.parse('http://10.0.2.2:3000/api/sessions');
+    final url = Uri.parse('$baseURL/api/sessions');
     final headers = {
       'Content-Type': 'application/json',
     };

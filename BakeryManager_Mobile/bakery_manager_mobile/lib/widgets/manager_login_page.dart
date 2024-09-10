@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -87,7 +88,7 @@ class _ManagerLoginPageState extends State<ManagerLoginPage> {
 
   Future<void> _loginUser() async {
     if (_checkInputs()) {
-      final url = Uri.parse('http://10.0.2.2:3000/api/sessions/manager');
+      final url = Uri.parse('$baseURL/api/sessions/manager');
       final headers = {
         'Content-Type': 'application/json',
       };

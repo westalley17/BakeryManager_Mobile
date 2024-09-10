@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bakery_manager_mobile/env/env_config.dart';
 
 class EmployeeLoginPage extends StatefulWidget {
   const EmployeeLoginPage({super.key});
@@ -66,7 +67,7 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
 
   Future<void> _loginUser() async {
     if (_checkInputs()) {
-      final url = Uri.parse('http://10.0.2.2:3000/api/sessions/employee');
+      final url = Uri.parse('$baseURL/api/sessions/employee');
       final headers = {
         'Content-Type': 'application/json',
       };

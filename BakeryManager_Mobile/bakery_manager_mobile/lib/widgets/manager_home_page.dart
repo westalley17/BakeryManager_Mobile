@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:bakery_manager_mobile/man_nav/admin.dart';
 import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/man_nav/inventory.dart';
@@ -30,7 +31,7 @@ class _ManagerHomePageState extends State<ManagerHomePage> {
       // TODO
       print('Error logging out $error');
     }
-    final url = Uri.parse('http://10.0.2.2:3000/api/sessions');
+    final url = Uri.parse('$baseURL/api/sessions');
     final headers = {
       'Content-Type': 'application/json',
     };
