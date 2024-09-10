@@ -25,6 +25,7 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       sessionID = await prefs.getString('SessionID');
+      await prefs.remove('SessionID');
     } catch (error) {
       print('Error logging out $error');
     }

@@ -36,19 +36,24 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
 
       // RegEx matching for length and proper character use.
       if (!RegExp(r'.{8,}').hasMatch(password)) {
-        _errorTextPassword = "${_errorTextPassword ?? ''}Password must be at least 8 characters long.\n";
+        _errorTextPassword =
+            "${_errorTextPassword ?? ''}Password must be at least 8 characters long.\n";
       }
       if (!RegExp(r'(?=.*[A-Z])').hasMatch(password)) {
-        _errorTextPassword = "${_errorTextPassword ?? ''}Password must have at least one uppercase letter.\n";
+        _errorTextPassword =
+            "${_errorTextPassword ?? ''}Password must have at least one uppercase letter.\n";
       }
       if (!RegExp(r'(?=.*[a-z])').hasMatch(password)) {
-        _errorTextPassword = "${_errorTextPassword ?? ''}Password must have at least one lowercase letter.\n";
+        _errorTextPassword =
+            "${_errorTextPassword ?? ''}Password must have at least one lowercase letter.\n";
       }
       if (!RegExp(r'(?=.*\d)').hasMatch(password)) {
-        _errorTextPassword = "${_errorTextPassword ?? ''}Password must have at least one number.\n";
+        _errorTextPassword =
+            "${_errorTextPassword ?? ''}Password must have at least one number.\n";
       }
       if (!RegExp(r'(?=.*[@$!%*?&])').hasMatch(password)) {
-        _errorTextPassword = "${_errorTextPassword ?? ''}Password must have at least one special character.\n";
+        _errorTextPassword =
+            "${_errorTextPassword ?? ''}Password must have at least one special character.\n";
       }
     });
   }
@@ -77,8 +82,8 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
       });
       try {
         final response = await http.post(url, headers: headers, body: body);
+        var parsed = jsonDecode(response.body);
         if (response.statusCode == 200) {
-          var parsed = jsonDecode(response.body);
           // login good, take them to the dashboard and store their SessionID in SharedPreferences
           try {
             SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -95,12 +100,14 @@ class _EmployeeLoginPageState extends State<EmployeeLoginPage> {
               ),
             );
           }
-        } else {
-          _errorTextPassword = response.statusCode.toString();
+        } else if (response.statusCode == 401) {
+          _errorTextPassword = parsed['error'];
+          setState(() {});
         }
       } catch (error) {
         // error handle if POST fails entirely which it probably will
         _errorTextPassword = error.toString();
+        setState(() {});
       }
     }
   }
