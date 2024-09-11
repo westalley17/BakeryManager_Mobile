@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:bakery_manager_mobile/widgets/employee_login_page.dart';
 import 'package:bakery_manager_mobile/widgets/manager_login_page.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +89,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     // make a POST to backend to see if username already exists
     // 10.0.2.2 is the IP of your actual pc relative to the emulator
-    final url = Uri.parse('http://10.0.2.2:3000/api/users?username=$username');
+    final url = Uri.parse('$baseURL/api/users?username=$username');
     try {
       final response = await http.get(
         url,
@@ -115,19 +116,24 @@ class _RegisterPageState extends State<RegisterPage> {
 
       // RegEx matching for length and proper character use.
       if (!RegExp(r'.{8,}').hasMatch(password)) {
-        _errorTextPassword = "${_errorTextPassword ?? ''}Password must be at least 8 characters long.\n";
+        _errorTextPassword =
+            "${_errorTextPassword ?? ''}Password must be at least 8 characters long.\n";
       }
       if (!RegExp(r'(?=.*[A-Z])').hasMatch(password)) {
-        _errorTextPassword = "${_errorTextPassword ?? ''}Password must have at least one uppercase letter.\n";
+        _errorTextPassword =
+            "${_errorTextPassword ?? ''}Password must have at least one uppercase letter.\n";
       }
       if (!RegExp(r'(?=.*[a-z])').hasMatch(password)) {
-        _errorTextPassword = "${_errorTextPassword ?? ''}Password must have at least one lowercase letter.\n";
+        _errorTextPassword =
+            "${_errorTextPassword ?? ''}Password must have at least one lowercase letter.\n";
       }
       if (!RegExp(r'(?=.*\d)').hasMatch(password)) {
-        _errorTextPassword = "${_errorTextPassword ?? ''}Password must have at least one number.\n";
+        _errorTextPassword =
+            "${_errorTextPassword ?? ''}Password must have at least one number.\n";
       }
       if (!RegExp(r'(?=.*[@$!%*?&])').hasMatch(password)) {
-        _errorTextPassword = "${_errorTextPassword ?? ''}Password must have at least one special character.\n";
+        _errorTextPassword =
+            "${_errorTextPassword ?? ''}Password must have at least one special character.\n";
       }
     });
   }
@@ -139,14 +145,15 @@ class _RegisterPageState extends State<RegisterPage> {
       if (managerID == null) return;
 
       if (managerID.isNotEmpty && managerID.length != 6) {
-        _errorTextManagerID = "${_errorTextManagerID ?? ''}Manager ID must be exactly 6 digits.";
+        _errorTextManagerID =
+            "${_errorTextManagerID ?? ''}Manager ID must be exactly 6 digits.";
       }
     });
   }
 
   Future<void> _registerUser() async {
     if (await _checkInputs()) {
-      final url = Uri.parse('http://10.0.2.2:3000/api/users');
+      final url = Uri.parse('$baseURL/api/users');
       final headers = {
         'Content-Type': 'application/json',
       };
