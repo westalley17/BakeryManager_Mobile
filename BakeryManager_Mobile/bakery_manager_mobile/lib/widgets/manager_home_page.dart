@@ -16,46 +16,65 @@ class ManagerHomePage extends StatefulWidget {
   const ManagerHomePage({super.key});
 
   @override
-  State<ManagerHomePage> createState() => _ManagerHomePageState();
+  State<ManagerHomePage> createState() => _ManagerHomePage();
 }
 
-class _ManagerHomePageState extends State<ManagerHomePage> {
+class _ManagerHomePage extends State<ManagerHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  void _navigateToPage(Widget page) {
+    Navigator.pop(context); // Close the drawer
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    );
+  }
+
   Future<void> _logout() async {
-    String? sessionID;
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      sessionID = prefs.getString('SessionID');
-    } catch (error) {
-      // TODO
-      print('Error logging out $error');
-    }
-    final url = Uri.parse('$baseURL/api/sessions');
-    final headers = {
-      'Content-Type': 'application/json',
-    };
-    final body = jsonEncode({
-      'sessionID': sessionID,
-    });
-    try {
-      final response = await http.delete(url, headers: headers, body: body);
-      if (response.statusCode == 200) {
-        // logout good
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            CupertinoPageRoute(
-              builder: (context) => const HomePage(),
-            ),
-          );
-        }
+      final sessionID = prefs.getString('SessionID');
+      final url = Uri.parse('$baseURL/api/sessions');
+      final response = await http.delete(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'sessionID': sessionID}),
+      );
+
+      if (response.statusCode == 200 && mounted) {
+        Navigator.pushReplacement(
+          context,
+          CupertinoPageRoute(builder: (context) => const HomePage()),
+        );
       } else {
-        // ?
+        print('Failed to log out. Status code: ${response.statusCode}');
       }
     } catch (error) {
-      // error handle if DELETE just craps the bed
+      print('Error logging out: $error');
     }
+  }
+
+  Widget _buildDrawerTile({
+    required String title,
+    required IconData icon,
+    required Widget page,
+  }) {
+    return ListTile(
+      title: Text(title),
+      leading: Icon(icon),
+      onTap: () => _navigateToPage(page),
+    );
+  }
+
+  Widget _buildRecipeTile(String title, IconData icon, String category) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: ListTile(
+        title: Text(title),
+        leading: Icon(icon),
+        onTap: () => _navigateToPage(RecipesPage(category: category)),
+      ),
+    );
   }
 
   @override
@@ -66,179 +85,100 @@ class _ManagerHomePageState extends State<ManagerHomePage> {
         title: const Text("Dashboard"),
         backgroundColor: Theme.of(context).primaryColor,
         leading: IconButton(
-          icon: Image.asset(
-              'assets/images/leftcorner.png'), // Use the stack image
-          onPressed: () {
-            // Use the GlobalKey to open the drawer
-            _scaffoldKey.currentState?.openDrawer();
-          },
+          icon: Image.asset('assets/images/leftcorner.png'),
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              // Maybe navigate back to the login page -- come back and do this later :)
-              _logout();
-            },
+            onPressed: _logout,
           ),
         ],
       ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
-          children: <Widget>[
+          children: [
             DrawerHeader(
-              padding: const EdgeInsets.only(
-                  top: 5.0, bottom: 0.0), // Adjusted padding
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-              ),
-              child: Align(
-                alignment: Alignment.center, // Center the content if needed
+              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+              child: Center(
                 child: Text(
                   'Menu',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: Colors.black,
                       ),
-                  textAlign: TextAlign.center,
                 ),
               ),
             ),
-            ListTile(
+            ExpansionTile(
+              leading: const Icon(Icons.restaurant_menu),
               title: const Text('Recipes'),
-              leading: const Icon(Icons.bakery_dining),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const RecipesPage(), // Navigate to RecipesPage
-                  ),
-                );
-              },
+              children: [
+                _buildRecipeTile('Cake', Icons.cake, 'Cake'),
+                _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
+                _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
+              ],
             ),
-            ListTile(
-              title: const Text('Inventory'),
-              leading: const Icon(Icons.inventory_2_outlined),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const InventoryPage(), // Navigate to InventoryPage
-                  ),
-                );
-                // Add navigation or functionality here -- Addison reminder
-              },
+            _buildDrawerTile(
+              title: 'Inventory',
+              icon: Icons.inventory_2_outlined,
+              page: const InventoryPage(),
             ),
-            ListTile(
-              title: const Text('Time Sheets'),
-              leading: const Icon(Icons.access_time),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const TimePage(), // Navigate to TimePage
-                  ),
-                );
-                // Add navigation or functionality here -- Addison reminder
-              },
+            _buildDrawerTile(
+              title: 'Time Sheets',
+              icon: Icons.access_time,
+              page: const TimePage(),
             ),
-            ListTile(
-              title: const Text('Clock In/Out'),
-              leading: const Icon(Icons.lock_clock),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const ClockPage(), // Navigate to ClockPage
-                  ),
-                );
-                // Add navigation or functionality here -- Addison reminder
-              },
+            _buildDrawerTile(
+              title: 'Clock In/Out',
+              icon: Icons.lock_clock,
+              page: const ClockPage(),
             ),
-            ListTile(
-              title: const Text('Settings'),
-              leading: const Icon(Icons.settings_outlined),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const SettingsPage(), // Navigate to SettingsPage
-                  ),
-                );
-                // Add navigation or functionality here -- Addison reminder
-              },
+            _buildDrawerTile(
+              title: 'Settings',
+              icon: Icons.settings_outlined,
+              page: const SettingsPage(),
             ),
-            ListTile(
-              title: const Text('Admin'),
-              leading: const Icon(Icons.admin_panel_settings_sharp),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        const AdminPage(), // Navigate to AdminPage
-                  ),
-                );
-                // Add navigation or functionality here -- Addison reminder
-              },
+            _buildDrawerTile(
+              title: 'Admin',
+              icon: Icons.admin_panel_settings_sharp,
+              page: const AdminPage(),
             ),
-            // Add more items after getting these first ones to work right - Addison reminder
           ],
         ),
       ),
+      
       body: Container(
-        color: Theme.of(context).primaryColor,
-        padding: const EdgeInsets.symmetric(
-            horizontal: 10.0, vertical: 6.0), // Adjusted padding
-        child: Center(
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10.0), // Adjusted padding
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        'assets/images/bakerHat.png',
-                        width: 175.0,
-                        height: 175.0,
-                      ),
-                      const SizedBox(
-                          height: 15.0), // Space between image and text
-                    ],
-                  ),
+      color: Theme.of(context).primaryColor,  // Reverted to previous color
+      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+      child: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: Image.asset(
+                  'assets/images/bakerHat.png',
+                  width: 175.0,
+                  height: 175.0,
                 ),
-                Container(
-                  margin: const EdgeInsets.only(bottom: 10.0), // Bottom margin
-                  child: Text(
-                    'Welcome to your homepage, Manager!',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                    textAlign: TextAlign.center,
-                    textScaleFactor: 1.3,
-                  ),
-                ),
-                // Add more widgets if needed
-              ],
-            ),
+              ),
+              const SizedBox(height: 15.0),
+              Text(
+                'Welcome to your homepage, Manager!',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                textAlign: TextAlign.center,
+                textScaleFactor: 1.3,
+              ),
+            ],
           ),
         ),
       ),
+    ),
     );
   }
 }

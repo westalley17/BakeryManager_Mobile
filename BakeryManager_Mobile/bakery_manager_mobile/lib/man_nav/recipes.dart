@@ -1,13 +1,15 @@
-import 'package:bakery_manager_mobile/man_nav/admin.dart';
+import 'package:flutter/material.dart';
 import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
-import 'package:bakery_manager_mobile/man_nav/inventory.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
+import 'package:bakery_manager_mobile/man_nav/admin.dart';
+import 'package:bakery_manager_mobile/man_nav/inventory.dart';
 import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
-import 'package:flutter/material.dart';
 
 class RecipesPage extends StatefulWidget {
-  const RecipesPage({super.key});
+  final String category;
+
+  const RecipesPage({super.key, required this.category});
 
   @override
   _RecipesPageState createState() => _RecipesPageState();
@@ -26,39 +28,37 @@ class _RecipesPageState extends State<RecipesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, List<String>> recipes = {
+      'Cake': ['Chocolate Cake', 'Strawberry Shortcake', 'French Vanilla'],
+      'Bread': ['Baguette', 'Sourdough', 'Whole Wheat Bread'],
+      'Muffins': ['Pumpkin', 'Banana', 'Blueberry'],
+    };
+
+    final List<String> selectedRecipes = recipes[widget.category] ?? [];
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text("Recipes"),
+        title: Text('${widget.category} Recipes'),
         backgroundColor: Theme.of(context).primaryColor,
         leading: IconButton(
-          icon: Image.asset('assets/images/leftcorner.png'), // Use the stack image
+          icon: Image.asset('assets/images/leftcorner.png'),
           onPressed: () {
-            // Open the drawer using the ScaffoldKey
             _scaffoldKey.currentState?.openDrawer();
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              // Maybe navigate back to the login page -- come back and do this later :)
-              Navigator.pop(context);
-            },
-          ),
-        ],
       ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              padding: const EdgeInsets.only(top: 10.0, bottom: 0.0), // Adjusted padding
+              padding: const EdgeInsets.only(top: 10.0, bottom: 0.0),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
               ),
               child: Align(
-                alignment: Alignment.center, // Center the content if needed
+                alignment: Alignment.center,
                 child: Text(
                   'Menu',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -72,115 +72,111 @@ class _RecipesPageState extends State<RecipesPage> {
               title: const Text('Dashboard'),
               leading: const Icon(Icons.house_outlined),
               onTap: () {
-                _navigateToPage(const ManagerHomePage()); // Navigate to ManagerHomePage
+                _navigateToPage(const ManagerHomePage());
               },
             ),
-            ListTile(
-              title: const Text('Inventory'),
-              leading: const Icon(Icons.inventory_2_outlined),
-              onTap: () {
-                _navigateToPage(const InventoryPage()); // Navigate to InventoryPage
-              },
+            ExpansionTile(
+              leading: const Icon(Icons.restaurant_menu),
+              title: const Text('Recipes'),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Cake'),
+                    leading: const Icon(Icons.cake),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Cake'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Bread'),
+                    leading: const Icon(Icons.bakery_dining),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Bread'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Muffins'),
+                    leading: const Icon(Icons.cake_outlined),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Muffins'));
+                    },
+                  ),
+                ),
+              ],
             ),
             ListTile(
-              title: const Text('Time Sheets'),
-              leading: const Icon(Icons.access_time),
+              title: const Text('Clock In/Out'),
+              leading: const Icon(Icons.lock_clock),
               onTap: () {
-                _navigateToPage(const TimePage()); // Navigate to TimePage
+                _navigateToPage(const ClockPage());
+              },
+            ),
+            
+            ListTile(
+              title: const Text('Clock In/Out'),
+              leading: const Icon(Icons.lock_clock),
+              onTap: () {
+                _navigateToPage(const TimePage());
               },
             ),
             ListTile(
               title: const Text('Clock In/Out'),
               leading: const Icon(Icons.lock_clock),
               onTap: () {
-                _navigateToPage(const ClockPage()); // Navigate to ClockPage
+                _navigateToPage(const AdminPage());
+              },
+            ),
+            ListTile(
+              title: const Text('Clock In/Out'),
+              leading: const Icon(Icons.lock_clock),
+              onTap: () {
+                _navigateToPage(const InventoryPage());
               },
             ),
             ListTile(
               title: const Text('Settings'),
               leading: const Icon(Icons.settings_outlined),
               onTap: () {
-                 _navigateToPage(const SettingsPage()); // Navigate to SettingsPage
+                _navigateToPage(const SettingsPage());
               },
             ),
-            ListTile(
-              title: const Text('Admin'),
-              leading: const Icon(Icons.admin_panel_settings_sharp),
-              onTap: () {
-                 _navigateToPage(const AdminPage()); // Navigate to AdminPage
-              },
-            ),
-            // Add more items after getting these first ones to work right
           ],
         ),
       ),
       body: Container(
-        color: Theme.of(context).primaryColor,
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0), // Adjusted padding
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Recipe List',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20.0),
-            Expanded(
-              child: ListView(
-                children: const [
-                  RecipeTile(
-                    title: 'Chocolate Cake',
-                    description: 'Delicious and rich chocolate cake recipe.',
-                  ),
-                  RecipeTile(
-                    title: 'Apple Pie',
-                    description: 'Classic apple pie with a flaky crust.',
-                  ),
-                  RecipeTile(
-                    title: 'Cheese Pizza',
-                    description: 'Simple cheese pizza with tomato sauce and mozzarella.',
-                  ),
-                  // Add more recipes here
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class RecipeTile extends StatelessWidget {
-  final String title;
-  final String description;
-
-  const RecipeTile({
-    required this.title,
-    required this.description,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16.0),
-        title: Text(
-          title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
+        color: Colors.grey[200], // Set to the background color of the dashboard
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+        child: GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 16.0,
+            mainAxisSpacing: 16.0,
           ),
+          itemCount: selectedRecipes.length,
+          itemBuilder: (context, index) {
+            return ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.black,
+                side: BorderSide(color: Colors.black),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+              onPressed: () {
+                // Handle button press
+              },
+              child: Text(selectedRecipes[index]),
+            );
+          },
         ),
-        subtitle: Text(description),
-        leading: const Icon(Icons.restaurant_menu),
-        onTap: () {
-          // Handle recipe tap if needed
-        },
       ),
     );
   }

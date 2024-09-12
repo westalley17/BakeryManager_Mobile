@@ -4,7 +4,7 @@ import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
 import 'package:flutter/material.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage ({super.key});
+  const SettingsPage({super.key});
 
   @override
   _SettingsPageState createState() => _SettingsPageState();
@@ -21,6 +21,14 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Widget _buildDrawerTile(String title, IconData icon, Widget page) {
+    return ListTile(
+      title: Text(title),
+      leading: Icon(icon),
+      onTap: () => _navigateToPage(page),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,18 +37,14 @@ class _SettingsPageState extends State<SettingsPage> {
         title: const Text("Settings"),
         backgroundColor: Theme.of(context).primaryColor,
         leading: IconButton(
-          icon: Image.asset('assets/images/leftcorner.png'), // Use the stack image
-          onPressed: () {
-            // Open the drawer using the ScaffoldKey
-            _scaffoldKey.currentState?.openDrawer();
-          },
+          icon: Image.asset('assets/images/leftcorner.png'), // Stack image for drawer
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              // Maybe navigate back to the login page -- come back and do this later :)
-              Navigator.pop(context);
+              Navigator.pop(context); // Handle logout
             },
           ),
         ],
@@ -50,71 +54,45 @@ class _SettingsPageState extends State<SettingsPage> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              padding: const EdgeInsets.only(top: 10.0, bottom: 0.0), // Adjusted padding
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
               ),
-              child: Align(
-                alignment: Alignment.center, // Center the content if needed
+              child: Center(
                 child: Text(
                   'Menu',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: Colors.black,
                   ),
-                  textAlign: TextAlign.center,
                 ),
               ),
             ),
-            ListTile(
-              title: const Text('Dashboard'),
-              leading: const Icon(Icons.house_outlined),
-              onTap: () {
-                _navigateToPage(const ManagerHomePage()); // Navigate to ManagerHomePage
-              },
-            ),
-            ListTile(
+            _buildDrawerTile('Dashboard', Icons.house_outlined, const ManagerHomePage()),
+            ExpansionTile(
+              leading: const Icon(Icons.restaurant_menu),
               title: const Text('Recipes'),
-              leading: const Icon(Icons.bakery_dining),
-              onTap: () {
-                _navigateToPage(const RecipesPage()); // Navigate to InventoryPage
-              },
+              children: [
+                _buildDrawerTile('Cake', Icons.cake, const RecipesPage(category: 'Cake')),
+                _buildDrawerTile('Bread', Icons.bakery_dining, const RecipesPage(category: 'Bread')),
+                _buildDrawerTile('Muffins', Icons.cake_outlined, const RecipesPage(category: 'Muffins')),
+              ],
             ),
-            ListTile(
-              title: const Text('Inventory'),
-              leading: const Icon(Icons.inventory_2_outlined),
-              onTap: () {
-                _navigateToPage(const InventoryPage()); // Navigate to InventoryPage
-              },
-            ),
-            ListTile(
-              title: const Text('Time Sheets'),
-              leading: const Icon(Icons.access_time),
-              onTap: () {
-                _navigateToPage(const ManagerHomePage()); // Navigate to ManagerHomePage
-              },
-            ),
-            ListTile(
-              title: const Text('Clock In/Out'),
-              leading: const Icon(Icons.lock_clock),
-              onTap: () {
-                _navigateToPage(const ManagerHomePage()); // Navigate to ManagerHomePage
-              },
-            ),
+            _buildDrawerTile('Inventory', Icons.inventory_2_outlined, const InventoryPage()),
+            _buildDrawerTile('Time Sheets', Icons.access_time, const ManagerHomePage()),
+            _buildDrawerTile('Clock In/Out', Icons.lock_clock, const ManagerHomePage()),
             ListTile(
               title: const Text('Admin'),
               leading: const Icon(Icons.admin_panel_settings_sharp),
               onTap: () {
                 Navigator.pop(context);
-                // Add navigation or functionality here -- Addison reminder
+                // Add functionality for Admin page navigation here
               },
             ),
-            // Add more items after getting these first ones to work right
           ],
         ),
       ),
       body: Container(
         color: Theme.of(context).primaryColor,
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0), // Adjusted padding
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

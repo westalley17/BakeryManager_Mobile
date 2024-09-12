@@ -72,12 +72,41 @@ class _ClockPageState extends State<ClockPage> {
                 _navigateToPage(const ManagerHomePage()); // Navigate to ManagerHomePage
               },
             ),
-            ListTile(
+            ExpansionTile(
+              leading: const Icon(Icons.restaurant_menu),
               title: const Text('Recipes'),
-              leading: const Icon(Icons.bakery_dining),
-              onTap: () {
-                _navigateToPage(const RecipesPage()); // Navigate to InventoryPage
-              },
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Cake'),
+                    leading: const Icon(Icons.cake),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Cake'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Bread'),
+                    leading: const Icon(Icons.bakery_dining),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Bread'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Muffins'),
+                    leading: const Icon(Icons.cake_outlined),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Muffins'));
+                    },
+                  ),
+                ),
+              ],
             ),
             ListTile(
               title: const Text('Inventory'),
