@@ -38,28 +38,29 @@ class _BakeryManagerState extends State<BakeryManager> {
           // update _validSession
           _validSession = false;
         });
-      }
-      final url = Uri.parse("$baseURL/api/sessions?sessionID=$sessionID");
-      final headers = {
-        'Content-Type': 'application/json',
-      };
-      final response = await http.get(
-        url,
-        headers: headers,
-      );
-      var parsed = jsonDecode(response.body);
-      if (response.statusCode == 200) {
-        setState(() {
-          // update _validSession
-          _validSession = true;
-          _isManager = (parsed['isManager'] == 'false') ? false : true;
-        });
       } else {
-        // If the server returns an error response, set the error to a string so box IS red.
-        setState(() {
-          // update _validSession
-          _validSession = false;
-        });
+        final url = Uri.parse("$baseURL/api/sessions?sessionID=$sessionID");
+        final headers = {
+          'Content-Type': 'application/json',
+        };
+        final response = await http.get(
+          url,
+          headers: headers,
+        );
+        var parsed = jsonDecode(response.body);
+        if (response.statusCode == 200) {
+          setState(() {
+            // update _validSession
+            _validSession = true;
+            _isManager = (parsed['isManager'] == 'false') ? false : true;
+          });
+        } else {
+          // If the server returns an error response, set the error to a string so box IS red.
+          setState(() {
+            // update _validSession
+            _validSession = false;
+          });
+        }
       }
     } catch (error) {
       // error handle if POST fails entirely which it probably will

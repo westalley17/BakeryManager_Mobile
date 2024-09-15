@@ -1,18 +1,3 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
-
-import 'mobile_env.dart' as android_env;
-import 'web_env.dart' as web_env;
-import 'windows_env.dart' as windows_env;
-
 String get baseURL {
-  if (kIsWeb) return web_env.baseUrl;
-  if (Platform.isAndroid || Platform.isIOS) {
-    return android_env.baseUrl;
-  } else if (Platform.isWindows) {
-    return windows_env.baseUrl;
-  }
-  // You can add other platform checks if needed
-  return web_env.baseUrl;
+  return "https://bakery-backend.azurewebsites.net";
 }
