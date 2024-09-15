@@ -16,6 +16,38 @@ class InventoryPage extends StatefulWidget {
 class _InventoryPageState extends State<InventoryPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  void _navigateToPage(Widget page) {
+    Navigator.pop(context); // Close the drawer
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    );
+  }
+
+  Widget _buildDrawerTile({
+    required String title,
+    required IconData icon,
+    required Widget page,
+  }) {
+    return ListTile(
+      title: Text(title),
+      leading: Icon(icon),
+      onTap: () => _navigateToPage(page),
+    );
+  }
+
+  Widget _buildExpansionTile({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return ExpansionTile(
+      leading: Icon(icon),
+      title: Text(title),
+      children: children,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,20 +56,13 @@ class _InventoryPageState extends State<InventoryPage> {
         title: const Text("Inventory"),
         backgroundColor: Theme.of(context).primaryColor,
         leading: IconButton(
-          icon: Image.asset(
-              'assets/images/leftcorner.png'), // Use the stack image
-          onPressed: () {
-            // Use the GlobalKey to open the drawer
-            _scaffoldKey.currentState?.openDrawer();
-          },
+          icon: Image.asset('assets/images/leftcorner.png'),
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              // Maybe navigate back to the login page -- come back and do this later :)
-              Navigator.pop(context);
-            },
+            onPressed: () => Navigator.pop(context), // Add navigation to login
           ),
         ],
       ),
@@ -46,13 +71,12 @@ class _InventoryPageState extends State<InventoryPage> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              padding: const EdgeInsets.only(
-                  top: 5.0, bottom: 0.0), // Adjusted padding
+              padding: const EdgeInsets.only(top: 5.0),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
               ),
               child: Align(
-                alignment: Alignment.center, // Center the content if needed
+                alignment: Alignment.center,
                 child: Text(
                   'Menu',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -62,126 +86,91 @@ class _InventoryPageState extends State<InventoryPage> {
                 ),
               ),
             ),
-            ListTile(
-              title: const Text('Dashboard'),
-              leading: const Icon(Icons.house_outlined),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ManagerHomePage(), // Navigate to ManagerHomePage
-                  ),
-                );
-              },
+            _buildDrawerTile(
+              title: 'Dashboard',
+              icon: Icons.house_outlined,
+              page: const ManagerHomePage(),
             ),
-            ListTile(
-              title: const Text('Recipes'),
-              leading: const Icon(Icons.bakery_dining),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const RecipesPage(), // Navigate to RecipesPage
-                  ),
-                );
-              },
+            _buildExpansionTile(
+              title: 'Recipes',
+              icon: Icons.restaurant_menu,
+              children: [
+                _buildDrawerTile(
+                  title: 'Cake',
+                  icon: Icons.cake,
+                  page: const RecipesPage(category: 'Cake'),
+                ),
+                _buildDrawerTile(
+                  title: 'Bread',
+                  icon: Icons.bakery_dining,
+                  page: const RecipesPage(category: 'Bread'),
+                ),
+                _buildDrawerTile(
+                  title: 'Muffins',
+                  icon: Icons.cake_outlined,
+                  page: const RecipesPage(category: 'Muffins'),
+                ),
+              ],
             ),
-            ListTile(
-              title: const Text('Time Sheets'),
-              leading: const Icon(Icons.access_time),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const TimePage(), // Navigate to TimePage
-                  ),
-                );
-              },
+            _buildDrawerTile(
+              title: 'Time Sheets',
+              icon: Icons.access_time,
+              page: const TimePage(),
             ),
-            ListTile(
-              title: const Text('Clock In/Out'),
-              leading: const Icon(Icons.lock_clock),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ClockPage(), // Navigate to ClockPage
-                  ),
-                ); 
-                // Add navigation to ClockInOutPage if needed
-              },
+            _buildDrawerTile(
+              title: 'Clock In/Out',
+              icon: Icons.lock_clock,
+              page: const ClockPage(),
             ),
-            ListTile(
-              title: const Text('Settings'),
-              leading: const Icon(Icons.settings_outlined),
-              onTap: () {
-                Navigator.pop(context); 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SettingsPage(), // Navigate to SettingsPage
-                  ),
-                );
-                // Add navigation to SettingsPage if needed
-              },
+            _buildDrawerTile(
+              title: 'Settings',
+              icon: Icons.settings_outlined,
+              page: const SettingsPage(),
             ),
-            ListTile(
-              title: const Text('Admin'),
-              leading: const Icon(Icons.admin_panel_settings_sharp),
-              onTap: () {
-                Navigator.pop(context); 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AdminPage(), // Navigate to AdminPage
-                  ),
-                );
-                // Add navigation to AdminPage if needed
-              },
+            _buildDrawerTile(
+              title: 'Admin',
+              icon: Icons.admin_panel_settings_sharp,
+              page: const AdminPage(),
             ),
           ],
         ),
       ),
       body: Container(
-        color: Theme.of(context).primaryColor,
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0), // Adjusted padding
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Inventory List',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
+      color: Theme.of(context).primaryColor,  // Reverted to previous color
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Inventory List',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 20.0),
-            Expanded(
-              child: ListView(
-                children: const [
-                  InventoryTile(
-                    itemName: 'Flour',
-                    quantity: '50 kg',
-                  ),
-                  InventoryTile(
-                    itemName: 'Sugar',
-                    quantity: '30 kg',
-                  ),
-                  InventoryTile(
-                    itemName: 'Butter',
-                    quantity: '20 kg',
-                  ),
-                  // Add more inventory items here
-                ],
-              ),
+          ),
+          const SizedBox(height: 20.0),
+          Expanded(
+            child: ListView(
+              children: const [
+                InventoryTile(
+                  itemName: 'Flour',
+                  quantity: '50 kg',
+                ),
+                InventoryTile(
+                  itemName: 'Sugar',
+                  quantity: '30 kg',
+                ),
+                InventoryTile(
+                  itemName: 'Butter',
+                  quantity: '20 kg',
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+    ],
+  ),
+),
+
     );
   }
 }
@@ -205,14 +194,11 @@ class InventoryTile extends StatelessWidget {
         title: Text(
           itemName,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+                fontWeight: FontWeight.bold,
+              ),
         ),
         subtitle: Text(quantity),
         leading: const Icon(Icons.inventory_2_outlined),
-        onTap: () {
-          // Handle inventory item tap if needed
-        },
       ),
     );
   }

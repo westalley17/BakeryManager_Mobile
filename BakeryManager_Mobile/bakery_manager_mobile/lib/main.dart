@@ -1,5 +1,5 @@
-import 'dart:convert';
 
+import 'dart:convert';
 import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
 import 'package:bakery_manager_mobile/widgets/landing_page.dart';
@@ -87,25 +87,26 @@ class _BakeryManagerState extends State<BakeryManager> {
       );
     }
     return MaterialApp(
-      // add comments to all this later, I'm eepy
-      // no longer eepy, just need to test Azure pipeline :)
-      debugShowCheckedModeBanner: false,
-      // conditionally render homepage if Session is invalid, else render whichever dashboard they need to go to.
-      home: (_validSession! == false) ? const HomePage() : _dashboard(),
-      theme: ThemeData(
-        primaryColor: const Color(0xFFFFFBED),
-        colorScheme: ColorScheme.fromSwatch().copyWith(
-          secondary: const Color(0xFF493936),
-        ),
-        fontFamily: "BakeryManagerFont",
-        textTheme: const TextTheme(
-          titleLarge: TextStyle(
-            color: Color(0xFF493936),
-            fontSize: 34.0,
-            fontWeight: FontWeight.bold,
-          ),
+  // add comments to all this later, I'm eepy
+  // no longer eepy, just need to test Azure pipeline :)
+  debugShowCheckedModeBanner: false,
+
+  // conditionally render homepage if Session is invalid, else render whichever dashboard they need to go to.
+    home: (_validSession! == false) ? const ManagerHomePage() : _dashboard(),
+    theme: ThemeData(
+      primaryColor: const Color(0xFFFFFBED),
+      colorScheme: ColorScheme.fromSwatch().copyWith(
+        secondary: const Color(0xFF493936),
+      ),
+      fontFamily: "BakeryManagerFont",
+      textTheme: const TextTheme(
+        titleLarge: TextStyle(
+          color: Color(0xFF493936),
+          fontSize: 34.0,
+          fontWeight: FontWeight.bold,
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
