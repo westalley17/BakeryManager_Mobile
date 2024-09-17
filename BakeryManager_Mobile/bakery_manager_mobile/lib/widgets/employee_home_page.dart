@@ -137,10 +137,10 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
                 Padding(
                   padding: const EdgeInsets.only(left: 16.0),
                   child: ListTile(
-                    title: const Text('Muffins'),
+                    title: const Text('Muffin'),
                     leading: const Icon(Icons.cake_outlined),
                     onTap: () {
-                      _navigateToPage(const RecipesPage(category: 'Muffins'));
+                      _navigateToPage(const RecipesPage(category: 'Muffin'));
                     },
                   ),
                 ),
