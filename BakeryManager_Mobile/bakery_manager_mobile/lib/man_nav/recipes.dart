@@ -271,14 +271,14 @@ class _RecipesPageState extends State<RecipesPage> {
               title: const Text('Inventory'),
               leading: const Icon(Icons.inventory_2_outlined),
               onTap: () {
-                _navigateToPage(const SettingsPage());
+                _navigateToPage(const InventoryPage());
               },
             ),
             ListTile(
               title: const Text('Time Sheets'),
               leading: const Icon(Icons.access_time),
               onTap: () {
-                _navigateToPage(const SettingsPage());
+                _navigateToPage(const TimePage());
               },
             ),
             ListTile(
@@ -292,7 +292,7 @@ class _RecipesPageState extends State<RecipesPage> {
               title: const Text('Admin'),
               leading: const Icon(Icons.admin_panel_settings_sharp),
               onTap: () {
-                _navigateToPage(const SettingsPage());
+                _navigateToPage(const AdminPage());
               },
             ),
             ListTile(
