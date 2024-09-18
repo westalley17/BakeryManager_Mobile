@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:bakery_manager_mobile/env/env_config.dart';
+import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
@@ -5,7 +9,27 @@ import 'package:bakery_manager_mobile/man_nav/admin.dart';
 import 'package:bakery_manager_mobile/man_nav/inventory.dart';
 import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
+import 'package:http/http.dart' as http;
 
+class Recipe {
+  final String recipeID;
+  final String recipeName;
+  List<String> recipeIngredients = [];
+  List<String> recipeEquipment = [];
+  List<String> recipeInstructions = [];
+
+  Recipe({
+    required this.recipeID,
+    required this.recipeName,
+  });
+
+  factory Recipe.fromJson(Map<String, dynamic> json) {
+    return Recipe(
+      recipeID: json['RecipeID'],
+      recipeName: json['Name'],
+    );
+  }
+}
 
 class RecipesPage extends StatefulWidget {
   final String category;
@@ -13,15 +37,49 @@ class RecipesPage extends StatefulWidget {
   const RecipesPage({super.key, required this.category});
 
   @override
-  _RecipesPageState createState() => _RecipesPageState();
+  State<RecipesPage> createState() => _RecipesPageState();
 }
 
 class _RecipesPageState extends State<RecipesPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _pageController = PageController();
+
   int currentPage = 0;
+  int totalPages = 3; // Total number of pages (adjust based on actual content)
+
   bool isDoneEnabled = false;
   int quantity = 0; // Quantity controlled by plus and minus buttons
+
+  List<String> pageHeaders = ["Ingredients", "Equipment", "Instructions"];
+  List<Recipe> recipeNames = [];
+
+  Future<void> _retrieveRecipeNames(String category) async {
+    final url = Uri.parse('$baseURL/api/recipeNames?category=$category');
+    final headers = {
+      'Content-Type': 'application/json',
+    };
+    try {
+      final response = await http.get(url, headers: headers);
+      var parsed = jsonDecode(response.body) as List;
+      if (response.statusCode == 200) {
+        // populate the recipeNames list of Recipes.
+        recipeNames = parsed.map((json) => Recipe.fromJson(json)).toList();
+        setState(() {});
+      } else {
+        setState(() {});
+      }
+    } catch (error) {
+      // error handle
+      recipeNames = [Recipe(recipeID: "", recipeName: error.toString())];
+      setState(() {});
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _retrieveRecipeNames(widget.category);
+  }
 
   void _navigateToPage(Widget page) {
     Navigator.pop(context); // Close the drawer
@@ -31,166 +89,246 @@ class _RecipesPageState extends State<RecipesPage> {
     );
   }
 
-  // Recipe popup that matches Employee popup
-  void _showRecipeOptions(String recipe) {
-    int totalPages = 4; // Total number of pages (adjust based on actual content)
+  Future<void> _getRecipeInfo(Recipe recipe) async {
+    try {
+      final url =
+          Uri.parse('$baseURL/api/recipeInfo?recipeID=${recipe.recipeID}');
+      final response =
+          await http.get(url, headers: {'Content-Type': 'application/json'});
+      var parsed = jsonDecode(response.body);
+      String ingredients = parsed['Ingredients'] as String;
+      String equipment = parsed['Equipment'] as String;
+      String instructions = parsed['Instructions'] as String;
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Container(
-                width: MediaQuery.of(context).size.width * 0.85, // Popup width
-                height: MediaQuery.of(context).size.height * 0.7, // Popup height
-                child: Stack(
-                  children: [
-                    Column(
-                      children: [
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16.0),
-                            child: Text(
-                              recipe,
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
+      if (response.statusCode == 200) {
+        // adds all the info needed for the 3 pages of the recipe pop-up
+        recipe.recipeIngredients = ingredients.split(', ');
+        recipe.recipeEquipment = equipment.split(', ');
+        recipe.recipeInstructions = instructions.split(', ');
+        _showRecipeOptions(recipe);
+      } else {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return Dialog(
+                child: Text('Could not load ${recipe.recipeName} information'),
+              );
+            },
+          );
+        }
+      }
+    } catch (error) {
+      print('Error logging out: $error');
+    }
+  }
+
+  void _showRecipeOptions(Recipe recipe) {
+    List<String> getListForPage(index) {
+      if (index == 0) {
+        return recipe.recipeIngredients;
+      } else if (index == 1) {
+        return recipe.recipeEquipment;
+      } else if (index == 2) {
+        return recipe.recipeInstructions;
+      }
+      return [];
+    }
+
+    if (mounted) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return SizedBox(
+                  width: MediaQuery.of(context).size.width *
+                      0.85, // Make the popup wider
+                  height: MediaQuery.of(context).size.height *
+                      0.7, // Make the popup longer
+                  child: Stack(
+                    children: [
+                      Column(
+                        children: [
+                          Center(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 16.0),
+                              child: Text(
+                                recipe.recipeName,
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              textAlign: TextAlign.center,
                             ),
                           ),
-                        ),
-                        // PageView for recipe steps
-                        Expanded(
-                          child: PageView.builder(
-                            controller: _pageController,
-                            itemCount: totalPages,
-                            onPageChanged: (int index) {
-                              setState(() {
-                                currentPage = index;
-                                isDoneEnabled = currentPage == totalPages - 1; // Enable "Done" on last page
-                              });
-                            },
-                            itemBuilder: (context, index) {
-                              return Container(
-                                margin: const EdgeInsets.all(16.0),
-                                color: Colors.grey[(index + 1) * 100], // Placeholder page content
-                                child: Center(
+                          Expanded(
+                            child: PageView.builder(
+                              controller: _pageController,
+                              itemCount:
+                                  3, // constant 3 pages (ing, equip, inst)
+                              onPageChanged: (int index) {
+                                setState(() {
+                                  currentPage = index;
+                                  isDoneEnabled = currentPage ==
+                                      totalPages -
+                                          1; // Enable "Done" on last page
+                                });
+                              },
+                              itemBuilder: (context, index) {
+                                List<String> currentList =
+                                    getListForPage(index);
+                                return Container(
+                                    margin: const EdgeInsets.all(16.0),
+                                    color: Theme.of(context)
+                                        .primaryColor, // Example colors for different pages
+                                    child: SingleChildScrollView(
+                                        child: Column(children: [
+                                      Text(
+                                        pageHeaders[
+                                            index], // Example page content
+                                        style: const TextStyle(fontSize: 24),
+                                      ),
+                                      const Divider(),
+                                      // black magic from ChatGPT to do what I need :)
+                                      // had to sell my soul to the devil for this one
+                                      ...currentList.map((item) => Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 4.0),
+                                          child: Text(
+                                            item,
+                                            style:
+                                                const TextStyle(fontSize: 18),
+                                          )))
+                                    ])));
+                              },
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.remove_circle_outline),
+                                  iconSize:
+                                      40, // Increase the size of the minus button
+                                  onPressed: () {
+                                    setState(() {
+                                      if (quantity > 0) {
+                                        quantity--; // Decrease quantity, cap at 0
+                                      }
+                                    });
+                                  },
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal:
+                                          20.0), // Add space between buttons and number
                                   child: Text(
-                                    'Page ${index + 1}', // Example page content
-                                    style: const TextStyle(fontSize: 20),
+                                    '$quantity',
+                                    style: const TextStyle(
+                                        fontSize: 28), // Make the count larger
                                   ),
                                 ),
+                                IconButton(
+                                  icon: const Icon(Icons.add_circle_outline),
+                                  iconSize:
+                                      40, // Increase the size of the plus button
+                                  onPressed: () {
+                                    setState(() {
+                                      if (quantity < 10) {
+                                        quantity++; // Increase quantity, cap at 10
+                                      }
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(
+                                  50), // "Start Baking" button spans the bottom
+                              backgroundColor: isDoneEnabled
+                                  ? Colors.green
+                                  : Colors.grey, // Button color
+                            ),
+                            onPressed: isDoneEnabled
+                                ? () => Navigator.pop(context)
+                                : null, // Only enable on last page
+                            child: const Text(
+                              'Start Baking',
+                              style: TextStyle(
+                                fontSize: 18, // Increase font size
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (currentPage >
+                          0) // Show left arrow if not on the first page
+                        Positioned(
+                          left: 0,
+                          top: MediaQuery.of(context).size.height * 0.25,
+                          child: IconButton(
+                            icon: const Icon(Icons.arrow_left, size: 40),
+                            onPressed: () {
+                              _pageController.previousPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
                               );
                             },
                           ),
                         ),
-                        // Plus and Minus Buttons for quantity selection
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.remove_circle_outline),
-                                iconSize: 40, // Larger button size
-                                onPressed: () {
-                                  setState(() {
-                                    if (quantity > 0) quantity--; // Decrease quantity, cap at 0
-                                  });
-                                },
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20.0), // Space between buttons and number
-                                child: Text(
-                                  '$quantity',
-                                  style: const TextStyle(fontSize: 28), // Larger quantity display
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.add_circle_outline),
-                                iconSize: 40, // Larger button size
-                                onPressed: () {
-                                  setState(() {
-                                    if (quantity < 10) quantity++; // Increase quantity, cap at 10
-                                  });
-                                },
-                              ),
-                            ],
+                      if (currentPage <
+                          totalPages -
+                              1) // Show right arrow if not on the last page
+                        Positioned(
+                          right: 0,
+                          top: MediaQuery.of(context).size.height * 0.25,
+                          child: IconButton(
+                            icon: const Icon(Icons.arrow_right, size: 40),
+                            onPressed: () {
+                              _pageController.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            },
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        // Start Baking button
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(50), // Button spans width
-                            backgroundColor: isDoneEnabled ? Colors.green : Colors.grey, // Enabled only on last page
-                          ),
-                          onPressed: isDoneEnabled ? () => Navigator.pop(context) : null, // Close dialog if enabled
-                          child: const Text(
-                            'Start Baking',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    // Left arrow navigation
-                    if (currentPage > 0)
-                      Positioned(
-                        left: 0,
-                        top: MediaQuery.of(context).size.height * 0.25,
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_left, size: 40),
-                          onPressed: () {
-                            _pageController.previousPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          },
-                        ),
-                      ),
-                    // Right arrow navigation
-                    if (currentPage < totalPages - 1)
-                      Positioned(
-                        right: 0,
-                        top: MediaQuery.of(context).size.height * 0.25,
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_right, size: 40),
-                          onPressed: () {
-                            _pageController.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          },
-                        ),
-                      ),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, List<String>> recipes = {
-      'Cake': ['Chocolate Cake', 'Strawberry Shortcake', 'French Vanilla'],
-      'Bread': ['Baguette', 'Sourdough', 'Whole Wheat Bread'],
-      'Muffins': ['Pumpkin', 'Banana', 'Blueberry'],
-    };
-
-    final List<String> selectedRecipes = recipes[widget.category] ?? [];
+    if (recipeNames.isEmpty) {
+      // Show a loading indicator while checking the session
+      return const MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       key: _scaffoldKey,
@@ -218,8 +356,8 @@ class _RecipesPageState extends State<RecipesPage> {
                 child: Text(
                   'Menu',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.black,
-                  ),
+                        color: Colors.black,
+                      ),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -228,7 +366,7 @@ class _RecipesPageState extends State<RecipesPage> {
               title: const Text('Dashboard'),
               leading: const Icon(Icons.house_outlined),
               onTap: () {
-                _navigateToPage(const ManagerHomePage());
+                _navigateToPage(const EmployeeHomePage());
               },
             ),
             ExpansionTile(
@@ -261,38 +399,17 @@ class _RecipesPageState extends State<RecipesPage> {
                     title: const Text('Muffins'),
                     leading: const Icon(Icons.cake_outlined),
                     onTap: () {
-                      _navigateToPage(const RecipesPage(category: 'Muffins'));
+                      _navigateToPage(const RecipesPage(category: 'Muffin'));
                     },
                   ),
                 ),
               ],
             ),
             ListTile(
-              title: const Text('Inventory'),
-              leading: const Icon(Icons.inventory_2_outlined),
-              onTap: () {
-                _navigateToPage(const InventoryPage());
-              },
-            ),
-            ListTile(
-              title: const Text('Time Sheets'),
-              leading: const Icon(Icons.access_time),
-              onTap: () {
-                _navigateToPage(const TimePage());
-              },
-            ),
-            ListTile(
               title: const Text('Clock In/Out'),
               leading: const Icon(Icons.lock_clock),
               onTap: () {
                 _navigateToPage(const ClockPage());
-              },
-            ),
-            ListTile(
-              title: const Text('Admin'),
-              leading: const Icon(Icons.admin_panel_settings_sharp),
-              onTap: () {
-                _navigateToPage(const AdminPage());
               },
             ),
             ListTile(
@@ -306,7 +423,7 @@ class _RecipesPageState extends State<RecipesPage> {
         ),
       ),
       body: Container(
-        color: Colors.grey[200], // Set background to match dashboard
+        color: Colors.grey[200], // Set to the background color of the dashboard
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
         child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -314,7 +431,7 @@ class _RecipesPageState extends State<RecipesPage> {
             crossAxisSpacing: 16.0,
             mainAxisSpacing: 16.0,
           ),
-          itemCount: selectedRecipes.length,
+          itemCount: recipeNames.length,
           itemBuilder: (context, index) {
             return ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -326,9 +443,10 @@ class _RecipesPageState extends State<RecipesPage> {
                 ),
               ),
               onPressed: () {
-                _showRecipeOptions(selectedRecipes[index]);
+                // pass in the ID here so we can immediately GET recipeInfo.
+                _getRecipeInfo(recipeNames[index]);
               },
-              child: Text(selectedRecipes[index]),
+              child: Text(recipeNames[index].recipeName),
             );
           },
         ),

@@ -1,12 +1,11 @@
-import 'dart:convert';
-
-import 'package:bakery_manager_mobile/env/env_config.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
 import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/emp_nav/settings.dart';
-import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
+import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'dart:convert';
 
 class Recipe {
   final String recipeID;
@@ -120,6 +119,40 @@ class _RecipesPageState extends State<RecipesPage> {
     }
   }
 
+  Future<void> _checkRecipeIngredients(Recipe recipe, int quantity) async {
+    try {
+      final url =
+          Uri.parse('$baseURL/api/recipeInfo?recipeID=${recipe.recipeID}');
+      final response =
+          await http.get(url, headers: {'Content-Type': 'application/json'});
+      var parsed = jsonDecode(response.body);
+      String ingredients = parsed['Ingredients'] as String;
+      String equipment = parsed['Equipment'] as String;
+      String instructions = parsed['Instructions'] as String;
+
+      if (response.statusCode == 200) {
+        // adds all the info needed for the 3 pages of the recipe pop-up
+        recipe.recipeIngredients = ingredients.split(', ');
+        recipe.recipeEquipment = equipment.split(', ');
+        recipe.recipeInstructions = instructions.split(', ');
+        _showRecipeOptions(recipe);
+      } else {
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return Dialog(
+                child: Text('Could not load ${recipe.recipeName} information'),
+              );
+            },
+          );
+        }
+      }
+    } catch(error) {
+
+    }
+  }
+
   void _showRecipeOptions(Recipe recipe) {
     List<String> getListForPage(index) {
       if (index == 0) {
@@ -142,7 +175,7 @@ class _RecipesPageState extends State<RecipesPage> {
             ),
             child: StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
-                return Container(
+                return SizedBox(
                   width: MediaQuery.of(context).size.width *
                       0.85, // Make the popup wider
                   height: MediaQuery.of(context).size.height *
@@ -218,8 +251,9 @@ class _RecipesPageState extends State<RecipesPage> {
                                       40, // Increase the size of the minus button
                                   onPressed: () {
                                     setState(() {
-                                      if (quantity > 0)
+                                      if (quantity > 0) {
                                         quantity--; // Decrease quantity, cap at 0
+                                      }
                                     });
                                   },
                                 ),
@@ -238,9 +272,11 @@ class _RecipesPageState extends State<RecipesPage> {
                                   iconSize:
                                       40, // Increase the size of the plus button
                                   onPressed: () {
+                                    _checkRecipeIngredients(recipe, quantity);
                                     setState(() {
-                                      if (quantity < 10)
+                                      if (quantity < 10) {
                                         quantity++; // Increase quantity, cap at 10
+                                      }
                                     });
                                   },
                                 ),
@@ -372,7 +408,7 @@ class _RecipesPageState extends State<RecipesPage> {
                   padding: const EdgeInsets.only(left: 16.0),
                   child: ListTile(
                     title: const Text('Cake'),
-                    leading: const Icon(Icons.cake),
+                    leading: const Icon(Icons.cake_sharp),
                     onTap: () {
                       _navigateToPage(const RecipesPage(category: 'Cake'));
                     },

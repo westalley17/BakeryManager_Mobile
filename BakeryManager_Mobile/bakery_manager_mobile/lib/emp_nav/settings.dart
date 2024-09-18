@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
 import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
-import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
+import 'package:flutter/material.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});

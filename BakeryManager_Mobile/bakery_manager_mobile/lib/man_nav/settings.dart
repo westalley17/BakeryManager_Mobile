@@ -1,5 +1,8 @@
+import 'package:bakery_manager_mobile/man_nav/admin.dart';
+import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/man_nav/inventory.dart';
 import 'package:bakery_manager_mobile/man_nav/recipes.dart';
+import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
 import 'package:flutter/material.dart';
 
@@ -77,16 +80,10 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
             _buildDrawerTile('Inventory', Icons.inventory_2_outlined, const InventoryPage()),
-            _buildDrawerTile('Time Sheets', Icons.access_time, const ManagerHomePage()),
-            _buildDrawerTile('Clock In/Out', Icons.lock_clock, const ManagerHomePage()),
-            ListTile(
-              title: const Text('Admin'),
-              leading: const Icon(Icons.admin_panel_settings_sharp),
-              onTap: () {
-                Navigator.pop(context);
-                // Add functionality for Admin page navigation here
-              },
-            ),
+            _buildDrawerTile('Time Sheets', Icons.access_time, const TimePage()),
+            _buildDrawerTile('Clock In/Out', Icons.lock_clock, const ClockPage()),
+            _buildDrawerTile('Admin', Icons.admin_panel_settings_sharp, const AdminPage()),
+            _buildDrawerTile('Settings', Icons.settings_outlined, const SettingsPage()),
           ],
         ),
       ),

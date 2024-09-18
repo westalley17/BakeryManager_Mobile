@@ -31,7 +31,7 @@ class _BakeryManagerState extends State<BakeryManager> {
   Future<void> _checkSession() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? sessionID = await prefs.getString('SessionID');
+      String? sessionID = prefs.getString('SessionID');
       if (sessionID == null) {
         setState(() {
           // update _validSession
@@ -91,7 +91,7 @@ class _BakeryManagerState extends State<BakeryManager> {
       // no longer eepy, just need to test Azure pipeline :)
       debugShowCheckedModeBanner: false,
       // conditionally render homepage if Session is invalid, else render whichever dashboard they need to go to.
-      home: (_validSession! == false) ? const HomePage() : _dashboard(),
+      home: (_validSession! == false) ? const EmployeeHomePage() : _dashboard(),
       theme: ThemeData(
         primaryColor: const Color(0xFFFFFBED),
         colorScheme: ColorScheme.fromSwatch().copyWith(

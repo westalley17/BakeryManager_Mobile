@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
 import 'package:bakery_manager_mobile/emp_nav/settings.dart';
 import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
-import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';  
 import 'dart:async';  
 
@@ -70,7 +70,7 @@ class _ClockPageState extends State<ClockPage> {
                     Table(
                       border: TableBorder.all(),
                       children: [
-                        TableRow(
+                        const TableRow(
                           children: [
                             TableCell(child: Center(child: Text(''))), // Empty cell at top-left
                             TableCell(child: Center(child: Text('Shift 1'))),

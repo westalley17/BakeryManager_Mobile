@@ -24,7 +24,7 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
     String? sessionID;
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      sessionID = await prefs.getString('SessionID');
+      sessionID = prefs.getString('SessionID');
       await prefs.remove('SessionID');
     } catch (error) {
       print('Error logging out $error');
@@ -118,7 +118,7 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
                   padding: const EdgeInsets.only(left: 16.0),
                   child: ListTile(
                     title: const Text('Cake'),
-                    leading: Icon(Icons.cake_outlined),
+                    leading: const Icon(Icons.cake_outlined),
                     onTap: () {
                       _navigateToPage(const RecipesPage(category: 'Cake'));
                     },
