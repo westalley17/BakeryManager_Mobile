@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
@@ -38,28 +37,30 @@ class _BakeryManagerState extends State<BakeryManager> {
           // update _validSession
           _validSession = false;
         });
-      }
-      final url = Uri.parse("$baseURL/api/sessions?sessionID=$sessionID");
-      final headers = {
-        'Content-Type': 'application/json',
-      };
-      final response = await http.get(
-        url,
-        headers: headers,
-      );
-      var parsed = jsonDecode(response.body);
-      if (response.statusCode == 200) {
-        setState(() {
-          // update _validSession
-          _validSession = true;
-          _isManager = (parsed['isManager'] == 'false') ? false : true;
-        });
+        return;
       } else {
-        // If the server returns an error response, set the error to a string so box IS red.
-        setState(() {
-          // update _validSession
-          _validSession = false;
-        });
+        final url = Uri.parse("$baseURL/api/sessions?sessionID=$sessionID");
+        final headers = {
+          'Content-Type': 'application/json',
+        };
+        final response = await http.get(
+          url,
+          headers: headers,
+        );
+        var parsed = jsonDecode(response.body);
+        if (response.statusCode == 200) {
+          setState(() {
+            // update _validSession
+            _validSession = true;
+            _isManager = (parsed['isManager'] == 'false') ? false : true;
+          });
+        } else {
+          // If the server returns an error response, set the error to a string so box IS red.
+          setState(() {
+            // update _validSession
+            _validSession = false;
+          });
+        }
       }
     } catch (error) {
       // error handle if POST fails entirely which it probably will
@@ -86,26 +87,25 @@ class _BakeryManagerState extends State<BakeryManager> {
       );
     }
     return MaterialApp(
-  // add comments to all this later, I'm eepy
-  // no longer eepy, just need to test Azure pipeline :)
-  debugShowCheckedModeBanner: false,
-
-  // conditionally render homepage if Session is invalid, else render whichever dashboard they need to go to.
-    home: (_validSession! == false) ? const EmployeeHomePage() : _dashboard(),
-    theme: ThemeData(
-      primaryColor: const Color(0xFFFFFBED),
-      colorScheme: ColorScheme.fromSwatch().copyWith(
-        secondary: const Color(0xFF493936),
-      ),
-      fontFamily: "BakeryManagerFont",
-      textTheme: const TextTheme(
-        titleLarge: TextStyle(
-          color: Color(0xFF493936),
-          fontSize: 34.0,
-          fontWeight: FontWeight.bold,
+      // add comments to all this later, I'm eepy
+      // no longer eepy, just need to test Azure pipeline :)
+      debugShowCheckedModeBanner: false,
+      // conditionally render homepage if Session is invalid, else render whichever dashboard they need to go to.
+      home: (_validSession! == false) ? const HomePage() : _dashboard(),
+      theme: ThemeData(
+        primaryColor: const Color(0xFFFFFBED),
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          secondary: const Color(0xFF493936),
+        ),
+        fontFamily: "BakeryManagerFont",
+        textTheme: const TextTheme(
+          titleLarge: TextStyle(
+            color: Color(0xFF493936),
+            fontSize: 34.0,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

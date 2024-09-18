@@ -116,7 +116,7 @@ class _ManagerHomePage extends State<ManagerHomePage> {
               children: [
                 _buildRecipeTile('Cake', Icons.cake, 'Cake'),
                 _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
-                _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
+                _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffin'),
               ],
             ),
             _buildDrawerTile(
