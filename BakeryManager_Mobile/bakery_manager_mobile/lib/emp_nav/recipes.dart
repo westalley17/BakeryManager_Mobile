@@ -49,6 +49,8 @@ class _RecipesPageState extends State<RecipesPage> {
   List<String> pageHeaders = ["Ingredients", "Equipment", "Instructions"];
   List<Recipe> recipeNames = [];
 
+  bool? available;
+
   Future<void> _retrieveRecipeNames(String category) async {
     final url = Uri.parse('$baseURL/api/recipeNames?category=$category');
     final headers = {
@@ -121,35 +123,34 @@ class _RecipesPageState extends State<RecipesPage> {
 
   Future<void> _checkRecipeIngredients(Recipe recipe, int quantity) async {
     try {
-      final url =
-          Uri.parse('$baseURL/api/recipeInfo?recipeID=${recipe.recipeID}');
+      final url = Uri.parse(
+          '$baseURL/api/checkRecipeIngredients?recipeID=${recipe.recipeID}&quantity=$quantity');
       final response =
           await http.get(url, headers: {'Content-Type': 'application/json'});
       var parsed = jsonDecode(response.body);
-      String ingredients = parsed['Ingredients'] as String;
-      String equipment = parsed['Equipment'] as String;
-      String instructions = parsed['Instructions'] as String;
-
       if (response.statusCode == 200) {
-        // adds all the info needed for the 3 pages of the recipe pop-up
-        recipe.recipeIngredients = ingredients.split(', ');
-        recipe.recipeEquipment = equipment.split(', ');
-        recipe.recipeInstructions = instructions.split(', ');
-        _showRecipeOptions(recipe);
-      } else {
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return Dialog(
-                child: Text('Could not load ${recipe.recipeName} information'),
-              );
-            },
-          );
+        // iterate through the JSON to check all availabilities
+        print(parsed);
+        for (int i = 0; i < parsed.length; i++) {
+          if (parsed[i]['available'] == 0) {
+            // if any ONE of the ingredients has insufficient amounts
+            available = false;
+            setState(() {});
+            return;
+          }
         }
+        available = true;
+        setState(() {});
+      } else {
+        setState(() {
+          available = false;
+        });
       }
-    } catch(error) {
-
+    } catch (error) {
+      print(error);
+      setState(() {
+        available = false;
+      });
     }
   }
 
@@ -271,11 +272,15 @@ class _RecipesPageState extends State<RecipesPage> {
                                   icon: const Icon(Icons.add_circle_outline),
                                   iconSize:
                                       40, // Increase the size of the plus button
-                                  onPressed: () {
-                                    _checkRecipeIngredients(recipe, quantity);
+                                  onPressed: () async {
+                                    await _checkRecipeIngredients(
+                                        recipe, quantity);
                                     setState(() {
-                                      if (quantity < 10) {
-                                        quantity++; // Increase quantity, cap at 10
+                                      if (available != null) {
+                                        if (available == true &&
+                                            quantity < 10) {
+                                          quantity++; // Increase quantity, cap at 10
+                                        }
                                       }
                                     });
                                   },
@@ -283,6 +288,15 @@ class _RecipesPageState extends State<RecipesPage> {
                               ],
                             ),
                           ),
+                          available == false
+                              ? const Text(
+                                  'One or more ingredients are unavailable!',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 16,
+                                  ),
+                                )
+                              : Container(), // Empty Container when available is true
                           const SizedBox(height: 20),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
