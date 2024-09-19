@@ -1,7 +1,6 @@
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
 import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
 import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
-import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/man_nav/inventory.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
 import 'package:bakery_manager_mobile/env/env_config.dart';
@@ -48,7 +47,7 @@ class _RecipesPageState extends State<RecipesPage> {
   int totalPages = 3; // Total number of pages (adjust based on actual content)
 
   bool isDoneEnabled = false;
-  int quantity = 0; // Quantity controlled by plus and minus buttons
+  int quantity = 1; // Quantity controlled by plus and minus buttons
 
   List<String> pageHeaders = ["Ingredients", "Equipment", "Instructions"];
   List<Recipe> recipeNames = [];
@@ -221,7 +220,7 @@ class _RecipesPageState extends State<RecipesPage> {
                                       40, // Increase the size of the minus button
                                   onPressed: () {
                                     setState(() {
-                                      if (quantity > 0) {
+                                      if (quantity > 1) {
                                         quantity--; // Decrease quantity, cap at 0
                                       }
                                     });
