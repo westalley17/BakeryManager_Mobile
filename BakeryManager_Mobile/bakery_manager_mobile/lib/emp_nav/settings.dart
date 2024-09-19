@@ -104,6 +104,56 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Cookies'),
+                    leading: const Icon(Icons.cookie_outlined),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Cookies'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Croissants'),
+                    leading: const Icon(Icons.cookie_sharp),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Croissants'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Bagels'),
+                    leading: const Icon(Icons.cookie_sharp),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Bagels'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Pies'),
+                    leading: const Icon(Icons.pie_chart_outline_outlined),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Pies'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Brownies'),
+                    leading: const Icon(Icons.cookie_sharp),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Brownies'));
+                    },
+                  ),
+                ),
               ],
             ),
             ListTile(

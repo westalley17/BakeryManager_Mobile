@@ -1,16 +1,16 @@
-import 'dart:convert';
+import 'package:bakery_manager_mobile/widgets/landing_page.dart';
+import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
+import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
+import 'package:bakery_manager_mobile/man_nav/inventory.dart';
+import 'package:bakery_manager_mobile/man_nav/settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bakery_manager_mobile/man_nav/recipes.dart';
 import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:bakery_manager_mobile/man_nav/admin.dart';
-import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
-import 'package:bakery_manager_mobile/man_nav/inventory.dart';
-import 'package:bakery_manager_mobile/man_nav/recipes.dart';
-import 'package:bakery_manager_mobile/man_nav/settings.dart';
-import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
-import 'package:bakery_manager_mobile/widgets/landing_page.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import 'dart:convert';
 
 class ManagerHomePage extends StatefulWidget {
   const ManagerHomePage({super.key});
@@ -116,7 +116,14 @@ class _ManagerHomePage extends State<ManagerHomePage> {
               children: [
                 _buildRecipeTile('Cake', Icons.cake, 'Cake'),
                 _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
-                _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffin'),
+                _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
+
+                _buildRecipeTile('Cookies', Icons.cookie, 'Cookies'),
+                _buildRecipeTile('Croissants', Icons.cookie, 'Croissants'),
+                _buildRecipeTile('Bagels', Icons.cookie, 'Bagels'),
+
+                 _buildRecipeTile('Pies', Icons.cookie, 'Pies'),
+                _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
               ],
             ),
             _buildDrawerTile(

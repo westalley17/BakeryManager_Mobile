@@ -1,15 +1,15 @@
+import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
+import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
+import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
+import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
+import 'package:bakery_manager_mobile/man_nav/inventory.dart';
+import 'package:bakery_manager_mobile/man_nav/settings.dart';
+import 'package:bakery_manager_mobile/env/env_config.dart';
+import 'package:bakery_manager_mobile/man_nav/admin.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 import 'dart:convert';
 
-import 'package:bakery_manager_mobile/env/env_config.dart';
-import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
-import 'package:flutter/material.dart';
-import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
-import 'package:bakery_manager_mobile/man_nav/settings.dart';
-import 'package:bakery_manager_mobile/man_nav/admin.dart';
-import 'package:bakery_manager_mobile/man_nav/inventory.dart';
-import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
-import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
-import 'package:http/http.dart' as http;
 
 class Recipe {
   final String recipeID;
@@ -366,7 +366,7 @@ class _RecipesPageState extends State<RecipesPage> {
               title: const Text('Dashboard'),
               leading: const Icon(Icons.house_outlined),
               onTap: () {
-                _navigateToPage(const EmployeeHomePage());
+                _navigateToPage(const ManagerHomePage());
               },
             ),
             ExpansionTile(
@@ -403,7 +403,71 @@ class _RecipesPageState extends State<RecipesPage> {
                     },
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Cookies'),
+                    leading: const Icon(Icons.cookie_outlined),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Cookies'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Croissants'),
+                    leading: const Icon(Icons.cookie_sharp),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Croissants'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Bagels'),
+                    leading: const Icon(Icons.cookie_sharp),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Bagels'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Pies'),
+                    leading: const Icon(Icons.pie_chart_outline_outlined),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Pies'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Brownies'),
+                    leading: const Icon(Icons.cookie_sharp),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Brownies'));
+                    },
+                  ),
+                ),
               ],
+            ),
+            ListTile(
+              title: const Text('Inventory'),
+              leading: const Icon(Icons.inventory),
+              onTap: () {
+                _navigateToPage(const InventoryPage());
+              },
+            ),
+            ListTile(
+              title: const Text('Timesheets'),
+              leading: const Icon(Icons.timer_sharp),
+              onTap: () {
+                _navigateToPage(const TimePage());
+              },
             ),
             ListTile(
               title: const Text('Clock In/Out'),
@@ -417,6 +481,13 @@ class _RecipesPageState extends State<RecipesPage> {
               leading: const Icon(Icons.settings_outlined),
               onTap: () {
                 _navigateToPage(const SettingsPage());
+              },
+            ),
+            ListTile(
+              title: const Text('Admin'),
+              leading: const Icon(Icons.admin_panel_settings),
+              onTap: () {
+                _navigateToPage(const AdminPage());
               },
             ),
           ],

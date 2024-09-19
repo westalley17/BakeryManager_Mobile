@@ -1,5 +1,8 @@
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
+import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
+import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/man_nav/inventory.dart';
+import 'package:bakery_manager_mobile/man_nav/settings.dart';
 import 'package:bakery_manager_mobile/man_nav/recipes.dart';
 import 'package:flutter/material.dart';
 
@@ -76,12 +79,17 @@ class _AdminPageState extends State<AdminPage> {
                 _buildDrawerTile('Cake', Icons.cake, const RecipesPage(category: 'Cake')),
                 _buildDrawerTile('Bread', Icons.bakery_dining, const RecipesPage(category: 'Bread')),
                 _buildDrawerTile('Muffins', Icons.cake_outlined, const RecipesPage(category: 'Muffins')),
+                _buildDrawerTile('Cookies', Icons.cookie, const RecipesPage(category: 'Cookies')), // Adjust as per actual page
+                _buildDrawerTile('Croissants', Icons.cookie_outlined, const RecipesPage(category: 'Croissants')), // Adjust as per actual page
+                _buildDrawerTile('Bagels', Icons.cookie_rounded, const RecipesPage(category: 'Bagels')),
+                _buildDrawerTile('Pies', Icons.cookie_sharp, const RecipesPage(category: 'Pies')),
+                _buildDrawerTile('Brownies', Icons.cookie, const RecipesPage(category: 'Brownies')),
               ],
             ),
             _buildDrawerTile('Inventory', Icons.inventory_2_outlined, const InventoryPage()),
-            _buildDrawerTile('Time Sheets', Icons.access_time, const ManagerHomePage()), // Adjust as per actual page
-            _buildDrawerTile('Clock In/Out', Icons.lock_clock, const ManagerHomePage()), // Adjust as per actual page
-            _buildDrawerTile('Settings', Icons.settings_outlined, const ManagerHomePage()), // Adjust as per actual page
+            _buildDrawerTile('Time Sheets', Icons.access_time, const TimePage()), // Adjust as per actual page
+            _buildDrawerTile('Clock In/Out', Icons.lock_clock, const ClockPage()), // Adjust as per actual page
+            _buildDrawerTile('Settings', Icons.settings_outlined, const SettingsPage()), 
           ],
         ),
       ),

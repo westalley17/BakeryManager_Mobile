@@ -1,6 +1,8 @@
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
+import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
 import 'package:bakery_manager_mobile/man_nav/recipes.dart';
+import 'package:bakery_manager_mobile/man_nav/admin.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';  
 import 'dart:async';  
@@ -203,6 +205,56 @@ class _ClockPageState extends State<ClockPage> {
                     },
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Cookies'),
+                    leading: const Icon(Icons.cookie_outlined),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Cookies'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Croissants'),
+                    leading: const Icon(Icons.cookie_sharp),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Croissants'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Bagels'),
+                    leading: const Icon(Icons.cookie_sharp),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Bagels'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Pies'),
+                    leading: const Icon(Icons.pie_chart_outline_outlined),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Pies'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Brownies'),
+                    leading: const Icon(Icons.cookie_sharp),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Brownies'));
+                    },
+                  ),
+                ),
               ],
             ),
             ListTile(
@@ -213,10 +265,24 @@ class _ClockPageState extends State<ClockPage> {
               },
             ),
             ListTile(
+              title: const Text('Timesheets'),
+              leading: const Icon(Icons.time_to_leave),
+              onTap: () {
+                _navigateToPage(const TimePage());
+              },
+            ),
+            ListTile(
               title: const Text('Settings'),
               leading: const Icon(Icons.settings_outlined),
               onTap: () {
                 _navigateToPage(const SettingsPage());
+              },
+            ),
+            ListTile(
+              title: const Text('Admin'),
+              leading: const Icon(Icons.admin_panel_settings),
+              onTap: () {
+                _navigateToPage(const AdminPage());
               },
             ),
           ],

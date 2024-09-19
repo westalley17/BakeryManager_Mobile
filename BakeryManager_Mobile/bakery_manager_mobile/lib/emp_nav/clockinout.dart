@@ -222,6 +222,56 @@ class _ClockPageState extends State<ClockPage> {
                     },
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Cookies'),
+                    leading: const Icon(Icons.cookie_outlined),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Cookies'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Croissants'),
+                    leading: const Icon(Icons.cookie_sharp),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Croissants'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Bagels'),
+                    leading: const Icon(Icons.cookie_sharp),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Bagels'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Pies'),
+                    leading: const Icon(Icons.pie_chart_outline_outlined),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Pies'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Brownies'),
+                    leading: const Icon(Icons.cookie_sharp),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Brownies'));
+                    },
+                  ),
+                ),
               ],
             ),
             ListTile(
@@ -274,7 +324,7 @@ class _ClockPageState extends State<ClockPage> {
                 ),
                 child: Text(
                   _clockedIn ? 'Clock Out' : 'Clock In',
-                  style: const TextStyle(color: Colors.white, fontSize: 20),
+                  style: const TextStyle(color: Colors.white, fontSize: 22),
                 ),
               ),
             ),
@@ -293,7 +343,7 @@ class _ClockPageState extends State<ClockPage> {
                 ),
                 child: const Text(
                   'Change Availability',
-                  style: TextStyle(color: Colors.white, fontSize: 20),
+                  style: TextStyle(color: Colors.white, fontSize: 22),
                 ),
               ),
             ),
@@ -312,8 +362,8 @@ class _ClockPageState extends State<ClockPage> {
                   backgroundColor: Colors.orange, // Customize the color
                 ),
                 child: const Text(
-                  'Change Hours',
-                  style: TextStyle(color: Colors.white, fontSize: 20),
+                  'View Hours',
+                  style: TextStyle(color: Colors.white, fontSize: 22),
                 ),
               ),
             ),

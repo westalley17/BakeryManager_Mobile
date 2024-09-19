@@ -44,7 +44,7 @@ class _RecipesPageState extends State<RecipesPage> {
   int totalPages = 3; // Total number of pages (adjust based on actual content)
 
   bool isDoneEnabled = false;
-  int quantity = 0; // Quantity controlled by plus and minus buttons
+  int quantity = 1; // Quantity controlled by plus and minus buttons
 
   List<String> pageHeaders = ["Ingredients", "Equipment", "Instructions"];
   List<Recipe> recipeNames = [];
@@ -118,6 +118,36 @@ class _RecipesPageState extends State<RecipesPage> {
       }
     } catch (error) {
       print('Error logging out: $error');
+    }
+  }
+
+  Future<void> _startBaking(Recipe recipe, int quantity) async {
+    try {
+      final url = Uri.parse(
+          '$baseURL/api/startBaking');
+      final headers = {
+        'Content-Type': 'application/json'
+      };
+      final body = jsonEncode({
+        'recipeID': recipe.recipeID,
+        'num': quantity
+      });
+      final response =
+          await http.post(url, headers: headers, body: body);
+      var parsed = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        // iterate through the JSON to check all availabilities
+        print('YIPPEEE');
+        setState(() {});
+      } else {
+        print(response.statusCode);
+        setState(() {
+        });
+      }
+    } catch (error) {
+      print(error);
+      setState(() {
+      });
     }
   }
 
@@ -241,6 +271,15 @@ class _RecipesPageState extends State<RecipesPage> {
                               },
                             ),
                           ),
+                          available == false
+                              ? const Text(
+                                  'One or more ingredients are unavailable!',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 16,
+                                  ),
+                                )
+                              : Container(), // Empty Container when available is true
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: Row(
@@ -252,7 +291,7 @@ class _RecipesPageState extends State<RecipesPage> {
                                       40, // Increase the size of the minus button
                                   onPressed: () {
                                     setState(() {
-                                      if (quantity > 0) {
+                                      if (quantity > 1) {
                                         quantity--; // Decrease quantity, cap at 0
                                       }
                                     });
@@ -288,15 +327,6 @@ class _RecipesPageState extends State<RecipesPage> {
                               ],
                             ),
                           ),
-                          available == false
-                              ? const Text(
-                                  'One or more ingredients are unavailable!',
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 16,
-                                  ),
-                                )
-                              : Container(), // Empty Container when available is true
                           const SizedBox(height: 20),
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
@@ -307,7 +337,7 @@ class _RecipesPageState extends State<RecipesPage> {
                                   : Colors.grey, // Button color
                             ),
                             onPressed: isDoneEnabled
-                                ? () => Navigator.pop(context)
+                                ? () => _startBaking(recipe, quantity)
                                 : null, // Only enable on last page
                             child: const Text(
                               'Start Baking',
@@ -445,6 +475,56 @@ class _RecipesPageState extends State<RecipesPage> {
                     leading: const Icon(Icons.cake_outlined),
                     onTap: () {
                       _navigateToPage(const RecipesPage(category: 'Muffin'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Cookies'),
+                    leading: const Icon(Icons.cookie_outlined),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Cookies'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Croissants'),
+                    leading: const Icon(Icons.cookie_sharp),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Croissants'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Bagels'),
+                    leading: const Icon(Icons.cookie_sharp),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Bagels'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Pies'),
+                    leading: const Icon(Icons.pie_chart_outline_outlined),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Pies'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Brownies'),
+                    leading: const Icon(Icons.cookie_sharp),
+                    onTap: () {
+                      _navigateToPage(const RecipesPage(category: 'Brownies'));
                     },
                   ),
                 ),

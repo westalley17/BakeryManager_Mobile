@@ -110,6 +110,31 @@ class _InventoryPageState extends State<InventoryPage> {
                   icon: Icons.cake_outlined,
                   page: const RecipesPage(category: 'Muffins'),
                 ),
+                _buildDrawerTile(
+                  title: 'Cookie',
+                  icon: Icons.cookie,
+                  page: const RecipesPage(category: 'Cookie'),
+                ),
+                _buildDrawerTile(
+                  title: 'Croissants',
+                  icon: Icons.cookie,
+                  page: const RecipesPage(category: 'Croissants'),
+                ),
+                _buildDrawerTile(
+                  title: 'Bagels',
+                  icon: Icons.cookie,
+                  page: const RecipesPage(category: 'Bagels'),
+                ),
+                _buildDrawerTile(
+                  title: 'Pies',
+                  icon: Icons.cookie,
+                  page: const RecipesPage(category: 'Pies'),
+                ),
+                _buildDrawerTile(
+                  title: 'Brownies',
+                  icon: Icons.cookie,
+                  page: const RecipesPage(category: 'Brownies'),
+                ),
               ],
             ),
             _buildDrawerTile(
