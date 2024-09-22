@@ -3,7 +3,6 @@ import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/emp_nav/settings.dart';
 import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
@@ -134,7 +133,7 @@ class _RecipesPageState extends State<RecipesPage> {
       });
       final response =
           await http.post(url, headers: headers, body: body);
-      var parsed = jsonDecode(response.body);
+      //var parsed = jsonDecode(response.body);
       if (response.statusCode == 200) {
         // iterate through the JSON to check all availabilities
         print('YIPPEEE');
