@@ -1,7 +1,6 @@
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
 import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
 import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
-import 'package:bakery_manager_mobile/man_nav/inventory.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
 import 'package:bakery_manager_mobile/man_nav/recipes.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +29,17 @@ class _AdminPageState extends State<AdminPage> {
       title: Text(title),
       leading: Icon(icon),
       onTap: () => _navigateToPage(page),
+    );
+  }
+  
+  Widget _buildRecipeTile(String title, IconData icon, String category) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: ListTile(
+        title: Text(title),
+        leading: Icon(icon),
+        onTap: () => _navigateToPage(RecipesPage(category: category)),
+      ),
     );
   }
 
@@ -86,7 +96,16 @@ class _AdminPageState extends State<AdminPage> {
                 _buildDrawerTile('Brownies', Icons.cookie, const RecipesPage(category: 'Brownies')),
               ],
             ),
-            _buildDrawerTile('Inventory', Icons.inventory_2_outlined, const InventoryPage()),
+            ExpansionTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: const Text('Inventory'),
+              children: [
+                _buildRecipeTile('Raw Ingredients', Icons.egg, 'Raw Ingredients'),
+                _buildRecipeTile('Finished Products', Icons.breakfast_dining_rounded, 'Finished Products'),
+                _buildRecipeTile('Packaging', Icons.check_box_outline_blank, 'Packaging'),
+                _buildRecipeTile('Cleaning Products', Icons.clean_hands, 'Cleaning Products'),
+              ],
+            ),
             _buildDrawerTile('Time Sheets', Icons.access_time, const TimePage()), // Adjust as per actual page
             _buildDrawerTile('Clock In/Out', Icons.lock_clock, const ClockPage()), // Adjust as per actual page
             _buildDrawerTile('Settings', Icons.settings_outlined, const SettingsPage()), 
