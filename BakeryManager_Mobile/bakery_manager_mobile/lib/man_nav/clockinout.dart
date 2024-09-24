@@ -1,18 +1,25 @@
+import 'dart:convert';
+import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
 import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
 import 'package:bakery_manager_mobile/man_nav/recipes.dart';
 import 'package:bakery_manager_mobile/man_nav/admin.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';  
-import 'dart:async';  
+import 'package:intl/intl.dart';
+import 'dart:async';
 
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+
+import '../widgets/landing_page.dart';
 
 class ClockPage extends StatefulWidget {
   const ClockPage({super.key});
 
   @override
-  _ClockPageState createState() => _ClockPageState();
+  State<ClockPage> createState() => _ClockPageState();
 }
 
 class _ClockPageState extends State<ClockPage> {
@@ -20,6 +27,7 @@ class _ClockPageState extends State<ClockPage> {
 
   String _currentTime = '';
   bool _clockedIn = false; // Toggle between clocked in and out
+  Timer? _timer;
 
   // Create a 2D list to keep track of selected cells
   List<List<bool>> selectedCells = List.generate(
@@ -30,15 +38,45 @@ class _ClockPageState extends State<ClockPage> {
   @override
   void initState() {
     super.initState();
-    _startClock(); // Start the real-time clock
+    //_startClock(); // Start the real-time clock
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (mounted) {
+        setState(() {
+          _currentTime = DateFormat('hh:mm:ss a')
+              .format(DateTime.now()); // Format the time
+        });
+      }
+    });
   }
 
-  void _startClock() {
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        _currentTime = DateFormat('hh:mm:ss a').format(DateTime.now()); // Format the time
-      });
-    });
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
+  }
+
+  Future<void> _logout() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final sessionID = prefs.getString('SessionID');
+      final url = Uri.parse('$baseURL/api/sessions');
+      final response = await http.delete(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'sessionID': sessionID}),
+      );
+      await prefs.remove('SessionID');
+      if (response.statusCode == 200 && mounted) {
+        Navigator.pushReplacement(
+          context,
+          CupertinoPageRoute(builder: (context) => const HomePage()),
+        );
+      } else {
+        print('Failed to log out. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error logging out: $error');
+    }
   }
 
   void _toggleClockInOut() {
@@ -56,71 +94,88 @@ class _ClockPageState extends State<ClockPage> {
   }
 
   void _showAvailabilityPopup() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return StatefulBuilder(
-        builder: (BuildContext context, StateSetter setState) {
-          return AlertDialog(
-            title: const Text('Change Availability'),
-            content: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8, // Responsive width
-              height: MediaQuery.of(context).size.height * 0.6, // Responsive height
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Table(
-                      border: TableBorder.all(),
-                      children: [
-                        const TableRow(
-                          children: [
-                            TableCell(child: Center(child: Text(''))), // Empty cell at top-left
-                            TableCell(child: Center(child: Text('Shift 1'))),
-                            TableCell(child: Center(child: Text('Shift 2'))),
-                          ],
-                        ),
-                        for (int day = 0; day < 7; day++)
-                          TableRow(
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text('Change Availability'),
+              content: SizedBox(
+                width:
+                    MediaQuery.of(context).size.width * 0.8, // Responsive width
+                height: MediaQuery.of(context).size.height *
+                    0.6, // Responsive height
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Table(
+                        border: TableBorder.all(),
+                        children: [
+                          const TableRow(
                             children: [
-                              TableCell(child: Center(child: Text(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][day]))),
-                              ...List.generate(2, (shift) {
-                                return TableCell(
+                              TableCell(
                                   child: Center(
-                                    child: Checkbox(
-                                      value: selectedCells[day][shift],
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          selectedCells[day][shift] = value ?? false;
-                                        });
-                                      },
-                                      activeColor: Colors.green, // Set checkbox color to green
-                                    ),
-                                  ),
-                                );
-                              }),
+                                      child:
+                                          Text(''))), // Empty cell at top-left
+                              TableCell(child: Center(child: Text('Shift 1'))),
+                              TableCell(child: Center(child: Text('Shift 2'))),
                             ],
                           ),
-                      ],
-                    ),
-                  ],
+                          for (int day = 0; day < 7; day++)
+                            TableRow(
+                              children: [
+                                TableCell(
+                                    child: Center(
+                                        child: Text([
+                                  'Monday',
+                                  'Tuesday',
+                                  'Wednesday',
+                                  'Thursday',
+                                  'Friday',
+                                  'Saturday',
+                                  'Sunday'
+                                ][day]))),
+                                ...List.generate(2, (shift) {
+                                  return TableCell(
+                                    child: Center(
+                                      child: Checkbox(
+                                        value: selectedCells[day][shift],
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            selectedCells[day][shift] =
+                                                value ?? false;
+                                          });
+                                        },
+                                        activeColor: Colors
+                                            .green, // Set checkbox color to green
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-                child: const Text('Close'),
-              ),
-              // Optionally remove the Save button if not needed
-            ],
-          );
-        },
-      );
-    },
-  );
-}
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: const Text('Close'),
+                ),
+                // Optionally remove the Save button if not needed
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +194,10 @@ class _ClockPageState extends State<ClockPage> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              Navigator.pop(context);
+              _logout();
+              if (mounted) {
+                Navigator.pop(context);
+              }
             },
           ),
         ],
@@ -158,8 +216,8 @@ class _ClockPageState extends State<ClockPage> {
                 child: Text(
                   'Menu',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.black,
-                  ),
+                        color: Colors.black,
+                      ),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -221,7 +279,8 @@ class _ClockPageState extends State<ClockPage> {
                     title: const Text('Croissants'),
                     leading: const Icon(Icons.cookie_sharp),
                     onTap: () {
-                      _navigateToPage(const RecipesPage(category: 'Croissants'));
+                      _navigateToPage(
+                          const RecipesPage(category: 'Croissants'));
                     },
                   ),
                 ),
@@ -294,8 +353,8 @@ class _ClockPageState extends State<ClockPage> {
         child: Column(
           children: [
             // Push the time display towards the top
-            const SizedBox(height: 100),  // Add some space at the top
-            
+            const SizedBox(height: 100), // Add some space at the top
+
             // Time display at the top
             Text(
               _currentTime, // Display the real-time clock
@@ -305,14 +364,16 @@ class _ClockPageState extends State<ClockPage> {
                 color: Colors.black,
               ),
             ),
-            
-            const SizedBox(height: 150), // This pushes everything below downwards
-            
+
+            const SizedBox(
+                height: 150), // This pushes everything below downwards
+
             // Clock In/Out button
             SizedBox(
-              width: 300,  // Adjust the width as needed
+              width: 300, // Adjust the width as needed
               child: ElevatedButton(
-                onPressed: _toggleClockInOut,  // This function toggles the clock in/out state
+                onPressed:
+                    _toggleClockInOut, // This function toggles the clock in/out state
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 60), // Adjust height
                   backgroundColor: _clockedIn ? Colors.red : Colors.green,
@@ -323,14 +384,15 @@ class _ClockPageState extends State<ClockPage> {
                 ),
               ),
             ),
-            
-            const SizedBox(height: 20),  // Spacing between buttons
+
+            const SizedBox(height: 20), // Spacing between buttons
 
             // Change Availability button
             SizedBox(
-              width: 300,  // Adjust the width as needed
+              width: 300, // Adjust the width as needed
               child: ElevatedButton(
-                onPressed: _showAvailabilityPopup,  // Show the availability popup
+                onPressed:
+                    _showAvailabilityPopup, // Show the availability popup
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 60), // Adjust height
                   backgroundColor: Colors.blue, // Customize the color
@@ -341,12 +403,12 @@ class _ClockPageState extends State<ClockPage> {
                 ),
               ),
             ),
-            
-            const SizedBox(height: 10),  // Add spacing between buttons
+
+            const SizedBox(height: 10), // Add spacing between buttons
 
             // Change Hours button
             SizedBox(
-              width: 300,  // Adjust the width as needed
+              width: 300, // Adjust the width as needed
               child: ElevatedButton(
                 onPressed: () {
                   // Implement your change hours functionality
@@ -362,7 +424,8 @@ class _ClockPageState extends State<ClockPage> {
               ),
             ),
 
-            const SizedBox(height: 50),  // Add some space at the bottom if needed
+            const SizedBox(
+                height: 50), // Add some space at the bottom if needed
           ],
         ),
       ),

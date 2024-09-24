@@ -1,15 +1,24 @@
+import 'dart:convert';
+
 import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
 import 'package:bakery_manager_mobile/emp_nav/settings.dart';
 import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
+
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+
+import '../env/env_config.dart';
+import '../widgets/landing_page.dart';
 
 class ClockPage extends StatefulWidget {
   const ClockPage({super.key});
 
   @override
-  _ClockPageState createState() => _ClockPageState();
+  State<ClockPage> createState() => _ClockPageState();
 }
 
 class _ClockPageState extends State<ClockPage> {
@@ -17,6 +26,7 @@ class _ClockPageState extends State<ClockPage> {
 
   String _currentTime = '';
   bool _clockedIn = false; // Toggle between clocked in and out
+  Timer? _timer;
 
   // Create a 2D list to keep track of selected cells
   List<List<bool>> selectedCells = List.generate(
@@ -27,11 +37,8 @@ class _ClockPageState extends State<ClockPage> {
   @override
   void initState() {
     super.initState();
-    _startClock(); // Start the real-time clock
-  }
-
-  void _startClock() {
-    Timer.periodic(const Duration(seconds: 1), (timer) {
+    //_startClock(); // Start the real-time clock
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {
           _currentTime = DateFormat('hh:mm:ss a')
@@ -39,6 +46,36 @@ class _ClockPageState extends State<ClockPage> {
         });
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
+  }
+
+  Future<void> _logout() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final sessionID = prefs.getString('SessionID');
+      final url = Uri.parse('$baseURL/api/sessions');
+      final response = await http.delete(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'sessionID': sessionID}),
+      );
+      await prefs.remove('SessionID');
+      if (response.statusCode == 200 && mounted) {
+        Navigator.pushReplacement(
+          context,
+          CupertinoPageRoute(builder: (context) => const HomePage()),
+        );
+      } else {
+        print('Failed to log out. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error logging out: $error');
+    }
   }
 
   void _toggleClockInOut() {
@@ -156,7 +193,10 @@ class _ClockPageState extends State<ClockPage> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              Navigator.pop(context);
+              _logout();
+              if (mounted) {
+                Navigator.pop(context);
+              }
             },
           ),
         ],
@@ -238,7 +278,8 @@ class _ClockPageState extends State<ClockPage> {
                     title: const Text('Croissants'),
                     leading: const Icon(Icons.cookie_sharp),
                     onTap: () {
-                      _navigateToPage(const RecipesPage(category: 'Croissants'));
+                      _navigateToPage(
+                          const RecipesPage(category: 'Croissants'));
                     },
                   ),
                 ),

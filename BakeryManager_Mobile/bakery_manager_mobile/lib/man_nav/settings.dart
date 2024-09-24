@@ -1,20 +1,52 @@
+import 'dart:convert';
+
+import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
 import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
 import 'package:bakery_manager_mobile/man_nav/inventory.dart';
 import 'package:bakery_manager_mobile/man_nav/recipes.dart';
 import 'package:bakery_manager_mobile/man_nav/admin.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+
+import '../widgets/landing_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  State<SettingsPage> createState() => _SettingsPageState();
 }
 
 class _SettingsPageState extends State<SettingsPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Future<void> _logout() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final sessionID = prefs.getString('SessionID');
+      final url = Uri.parse('$baseURL/api/sessions');
+      final response = await http.delete(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'sessionID': sessionID}),
+      );
+      await prefs.remove('SessionID');
+      if (response.statusCode == 200 && mounted) {
+        Navigator.pushReplacement(
+          context,
+          CupertinoPageRoute(builder: (context) => const HomePage()),
+        );
+      } else {
+        print('Failed to log out. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error logging out: $error');
+    }
+  }
 
   void _navigateToPage(Widget page) {
     Navigator.pop(context); // Close the drawer
@@ -47,6 +79,7 @@ class _SettingsPageState extends State<SettingsPage> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
+              _logout();
               Navigator.pop(context); // Handle logout
             },
           ),
