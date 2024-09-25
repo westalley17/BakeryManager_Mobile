@@ -132,14 +132,9 @@ class _ManagerHomePage extends State<ManagerHomePage> {
               children: [
                 _buildRecipeTile('Raw Ingredients', Icons.egg, 'Raw Ingredients'),
                 _buildRecipeTile('Finished Products', Icons.breakfast_dining_rounded, 'Finished Products'),
-                _buildRecipeTile('Packaging', Icons.check_box_outline_blank, 'Packaging'),
+                _buildRecipeTile('Vendors', Icons.contact_emergency, 'Vendors'),
                 _buildRecipeTile('Cleaning Products', Icons.clean_hands, 'Cleaning Products'),
               ],
-            ),
-            _buildDrawerTile(
-              title: 'Inventory',
-              icon: Icons.inventory_2_outlined,
-              page: const InventoryPage(),
             ),
             _buildDrawerTile(
               title: 'Time Sheets',

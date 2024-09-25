@@ -454,12 +454,51 @@ class _RecipesPageState extends State<RecipesPage> {
                 ),
               ],
             ),
-            ListTile(
+            ExpansionTile(
+              leading: const Icon(Icons.inventory_2_outlined),
               title: const Text('Inventory'),
-              leading: const Icon(Icons.inventory),
-              onTap: () {
-                _navigateToPage(const InventoryPage());
-              },
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Ingredients'),
+                    leading: const Icon(Icons.egg),
+                    onTap: () {
+                      _navigateToPage(const InventoryPage(category: 'Ingredients'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Finished Products'),
+                    leading: const Icon(Icons.breakfast_dining_rounded),
+                    onTap: () {
+                      _navigateToPage(const InventoryPage(category: 'Finished Products'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Vendors'),
+                    leading: const Icon(Icons.contact_emergency),
+                    onTap: () {
+                      _navigateToPage(const InventoryPage(category: 'Vendors'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Cleaning Products'),
+                    leading: const Icon(Icons.clean_hands),
+                    onTap: () {
+                      _navigateToPage(const InventoryPage(category: 'Cleaning Products'));
+                    },
+                  ),
+                ),
+              ],
             ),
             ListTile(
               title: const Text('Timesheets'),

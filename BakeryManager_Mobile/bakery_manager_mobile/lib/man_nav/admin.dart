@@ -23,14 +23,13 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  // Helper function to avoid redundancy in creating drawer tiles
-  Widget _buildDrawerTile(String title, IconData icon, Widget page) {
-    return ListTile(
-      title: Text(title),
-      leading: Icon(icon),
-      onTap: () => _navigateToPage(page),
-    );
-  }
+Widget _buildDrawerTile(String title, IconData icon, Widget page) {
+  return ListTile(
+    title:Text(title),
+    leading: Icon(icon),
+    onTap: () => _navigateToPage(page),
+  );
+}
   
   Widget _buildRecipeTile(String title, IconData icon, String category) {
     return Padding(
@@ -86,14 +85,14 @@ class _AdminPageState extends State<AdminPage> {
               leading: const Icon(Icons.restaurant_menu),
               title: const Text('Recipes'),
               children: [
-                _buildDrawerTile('Cake', Icons.cake, const RecipesPage(category: 'Cake')),
-                _buildDrawerTile('Bread', Icons.bakery_dining, const RecipesPage(category: 'Bread')),
-                _buildDrawerTile('Muffins', Icons.cake_outlined, const RecipesPage(category: 'Muffins')),
-                _buildDrawerTile('Cookies', Icons.cookie, const RecipesPage(category: 'Cookies')), // Adjust as per actual page
-                _buildDrawerTile('Croissants', Icons.cookie_outlined, const RecipesPage(category: 'Croissants')), // Adjust as per actual page
-                _buildDrawerTile('Bagels', Icons.cookie_rounded, const RecipesPage(category: 'Bagels')),
-                _buildDrawerTile('Pies', Icons.cookie_sharp, const RecipesPage(category: 'Pies')),
-                _buildDrawerTile('Brownies', Icons.cookie, const RecipesPage(category: 'Brownies')),
+                _buildRecipeTile('Cake', Icons.cake, 'Cake'),
+                _buildRecipeTile('Bread', Icons.bakery_dining,'Bread'),
+                _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
+                _buildRecipeTile('Cookies', Icons.cookie, 'Cookies'), // Adjust as per actual page
+                _buildRecipeTile('Croissants', Icons.cookie_outlined, 'Croissants'), // Adjust as per actual page
+                _buildRecipeTile('Bagels', Icons.cookie_rounded, 'Bagels'),
+                _buildRecipeTile('Pies', Icons.cookie_sharp, 'Pies'),
+                _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
               ],
             ),
             ExpansionTile(
@@ -102,7 +101,7 @@ class _AdminPageState extends State<AdminPage> {
               children: [
                 _buildRecipeTile('Raw Ingredients', Icons.egg, 'Raw Ingredients'),
                 _buildRecipeTile('Finished Products', Icons.breakfast_dining_rounded, 'Finished Products'),
-                _buildRecipeTile('Packaging', Icons.check_box_outline_blank, 'Packaging'),
+                _buildRecipeTile('Vendors', Icons.contact_emergency, 'Vendors'),
                 _buildRecipeTile('Cleaning Products', Icons.clean_hands, 'Cleaning Products'),
               ],
             ),
