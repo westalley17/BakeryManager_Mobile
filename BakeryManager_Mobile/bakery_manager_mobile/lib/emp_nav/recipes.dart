@@ -3,7 +3,6 @@ import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/emp_nav/settings.dart';
 import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
@@ -36,6 +35,77 @@ class RecipesPage extends StatefulWidget {
   State<RecipesPage> createState() => _RecipesPageState();
 }
 
+class SearchBarApp extends StatefulWidget {
+  const SearchBarApp({super.key});
+
+  @override
+  State<SearchBarApp> createState() => _SearchBarAppState();
+}
+
+class _SearchBarAppState extends State<SearchBarApp> {
+  bool isDark = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData themeData = ThemeData(
+        useMaterial3: true,
+        brightness: isDark ? Brightness.dark : Brightness.light);
+
+    return MaterialApp(
+      theme: themeData,
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Search Bar Sample')),
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SearchAnchor(
+              builder: (BuildContext context, SearchController controller) {
+            return SearchBar(
+              controller: controller,
+              padding: const WidgetStatePropertyAll<EdgeInsets>(
+                  EdgeInsets.symmetric(horizontal: 16.0)),
+              onTap: () {
+                controller.openView();
+              },
+              onChanged: (_) {
+                controller.openView();
+              },
+              leading: const Icon(Icons.search),
+              trailing: <Widget>[
+                Tooltip(
+                  message: 'Change brightness mode',
+                  child: IconButton(
+                    isSelected: isDark,
+                    onPressed: () {
+                      setState(() {
+                        isDark = !isDark;
+                      });
+                    },
+                    icon: const Icon(Icons.wb_sunny_outlined),
+                    selectedIcon: const Icon(Icons.brightness_2_outlined),
+                  ),
+                )
+              ],
+            );
+          }, suggestionsBuilder:
+                  (BuildContext context, SearchController controller) {
+            return List<ListTile>.generate(5, (int index) {
+              final String item = 'item $index';
+              return ListTile(
+                title: Text(item),
+                onTap: () {
+                  setState(() {
+                    controller.closeView(item);
+                  });
+                },
+              );
+            });
+          }),
+        ),
+      ),
+    );
+  }
+}
+
 class _RecipesPageState extends State<RecipesPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _pageController = PageController();
@@ -48,8 +118,15 @@ class _RecipesPageState extends State<RecipesPage> {
 
   List<String> pageHeaders = ["Ingredients", "Equipment", "Instructions"];
   List<Recipe> recipeNames = [];
+  List<Recipe> filteredRecipes = []; // List to hold filtered recipes
 
   bool? available;
+
+  @override
+  void initState() {
+    super.initState();
+    _retrieveRecipeNames(widget.category);
+  }
 
   Future<void> _retrieveRecipeNames(String category) async {
     final url = Uri.parse('$baseURL/api/recipeNames?category=$category');
@@ -73,10 +150,15 @@ class _RecipesPageState extends State<RecipesPage> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _retrieveRecipeNames(widget.category);
+void _filterRecipes(String query) {
+    if (query.isEmpty) {
+      filteredRecipes = recipeNames; // Show all recipes if query is empty
+    } else {
+      filteredRecipes = recipeNames
+          .where((recipe) => recipe.recipeName.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    }
+    setState(() {});
   }
 
   void _navigateToPage(Widget page) {
@@ -134,7 +216,7 @@ class _RecipesPageState extends State<RecipesPage> {
       });
       final response =
           await http.post(url, headers: headers, body: body);
-      var parsed = jsonDecode(response.body);
+      //var parsed = jsonDecode(response.body);
       if (response.statusCode == 200) {
         // iterate through the JSON to check all availabilities
         print('YIPPEEE');
@@ -550,30 +632,35 @@ class _RecipesPageState extends State<RecipesPage> {
       body: Container(
         color: Colors.grey[200], // Set to the background color of the dashboard
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 16.0,
-            mainAxisSpacing: 16.0,
-          ),
-          itemCount: recipeNames.length,
-          itemBuilder: (context, index) {
-            return ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Colors.black,
-                side: const BorderSide(color: Colors.black),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16.0,
+                  mainAxisSpacing: 16.0,
                 ),
+                itemCount: filteredRecipes.length, // Use filtered list
+                itemBuilder: (context, index) {
+                  return ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      foregroundColor: Colors.black,
+                      side: const BorderSide(color: Colors.black),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                    onPressed: () {
+                      _getRecipeInfo(filteredRecipes[index]);
+                    },
+                    child: Text(filteredRecipes[index].recipeName),
+                  );
+                },
               ),
-              onPressed: () {
-                // pass in the ID here so we can immediately GET recipeInfo.
-                _getRecipeInfo(recipeNames[index]);
-              },
-              child: Text(recipeNames[index].recipeName),
-            );
-          },
+            ),
+          ],
         ),
       ),
     );

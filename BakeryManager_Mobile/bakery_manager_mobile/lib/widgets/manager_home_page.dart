@@ -1,7 +1,6 @@
 import 'package:bakery_manager_mobile/widgets/landing_page.dart';
 import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
-import 'package:bakery_manager_mobile/man_nav/inventory.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bakery_manager_mobile/man_nav/recipes.dart';
@@ -126,10 +125,15 @@ class _ManagerHomePage extends State<ManagerHomePage> {
                 _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
               ],
             ),
-            _buildDrawerTile(
-              title: 'Inventory',
-              icon: Icons.inventory_2_outlined,
-              page: const InventoryPage(),
+            ExpansionTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: const Text('Inventory'),
+              children: [
+                _buildRecipeTile('Raw Ingredients', Icons.egg, 'Raw Ingredients'),
+                _buildRecipeTile('Finished Products', Icons.breakfast_dining_rounded, 'Finished Products'),
+                _buildRecipeTile('Vendors', Icons.contact_emergency, 'Vendors'),
+                _buildRecipeTile('Cleaning Products', Icons.clean_hands, 'Cleaning Products'),
+              ],
             ),
             _buildDrawerTile(
               title: 'Time Sheets',

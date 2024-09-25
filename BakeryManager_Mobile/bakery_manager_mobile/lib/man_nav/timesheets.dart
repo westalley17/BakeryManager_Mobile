@@ -1,6 +1,5 @@
 import 'package:bakery_manager_mobile/man_nav/admin.dart';
 import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
-import 'package:bakery_manager_mobile/man_nav/inventory.dart';
 import 'package:bakery_manager_mobile/man_nav/recipes.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
@@ -24,12 +23,22 @@ class _TimePageState extends State<TimePage> {
     );
   }
 
-  // Helper function to reduce redundancy when building drawer tiles
   Widget _buildDrawerTile(String title, IconData icon, Widget page) {
-    return ListTile(
-      title: Text(title),
-      leading: Icon(icon),
-      onTap: () => _navigateToPage(page),
+  return ListTile(
+    title: Text(title),
+    leading: Icon(icon),
+    onTap: () => _navigateToPage(page),
+  );
+}
+
+Widget _buildRecipeTile(String title, IconData icon, String category) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: ListTile(
+        title: Text(title),
+        leading: Icon(icon),
+        onTap: () => _navigateToPage(RecipesPage(category: category)),
+      ),
     );
   }
 
@@ -76,12 +85,26 @@ class _TimePageState extends State<TimePage> {
               leading: const Icon(Icons.restaurant_menu),
               title: const Text('Recipes'),
               children: [
-                _buildDrawerTile('Cake', Icons.cake, const RecipesPage(category: 'Cake')),
-                _buildDrawerTile('Bread', Icons.bakery_dining, const RecipesPage(category: 'Bread')),
-                _buildDrawerTile('Muffins', Icons.cake_outlined, const RecipesPage(category: 'Muffins')),
+                _buildRecipeTile('Cake', Icons.cake, 'Cake'),
+                _buildRecipeTile('Bread', Icons.bakery_dining,'Bread'),
+                _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
+                _buildRecipeTile('Cookies', Icons.cookie, 'Cookies'), // Adjust as per actual page
+                _buildRecipeTile('Croissants', Icons.cookie_outlined, 'Croissants'), // Adjust as per actual page
+                _buildRecipeTile('Bagels', Icons.cookie_rounded, 'Bagels'),
+                _buildRecipeTile('Pies', Icons.cookie_sharp, 'Pies'),
+                _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
               ],
             ),
-            _buildDrawerTile('Inventory', Icons.inventory_2_outlined, const InventoryPage()),
+            ExpansionTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: const Text('Inventory'),
+              children: [
+                _buildRecipeTile('Raw Ingredients', Icons.egg, 'Raw Ingredients'),
+                _buildRecipeTile('Finished Products', Icons.breakfast_dining_rounded, 'Finished Products'),
+                _buildRecipeTile('Vendors', Icons.contact_emergency, 'Vendors'),
+                _buildRecipeTile('Cleaning Products', Icons.clean_hands, 'Cleaning Products'),
+              ],
+            ),
             _buildDrawerTile('Clock In/Out', Icons.lock_clock, const ClockPage()),
             _buildDrawerTile('Settings', Icons.settings_outlined, const SettingsPage()),
             _buildDrawerTile('Admin', Icons.admin_panel_settings_sharp, const AdminPage()),

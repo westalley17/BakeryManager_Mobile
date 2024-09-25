@@ -7,7 +7,8 @@ import 'package:bakery_manager_mobile/man_nav/admin.dart';
 import 'package:flutter/material.dart';
 
 class InventoryPage extends StatefulWidget {
-  const InventoryPage({super.key});
+  final String category;
+  const InventoryPage({super.key, required this.category});
 
   @override
   _InventoryPageState createState() => _InventoryPageState();
@@ -24,15 +25,24 @@ class _InventoryPageState extends State<InventoryPage> {
     );
   }
 
-  Widget _buildDrawerTile({
-    required String title,
-    required IconData icon,
-    required Widget page,
-  }) {
-    return ListTile(
-      title: Text(title),
-      leading: Icon(icon),
-      onTap: () => _navigateToPage(page),
+
+Widget _buildDrawerTile(String title, IconData icon, Widget page) {
+  return ListTile(
+    title: Text(title),
+    leading: Icon(icon),
+    onTap: () => _navigateToPage(page),
+  );
+}
+  
+  // Function for recipe tiles
+  Widget _buildRecipeTile(String title, IconData icon, String category) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: ListTile(
+        title: Text(title),
+        leading: Icon(icon),
+        onTap: () => _navigateToPage(RecipesPage(category: category)),
+      ),
     );
   }
 
@@ -86,116 +96,34 @@ class _InventoryPageState extends State<InventoryPage> {
                 ),
               ),
             ),
-            _buildDrawerTile(
-              title: 'Dashboard',
-              icon: Icons.house_outlined,
-              page: const ManagerHomePage(),
-            ),
-            _buildExpansionTile(
-              title: 'Recipes',
-              icon: Icons.restaurant_menu,
+            _buildDrawerTile('Dashboard',Icons.house_outlined,const ManagerHomePage(),),
+            _buildExpansionTile(title: 'Recipes',icon: Icons.restaurant_menu,
               children: [
-                _buildDrawerTile(
-                  title: 'Cake',
-                  icon: Icons.cake,
-                  page: const RecipesPage(category: 'Cake'),
-                ),
-                _buildDrawerTile(
-                  title: 'Bread',
-                  icon: Icons.bakery_dining,
-                  page: const RecipesPage(category: 'Bread'),
-                ),
-                _buildDrawerTile(
-                  title: 'Muffins',
-                  icon: Icons.cake_outlined,
-                  page: const RecipesPage(category: 'Muffins'),
-                ),
-                _buildDrawerTile(
-                  title: 'Cookie',
-                  icon: Icons.cookie,
-                  page: const RecipesPage(category: 'Cookie'),
-                ),
-                _buildDrawerTile(
-                  title: 'Croissants',
-                  icon: Icons.cookie,
-                  page: const RecipesPage(category: 'Croissants'),
-                ),
-                _buildDrawerTile(
-                  title: 'Bagels',
-                  icon: Icons.cookie,
-                  page: const RecipesPage(category: 'Bagels'),
-                ),
-                _buildDrawerTile(
-                  title: 'Pies',
-                  icon: Icons.cookie,
-                  page: const RecipesPage(category: 'Pies'),
-                ),
-                _buildDrawerTile(
-                  title: 'Brownies',
-                  icon: Icons.cookie,
-                  page: const RecipesPage(category: 'Brownies'),
-                ),
+                _buildRecipeTile('Cake',Icons.cake,'Cake', ),
+                _buildRecipeTile('Bread',Icons.bakery_dining,'Bread',),
+                _buildRecipeTile('Muffins',Icons.cake_outlined,'Muffins',),
+                _buildRecipeTile('Cookie',Icons.cookie,'Cookie', ),
+                _buildRecipeTile('Croissants',Icons.cookie,'Croissants',),
+                _buildRecipeTile('Bagels',Icons.cookie,'Bagels',),
+                _buildRecipeTile('Pies',Icons.cookie,'Pies',),
+                _buildRecipeTile('Brownies',Icons.cookie,'Brownies',),
               ],
             ),
-            _buildDrawerTile(
-              title: 'Time Sheets',
-              icon: Icons.access_time,
-              page: const TimePage(),
+            _buildExpansionTile(title: 'Inventory',icon: Icons.inventory_2_outlined,
+              children: [
+                _buildRecipeTile('Raw Ingredients', Icons.egg, 'Raw Ingredients'),
+                _buildRecipeTile('Finished Products', Icons.breakfast_dining_rounded, 'Finished Products'),
+                _buildRecipeTile('Vendors', Icons.contact_emergency, 'Vendors'),
+                _buildRecipeTile('Cleaning Products', Icons.clean_hands, 'Cleaning Products'),
+              ],
             ),
-            _buildDrawerTile(
-              title: 'Clock In/Out',
-              icon: Icons.lock_clock,
-              page: const ClockPage(),
-            ),
-            _buildDrawerTile(
-              title: 'Settings',
-              icon: Icons.settings_outlined,
-              page: const SettingsPage(),
-            ),
-            _buildDrawerTile(
-              title: 'Admin',
-              icon: Icons.admin_panel_settings_sharp,
-              page: const AdminPage(),
-            ),
+            _buildDrawerTile('Time Sheets',Icons.access_time,const TimePage(),),
+            _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
+            _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
+            _buildDrawerTile('Admin',Icons.admin_panel_settings_sharp,const AdminPage(),),
           ],
         ),
       ),
-      body: Container(
-      color: Theme.of(context).primaryColor,  // Reverted to previous color
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Inventory List',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 20.0),
-          Expanded(
-            child: ListView(
-              children: const [
-                InventoryTile(
-                  itemName: 'Flour',
-                  quantity: '50 kg',
-                ),
-                InventoryTile(
-                  itemName: 'Sugar',
-                  quantity: '30 kg',
-                ),
-                InventoryTile(
-                  itemName: 'Butter',
-                  quantity: '20 kg',
-                ),
-              ],
-            ),
-          ),
-    ],
-  ),
-),
-
     );
   }
 }
