@@ -11,6 +11,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
+import '../man_nav/inventory.dart';
+
 class ManagerHomePage extends StatefulWidget {
   const ManagerHomePage({super.key});
 
@@ -76,6 +78,18 @@ class _ManagerHomePage extends State<ManagerHomePage> {
     );
   }
 
+  // Function for inventory tiles
+  Widget _buildInventoryTile(String title, IconData icon, String category) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: ListTile(
+        title: Text(title),
+        leading: Icon(icon),
+        onTap: () => _navigateToPage(InventoryPage(category: category)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,12 +130,10 @@ class _ManagerHomePage extends State<ManagerHomePage> {
                 _buildRecipeTile('Cake', Icons.cake, 'Cake'),
                 _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
                 _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
-
                 _buildRecipeTile('Cookies', Icons.cookie, 'Cookies'),
                 _buildRecipeTile('Croissants', Icons.cookie, 'Croissants'),
                 _buildRecipeTile('Bagels', Icons.cookie, 'Bagels'),
-
-                 _buildRecipeTile('Pies', Icons.cookie, 'Pies'),
+                _buildRecipeTile('Pies', Icons.cookie, 'Pies'),
                 _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
               ],
             ),
@@ -129,10 +141,14 @@ class _ManagerHomePage extends State<ManagerHomePage> {
               leading: const Icon(Icons.inventory_2_outlined),
               title: const Text('Inventory'),
               children: [
-                _buildRecipeTile('Raw Ingredients', Icons.egg, 'Raw Ingredients'),
-                _buildRecipeTile('Finished Products', Icons.breakfast_dining_rounded, 'Finished Products'),
-                _buildRecipeTile('Vendors', Icons.contact_emergency, 'Vendors'),
-                _buildRecipeTile('Cleaning Products', Icons.clean_hands, 'Cleaning Products'),
+                _buildInventoryTile(
+                    'Raw Ingredients', Icons.egg, 'Ingredients'),
+                _buildInventoryTile('Finished Products',
+                    Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile(
+                    'Vendors', Icons.contact_emergency, 'Vendors'),
+                _buildInventoryTile('Cleaning Products', Icons.clean_hands,
+                    'CleaningEquipment'),
               ],
             ),
             _buildDrawerTile(
@@ -158,38 +174,37 @@ class _ManagerHomePage extends State<ManagerHomePage> {
           ],
         ),
       ),
-      
       body: Container(
-      color: Theme.of(context).primaryColor,  // Reverted to previous color
-      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-      child: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: Image.asset(
-                  'assets/images/bakerHat.png',
-                  width: 175.0,
-                  height: 175.0,
+        color: Theme.of(context).primaryColor, // Reverted to previous color
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Image.asset(
+                    'assets/images/bakerHat.png',
+                    width: 175.0,
+                    height: 175.0,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 15.0),
-              Text(
-                'Welcome to your homepage, Manager!',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                textAlign: TextAlign.center,
-                textScaleFactor: 1.3,
-              ),
-            ],
+                const SizedBox(height: 15.0),
+                Text(
+                  'Welcome to your homepage, Manager!',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                  textAlign: TextAlign.center,
+                  textScaleFactor: 1.3,
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 }
