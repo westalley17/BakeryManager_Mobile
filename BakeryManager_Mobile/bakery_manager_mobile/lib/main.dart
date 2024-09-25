@@ -90,7 +90,7 @@ class _BakeryManagerState extends State<BakeryManager> {
       // no longer eepy, just need to test Azure pipeline :)
       debugShowCheckedModeBanner: false,
       // conditionally render homepage if Session is invalid, else render whichever dashboard they need to go to.
-      home: (_validSession! == false) ? const ManagerHomePage() : _dashboard(),
+      home: (_validSession! == false) ? const HomePage() : _dashboard(),
       theme: ThemeData(
         primaryColor: const Color(0xFFFFFBED),
         colorScheme: ColorScheme.fromSwatch().copyWith(
