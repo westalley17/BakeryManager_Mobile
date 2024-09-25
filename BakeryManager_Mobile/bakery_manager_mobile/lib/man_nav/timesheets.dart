@@ -1,6 +1,5 @@
 import 'package:bakery_manager_mobile/man_nav/admin.dart';
 import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
-import 'package:bakery_manager_mobile/man_nav/inventory.dart';
 import 'package:bakery_manager_mobile/man_nav/recipes.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
