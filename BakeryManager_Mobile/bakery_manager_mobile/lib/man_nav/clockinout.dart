@@ -79,7 +79,48 @@ class _ClockPageState extends State<ClockPage> {
     }
   }
 
-  void _toggleClockInOut() {
+  Future<void> _toggleClockInOut() async {
+    if (_clockedIn == false) {
+      // call /api/clockin
+      try {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? sessionID = prefs.getString('SessionID');
+        if (sessionID == null) {
+          // somehow send them back to homescreen?
+          print(sessionID);
+        } else {
+          final url = Uri.parse("$baseURL/api/clockin");
+          final headers = {"Content-Type": "application/json"};
+          final body = jsonEncode({'sessionID': sessionID});
+          final response = await http.post(url, headers: headers, body: body);
+          if (response.statusCode == 200) {
+            // Confirm clock in
+          }
+        }
+      } catch (error) {
+        print(error);
+      }
+    } else {
+      // call /api/clockout
+      try {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? sessionID = prefs.getString('SessionID');
+        if (sessionID == null) {
+          // somehow send them back to homescreen?
+          print(sessionID);
+        } else {
+          final url = Uri.parse("$baseURL/api/clockout");
+          final headers = {"Content-Type": "application/json"};
+          final body = jsonEncode({'sessionID': sessionID});
+          final response = await http.post(url, headers: headers, body: body);
+          if (response.statusCode == 200) {
+            // Confirm clock out
+          }
+        }
+      } catch (error) {
+        print(error);
+      }
+    }
     setState(() {
       _clockedIn = !_clockedIn; // Toggle clock in/out state
     });
@@ -193,11 +234,8 @@ class _ClockPageState extends State<ClockPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              _logout();
-              if (mounted) {
-                Navigator.pop(context);
-              }
+            onPressed: () async{
+              await _logout();
             },
           ),
         ],
