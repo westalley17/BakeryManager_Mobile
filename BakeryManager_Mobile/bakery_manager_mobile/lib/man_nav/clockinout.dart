@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:bakery_manager_mobile/env/env_config.dart';
+import 'package:bakery_manager_mobile/man_nav/inventory.dart';
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
 import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
@@ -26,7 +27,7 @@ class _ClockPageState extends State<ClockPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   String _currentTime = '';
-  bool _clockedIn = false; // Toggle between clocked in and out
+  bool? _clockedIn; // Toggle between clocked in and out
   Timer? _timer;
 
   // Create a 2D list to keep track of selected cells
@@ -35,10 +36,44 @@ class _ClockPageState extends State<ClockPage> {
     (index) => List.generate(2, (index) => false),
   );
 
+  Future<void> _getClockStatus() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? sessionID = prefs.getString('SessionID');
+      String? logID = prefs.getString('LogID');
+      if (sessionID == null) {
+        // somehow send them back to homescreen?
+      } else if (logID == null) {
+        _clockedIn = false;
+      } else {
+        final url =
+            Uri.parse('$baseURL/api/clock?sessionID=$sessionID&logID=$logID');
+        final response =
+            await http.get(url, headers: {'Content-Type': 'application/json'});
+        var parsed = jsonDecode(response.body);
+        if (response.statusCode == 200) {
+          // set _clockedIn to true ONLY IF STATUS RETURNS TRUE TO MAKE SURE
+          // THAT WE GENERATE A NEW LOGID FOR A NEW CLOCK TIME :)
+          if (parsed['status'] == 1) {
+            // aka they ARE clocked in because clockOutTime is null
+            _clockedIn = true;
+          } else {
+            // they are clocked out and we need to be able to generate a new log instance
+            _clockedIn = false;
+          }
+        } else {
+          // idk
+        }
+      }
+    } catch (error) {
+      print('Error logging out: $error');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    //_startClock(); // Start the real-time clock
+    _getClockStatus();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {
@@ -87,14 +122,15 @@ class _ClockPageState extends State<ClockPage> {
         String? sessionID = prefs.getString('SessionID');
         if (sessionID == null) {
           // somehow send them back to homescreen?
-          print(sessionID);
         } else {
           final url = Uri.parse("$baseURL/api/clockin");
           final headers = {"Content-Type": "application/json"};
           final body = jsonEncode({'sessionID': sessionID});
           final response = await http.post(url, headers: headers, body: body);
+          var parsed = jsonDecode(response.body);
           if (response.statusCode == 200) {
             // Confirm clock in
+            await prefs.setString('LogID', parsed['logID']);
           }
         }
       } catch (error) {
@@ -115,6 +151,8 @@ class _ClockPageState extends State<ClockPage> {
           final response = await http.post(url, headers: headers, body: body);
           if (response.statusCode == 200) {
             // Confirm clock out
+            // remove logID from prefs
+            await prefs.remove('LogID');
           }
         }
       } catch (error) {
@@ -122,7 +160,7 @@ class _ClockPageState extends State<ClockPage> {
       }
     }
     setState(() {
-      _clockedIn = !_clockedIn; // Toggle clock in/out state
+      _clockedIn = !_clockedIn!; // Toggle clock in/out state
     });
   }
 
@@ -220,6 +258,16 @@ class _ClockPageState extends State<ClockPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_clockedIn == null) {
+      // Show a loading indicator while checking the clock status
+      return const MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -234,7 +282,7 @@ class _ClockPageState extends State<ClockPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () async{
+            onPressed: () async {
               await _logout();
             },
           ),
@@ -354,12 +402,54 @@ class _ClockPageState extends State<ClockPage> {
                 ),
               ],
             ),
-            ListTile(
-              title: const Text('Clock In/Out'),
-              leading: const Icon(Icons.lock_clock),
-              onTap: () {
-                _navigateToPage(const ClockPage());
-              },
+            ExpansionTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: const Text('Inventory'),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Ingredients'),
+                    leading: const Icon(Icons.egg),
+                    onTap: () {
+                      _navigateToPage(
+                          const InventoryPage(category: 'Ingredients'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Finished Products'),
+                    leading: const Icon(Icons.breakfast_dining_rounded),
+                    onTap: () {
+                      _navigateToPage(
+                          const InventoryPage(category: 'Finished Products'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Vendors'),
+                    leading: const Icon(Icons.contact_emergency),
+                    onTap: () {
+                      _navigateToPage(const InventoryPage(category: 'Vendors'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Cleaning Products'),
+                    leading: const Icon(Icons.clean_hands),
+                    onTap: () {
+                      _navigateToPage(
+                          const InventoryPage(category: 'Cleaning Products'));
+                    },
+                  ),
+                ),
+              ],
             ),
             ListTile(
               title: const Text('Timesheets'),
@@ -414,10 +504,14 @@ class _ClockPageState extends State<ClockPage> {
                     _toggleClockInOut, // This function toggles the clock in/out state
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 60), // Adjust height
-                  backgroundColor: _clockedIn ? Colors.red : Colors.green,
+                  backgroundColor: (_clockedIn != null && _clockedIn! == true)
+                      ? Colors.red
+                      : Colors.green,
                 ),
                 child: Text(
-                  _clockedIn ? 'Clock Out' : 'Clock In',
+                  (_clockedIn != null && _clockedIn! == true)
+                      ? 'Clock Out'
+                      : 'Clock In',
                   style: const TextStyle(color: Colors.white, fontSize: 20),
                 ),
               ),
