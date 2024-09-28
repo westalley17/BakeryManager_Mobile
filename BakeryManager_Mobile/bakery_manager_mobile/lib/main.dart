@@ -56,6 +56,7 @@ class _BakeryManagerState extends State<BakeryManager> {
             _isManager = (parsed['isManager'] == 'false') ? false : true;
           });
         } else {
+          await prefs.remove('SessionID');
           // If the server returns an error response, set the error to a string so box IS red.
           setState(() {
             // update _validSession

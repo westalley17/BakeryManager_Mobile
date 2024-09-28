@@ -14,14 +14,17 @@ import 'package:http/http.dart' as http;
 class InventoryItem {
   final String itemID;
   final String itemName;
-  const InventoryItem({required this.itemID, required this.itemName});
+  double? quantity;
+  InventoryItem({required this.itemID, required this.itemName, this.quantity});
 
   factory InventoryItem.fromJson(Map<String, dynamic> json) {
     String itemID = "";
+    double? quantity;
     if (json["ProductID"] != null) {
       itemID = json["ProductID"];
     } else if (json["IngredientID"] != null) {
       itemID = json["IngredientID"];
+      quantity = json['Quantity'] as double;
     } else if (json["VendorID"] != null) {
       return InventoryItem(
         itemID: json["VendorID"],
@@ -30,7 +33,7 @@ class InventoryItem {
     } else if (json["EquipmentID"] != null) {
       itemID = json["EquipmentID"];
     } else {
-      return const InventoryItem(
+      return InventoryItem(
         itemID: "",
         itemName: "",
       );
@@ -38,6 +41,7 @@ class InventoryItem {
     return InventoryItem(
       itemID: itemID,
       itemName: json['Name'],
+      quantity: quantity,
     );
   }
 }
@@ -322,11 +326,14 @@ class _InventoryPageState extends State<InventoryPage> {
         ),
       ),
       body: SafeArea(
-        child: Scrollbar( // Scrollbar here
-          child: SingleChildScrollView( // Ensure scrollable content
+        child: Scrollbar(
+          // Scrollbar here
+          child: SingleChildScrollView(
+            // Ensure scrollable content
             child: Container(
               color: Theme.of(context).primaryColor,
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -339,14 +346,16 @@ class _InventoryPageState extends State<InventoryPage> {
                   ),
                   const SizedBox(height: 20.0),
                   ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(), // Disable inner scroll for list
-                    shrinkWrap: true, // Allow ListView to wrap inside the scrollable container
+                    physics:
+                        const NeverScrollableScrollPhysics(), // Disable inner scroll for list
+                    shrinkWrap:
+                        true, // Allow ListView to wrap inside the scrollable container
                     itemCount: inventoryItems.length,
                     itemBuilder: (context, index) {
                       final item = inventoryItems[index];
                       return InventoryTile(
                         itemName: item.itemName,
-                        quantity: '0', // Change this to actual quantity if available
+                        quantity: (item.quantity != null) ? item.quantity : null,
                       );
                     },
                   ),
@@ -360,13 +369,14 @@ class _InventoryPageState extends State<InventoryPage> {
   }
 }
 
+// ignore: must_be_immutable
 class InventoryTile extends StatelessWidget {
   final String itemName;
-  final String quantity;
+  double? quantity;
 
-  const InventoryTile({
+  InventoryTile({
     required this.itemName,
-    required this.quantity,
+    this.quantity,
     super.key,
   });
 
@@ -403,7 +413,7 @@ class InventoryTile extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
         ),
-        subtitle: Text('Quantity: $quantity'),
+        subtitle: (quantity != null) ? Text('Quantity: $quantity') : null,
         trailing: IconButton(
           icon: const Icon(Icons.info_outline),
           onPressed: () {
