@@ -36,7 +36,6 @@ class InventoryItem {
       );
     }
     return InventoryItem(
-      // could be ProductID, IngredientID, VendorID, etc... need to filter regardless
       itemID: itemID,
       itemName: json['Name'],
     );
@@ -71,7 +70,6 @@ class _InventoryPageState extends State<InventoryPage> {
         setState(() {});
       }
     } catch (error) {
-      // error handle
       setState(() {});
     }
   }
@@ -200,7 +198,6 @@ class _InventoryPageState extends State<InventoryPage> {
     );
   }
 
-  // Function for recipe tiles
   Widget _buildRecipeTile(String title, IconData icon, String category) {
     return Padding(
       padding: const EdgeInsets.only(left: 16.0),
@@ -212,7 +209,6 @@ class _InventoryPageState extends State<InventoryPage> {
     );
   }
 
-  // Function for inventory tiles
   Widget _buildInventoryTile(String title, IconData icon, String category) {
     return Padding(
       padding: const EdgeInsets.only(left: 16.0),
@@ -250,7 +246,7 @@ class _InventoryPageState extends State<InventoryPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () => Navigator.pop(context), // Add navigation to login
+            onPressed: () => Navigator.pop(context),
           ),
         ],
       ),
@@ -283,46 +279,10 @@ class _InventoryPageState extends State<InventoryPage> {
               title: 'Recipes',
               icon: Icons.restaurant_menu,
               children: [
-                _buildRecipeTile(
-                  'Cake',
-                  Icons.cake,
-                  'Cake',
-                ),
-                _buildRecipeTile(
-                  'Bread',
-                  Icons.bakery_dining,
-                  'Bread',
-                ),
-                _buildRecipeTile(
-                  'Muffins',
-                  Icons.cake_outlined,
-                  'Muffins',
-                ),
-                _buildRecipeTile(
-                  'Cookie',
-                  Icons.cookie,
-                  'Cookie',
-                ),
-                _buildRecipeTile(
-                  'Croissants',
-                  Icons.cookie,
-                  'Croissants',
-                ),
-                _buildRecipeTile(
-                  'Bagels',
-                  Icons.cookie,
-                  'Bagels',
-                ),
-                _buildRecipeTile(
-                  'Pies',
-                  Icons.cookie,
-                  'Pies',
-                ),
-                _buildRecipeTile(
-                  'Brownies',
-                  Icons.cookie,
-                  'Brownies',
-                ),
+                _buildRecipeTile('Cake', Icons.cake, 'Cake'),
+                _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
+                _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
+                _buildRecipeTile('Cookie', Icons.cookie, 'Cookie'),
               ],
             ),
             _buildExpansionTile(
@@ -333,72 +293,67 @@ class _InventoryPageState extends State<InventoryPage> {
                     'Raw Ingredients', Icons.egg, 'Ingredients'),
                 _buildInventoryTile('Finished Products',
                     Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
                 _buildInventoryTile(
-                    'Vendors', Icons.contact_emergency, 'Vendors'),
-                _buildInventoryTile('Cleaning Products', Icons.clean_hands,
-                    'CleaningEquipment'),
+                    'Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
             _buildDrawerTile(
-              'Time Sheets',
-              Icons.access_time,
+              'Timesheets',
+              Icons.watch_later,
               const TimePage(),
             ),
             _buildDrawerTile(
               'Clock In/Out',
-              Icons.lock_clock,
+              Icons.access_time_outlined,
               const ClockPage(),
             ),
             _buildDrawerTile(
-              'Settings',
-              Icons.settings_outlined,
-              const SettingsPage(),
+              'Admin',
+              Icons.admin_panel_settings,
+              const AdminPage(),
             ),
             _buildDrawerTile(
-              'Admin',
-              Icons.admin_panel_settings_sharp,
-              const AdminPage(),
+              'Settings',
+              Icons.settings,
+              const SettingsPage(),
             ),
           ],
         ),
       ),
-      body: Container(
-        color: Colors.grey[200], // Set to the background color of the dashboard
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 16.0,
-            mainAxisSpacing: 16.0,
-          ),
-          itemCount: inventoryItems.length,
-          itemBuilder: (context, index) {
-            return ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Colors.black,
-                side: const BorderSide(color: Colors.black),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
+      body: SafeArea(
+        child: Scrollbar( // Scrollbar here
+          child: SingleChildScrollView( // Ensure scrollable content
+            child: Container(
+              color: Theme.of(context).primaryColor,
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Inventory List',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 20.0),
+                  ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(), // Disable inner scroll for list
+                    shrinkWrap: true, // Allow ListView to wrap inside the scrollable container
+                    itemCount: inventoryItems.length,
+                    itemBuilder: (context, index) {
+                      final item = inventoryItems[index];
+                      return InventoryTile(
+                        itemName: item.itemName,
+                        quantity: '0', // Change this to actual quantity if available
+                      );
+                    },
+                  ),
+                ],
               ),
-              onPressed: () {
-                //################################### Forbidden code
-                if (widget.category == "Ingredients") {
-                  _getIngredientInfo(inventoryItems[index].itemID);
-                } else if (widget.category == "Products") {
-                  _getProductInfo(inventoryItems[index].itemID);
-                } else if (widget.category == "Vendors") {
-                  _getVendorInfo(inventoryItems[index].itemID);
-                }
-                // else CleaningEquipment
-                else {
-                  _getEquipmentInfo(inventoryItems[index].itemID);
-                }
-              },
-              child: Text(inventoryItems[index].itemName),
-            );
-          },
+            ),
+          ),
         ),
       ),
     );
@@ -415,20 +370,46 @@ class InventoryTile extends StatelessWidget {
     super.key,
   });
 
+  // Function to map inventory item names to icons
+  IconData _getIconForItem(String itemName) {
+    switch (itemName.toLowerCase()) {
+      case 'egg':
+        return Icons.egg;
+      case 'flour':
+        return Icons.bakery_dining;
+      case 'milk':
+        return Icons.local_drink;
+      case 'sugar':
+        return Icons.cookie;
+      case 'butter':
+        return Icons.cake;
+      case 'cheese':
+        return Icons.emoji_food_beverage;
+      default:
+        return Icons.inventory; // Default icon for other items
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ListTile(
         contentPadding: const EdgeInsets.all(16.0),
+        leading: Icon(_getIconForItem(itemName)), // Display the icon here
         title: Text(
           itemName,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
         ),
-        subtitle: Text(quantity),
-        leading: const Icon(Icons.inventory_2_outlined),
+        subtitle: Text('Quantity: $quantity'),
+        trailing: IconButton(
+          icon: const Icon(Icons.info_outline),
+          onPressed: () {
+            // Add navigation to item details
+          },
+        ),
       ),
     );
   }
