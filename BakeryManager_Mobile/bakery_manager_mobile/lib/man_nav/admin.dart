@@ -1,6 +1,7 @@
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
 import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
+import 'package:bakery_manager_mobile/man_nav/inventory.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
 import 'package:bakery_manager_mobile/man_nav/recipes.dart';
 
@@ -25,13 +26,13 @@ class _AdminPageState extends State<AdminPage> {
   }
 
 Widget _buildDrawerTile(String title, IconData icon, Widget page) {
-  return ListTile(
-    title:Text(title),
-    leading: Icon(icon),
-    onTap: () => _navigateToPage(page),
-  );
-}
-  
+    return ListTile(
+      title: Text(title),
+      leading: Icon(icon),
+      onTap: () => _navigateToPage(page),
+    );
+  }
+
   Widget _buildRecipeTile(String title, IconData icon, String category) {
     return Padding(
       padding: const EdgeInsets.only(left: 16.0),
@@ -42,6 +43,30 @@ Widget _buildDrawerTile(String title, IconData icon, Widget page) {
       ),
     );
   }
+
+  Widget _buildInventoryTile(String title, IconData icon, String category) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: ListTile(
+        title: Text(title),
+        leading: Icon(icon),
+        onTap: () => _navigateToPage(InventoryPage(category: category)),
+      ),
+    );
+  }
+
+  Widget _buildExpansionTile({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return ExpansionTile(
+      leading: Icon(icon),
+      title: Text(title),
+      children: children,
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -69,46 +94,42 @@ Widget _buildDrawerTile(String title, IconData icon, Widget page) {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
+              padding: const EdgeInsets.only(top: 5.0),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
               ),
-              child: Center(
+              child: Align(
+                alignment: Alignment.center,
                 child: Text(
                   'Menu',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.black,
-                  ),
+                        color: Colors.black,
+                      ),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
-            _buildDrawerTile('Dashboard', Icons.house_outlined, const ManagerHomePage()),
-            ExpansionTile(
-              leading: const Icon(Icons.restaurant_menu),
-              title: const Text('Recipes'),
+            _buildDrawerTile('Dashboard',Icons.house_outlined,const ManagerHomePage()),
+            _buildExpansionTile(title: 'Recipes',icon: Icons.restaurant_menu,
               children: [
                 _buildRecipeTile('Cake', Icons.cake, 'Cake'),
-                _buildRecipeTile('Bread', Icons.bakery_dining,'Bread'),
+                _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
                 _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
-                _buildRecipeTile('Cookies', Icons.cookie, 'Cookies'), // Adjust as per actual page
-                _buildRecipeTile('Croissants', Icons.cookie_outlined, 'Croissants'), // Adjust as per actual page
-                _buildRecipeTile('Bagels', Icons.cookie_rounded, 'Bagels'),
-                _buildRecipeTile('Pies', Icons.cookie_sharp, 'Pies'),
-                _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
+                _buildRecipeTile('Cookie', Icons.cookie, 'Cookie'),
               ],
             ),
-            ExpansionTile(
-              leading: const Icon(Icons.inventory_2_outlined),
-              title: const Text('Inventory'),
+            _buildExpansionTile(title: 'Inventory',icon: Icons.inventory_2_outlined,
               children: [
-                _buildRecipeTile('Raw Ingredients', Icons.egg, 'Raw Ingredients'),
-                _buildRecipeTile('Finished Products', Icons.breakfast_dining_rounded, 'Finished Products'),
-                _buildRecipeTile('Vendors', Icons.contact_emergency, 'Vendors'),
-                _buildRecipeTile('Cleaning Products', Icons.clean_hands, 'Cleaning Products'),
+                _buildInventoryTile('Raw Ingredients', Icons.egg, 'Ingredients'),
+                _buildInventoryTile('Finished Products',Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
+                _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile('Time Sheets', Icons.access_time, const TimePage()), // Adjust as per actual page
-            _buildDrawerTile('Clock In/Out', Icons.lock_clock, const ClockPage()), // Adjust as per actual page
-            _buildDrawerTile('Settings', Icons.settings_outlined, const SettingsPage()), 
+            _buildDrawerTile('Timesheets',Icons.watch_later,const TimePage()),
+            _buildDrawerTile('Clock In/Out',Icons.access_time_outlined,const ClockPage()),
+            _buildDrawerTile('Admin',Icons.admin_panel_settings,const AdminPage()),
+            _buildDrawerTile('Settings',Icons.settings,const SettingsPage()),
           ],
         ),
       ),

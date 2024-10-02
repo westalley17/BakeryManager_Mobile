@@ -294,11 +294,8 @@ class _InventoryPageState extends State<InventoryPage> {
                 ),
               ),
             ),
-            _buildDrawerTile('Dashboard',Icons.house_outlined,const ManagerHomePage(),
-            ),
-            _buildExpansionTile(
-              title: 'Recipes',
-              icon: Icons.restaurant_menu,
+            _buildDrawerTile('Dashboard',Icons.house_outlined,const ManagerHomePage(),),
+            _buildExpansionTile(title: 'Recipes',icon: Icons.restaurant_menu,
               children: [
                 _buildRecipeTile('Cake', Icons.cake, 'Cake'),
                 _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
@@ -306,9 +303,7 @@ class _InventoryPageState extends State<InventoryPage> {
                 _buildRecipeTile('Cookie', Icons.cookie, 'Cookie'),
               ],
             ),
-            _buildExpansionTile(
-              title: 'Inventory',
-              icon: Icons.inventory_2_outlined,
+            _buildExpansionTile(title: 'Inventory',icon: Icons.inventory_2_outlined,
               children: [
                 _buildInventoryTile('Raw Ingredients', Icons.egg, 'Ingredients'),
                 _buildInventoryTile('Finished Products',Icons.breakfast_dining_rounded, 'Products'),
@@ -316,26 +311,10 @@ class _InventoryPageState extends State<InventoryPage> {
                 _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile(
-              'Timesheets',
-              Icons.watch_later,
-              const TimePage(),
-            ),
-            _buildDrawerTile(
-              'Clock In/Out',
-              Icons.access_time_outlined,
-              const ClockPage(),
-            ),
-            _buildDrawerTile(
-              'Admin',
-              Icons.admin_panel_settings,
-              const AdminPage(),
-            ),
-            _buildDrawerTile(
-              'Settings',
-              Icons.settings,
-              const SettingsPage(),
-            ),
+            _buildDrawerTile('Timesheets',Icons.watch_later,const TimePage()),
+            _buildDrawerTile('Clock In/Out',Icons.access_time_outlined,const ClockPage()),
+            _buildDrawerTile('Admin',Icons.admin_panel_settings,const AdminPage()),
+            _buildDrawerTile('Settings',Icons.settings,const SettingsPage()),
           ],
         ),
       ),
