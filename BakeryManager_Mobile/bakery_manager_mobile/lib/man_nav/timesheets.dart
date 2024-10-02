@@ -3,6 +3,7 @@ import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/man_nav/recipes.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,12 +11,14 @@ import '../env/env_config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../widgets/landing_page.dart';
+
 class EmpBiWeeks {
   final String userID;
   final String firstName;
   final String lastName;
   final String biWeekID;
-  final String biWeekNum;
+  final int biWeekNum;
   final double totalNormalHours;
   final double totalOvertimeHours;
   final double totalHolidayHours;
@@ -57,13 +60,37 @@ class _TimePageState extends State<TimePage> {
 
   List<EmpBiWeeks> employeeHours = [];
 
+  Future<void> _logout() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final sessionID = prefs.getString('SessionID');
+      final url = Uri.parse('$baseURL/api/sessions');
+      final response = await http.delete(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'sessionID': sessionID}),
+      );
+
+      if (response.statusCode == 200 && mounted) {
+        Navigator.pushReplacement(
+          context,
+          CupertinoPageRoute(builder: (context) => const HomePage()),
+        );
+      } else {
+        print('Failed to log out. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error logging out: $error');
+    }
+  }
+
   Future<void> _retrieveEmpHours() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? sessionID = await prefs.getString('SessionID');
     if (sessionID == null) {
       // send back to home page?
     } else {
-      final url = Uri.parse('$baseURL/api/employeeHours?sessionID=$sessionID');
+      final url = Uri.parse('$baseURL/api/manager/employeeHours?sessionID=$sessionID');
       final headers = {
         'Content-Type': 'application/json',
       };
@@ -132,6 +159,7 @@ class _TimePageState extends State<TimePage> {
             icon: const Icon(Icons.logout),
             onPressed: () {
               // Handle logout logic here
+              _logout();
               Navigator.pop(context);
             },
           ),
