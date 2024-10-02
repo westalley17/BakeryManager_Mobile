@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
 import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
@@ -10,6 +8,7 @@ import 'package:flutter/material.dart';
 
 import '../env/env_config.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class InventoryItem {
   final String itemID;
@@ -57,6 +56,8 @@ class InventoryPage extends StatefulWidget {
 class _InventoryPageState extends State<InventoryPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<InventoryItem> inventoryItems = [];
+  List<InventoryItem> filteredItems = [];  // This will store the filtered items
+  final TextEditingController _searchController = TextEditingController();
 
   Future<void> _retrieveInventoryNames(String category) async {
     final url = Uri.parse('$baseURL/api/inventoryItems?category=$category');
@@ -82,6 +83,21 @@ class _InventoryPageState extends State<InventoryPage> {
   void initState() {
     super.initState();
     _retrieveInventoryNames(widget.category);
+  }
+
+  void _filterItems() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      filteredItems = inventoryItems
+          .where((item) => item.itemName.toLowerCase().contains(query))
+          .toList();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _getIngredientInfo(String ingredientID) async {
@@ -254,6 +270,7 @@ class _InventoryPageState extends State<InventoryPage> {
           ),
         ],
       ),
+      
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -337,12 +354,25 @@ class _InventoryPageState extends State<InventoryPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Inventory List',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                    Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (value) => _filterItems(), // Filters items as you type
+                      decoration: InputDecoration(
+                        hintText: 'Search',
+                        filled: true,
+                        fillColor: Colors.white, // White background for the search bar
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide.none, // Remove the border
                         ),
+                        prefixIcon: const Icon(Icons.search, color: Colors.black),
+                      ),
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 20.0),
                   ListView.builder(

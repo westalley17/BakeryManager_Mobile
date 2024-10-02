@@ -26,15 +26,6 @@ class Recipe {
   }
 }
 
-class RecipesPage extends StatefulWidget {
-  final String category;
-
-  const RecipesPage({super.key, required this.category});
-
-  @override
-  State<RecipesPage> createState() => _RecipesPageState();
-}
-
 class SearchBarApp extends StatefulWidget {
   const SearchBarApp({super.key});
 
@@ -106,8 +97,18 @@ class _SearchBarAppState extends State<SearchBarApp> {
   }
 }
 
+class RecipesPage extends StatefulWidget {
+  final String category;
+
+  const RecipesPage({super.key, required this.category});
+
+  @override
+  State<RecipesPage> createState() => _RecipesPageState();
+}
+
 class _RecipesPageState extends State<RecipesPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final TextEditingController _searchController = TextEditingController();
   final PageController _pageController = PageController();
 
   int currentPage = 0;
@@ -126,6 +127,19 @@ class _RecipesPageState extends State<RecipesPage> {
   void initState() {
     super.initState();
     _retrieveRecipeNames(widget.category);
+    _searchController.addListener(() {
+      _filterRecipes(_searchController.text);
+    });
+  }
+
+ 
+
+  void _navigateToPage(Widget page) {
+    Navigator.pop(context); // Close the drawer
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    );
   }
 
   Future<void> _retrieveRecipeNames(String category) async {
@@ -137,36 +151,28 @@ class _RecipesPageState extends State<RecipesPage> {
       final response = await http.get(url, headers: headers);
       var parsed = jsonDecode(response.body) as List;
       if (response.statusCode == 200) {
-        // populate the recipeNames list of Recipes.
         recipeNames = parsed.map((json) => Recipe.fromJson(json)).toList();
+        filteredRecipes = recipeNames; // Initially show all recipes
         setState(() {});
       } else {
         setState(() {});
       }
     } catch (error) {
-      // error handle
       recipeNames = [Recipe(recipeID: "", recipeName: error.toString())];
+      filteredRecipes = recipeNames; // Handle error by showing message
       setState(() {});
     }
   }
 
-void _filterRecipes(String query) {
+  void _filterRecipes(String query) {
     if (query.isEmpty) {
-      filteredRecipes = recipeNames; // Show all recipes if query is empty
+      filteredRecipes = recipeNames;
     } else {
       filteredRecipes = recipeNames
           .where((recipe) => recipe.recipeName.toLowerCase().contains(query.toLowerCase()))
           .toList();
     }
     setState(() {});
-  }
-
-  void _navigateToPage(Widget page) {
-    Navigator.pop(context); // Close the drawer
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => page),
-    );
   }
 
   Future<void> _getRecipeInfo(Recipe recipe) async {
@@ -181,7 +187,6 @@ void _filterRecipes(String query) {
       String instructions = parsed['Instructions'] as String;
 
       if (response.statusCode == 200) {
-        // adds all the info needed for the 3 pages of the recipe pop-up
         recipe.recipeIngredients = ingredients.split(', ');
         recipe.recipeEquipment = equipment.split(', ');
         recipe.recipeInstructions = instructions.split(', ');
@@ -205,8 +210,7 @@ void _filterRecipes(String query) {
 
   Future<void> _startBaking(Recipe recipe, int quantity) async {
     try {
-      final url = Uri.parse(
-          '$baseURL/api/startBaking');
+      final url = Uri.parse('$baseURL/api/startBaking');
       final headers = {
         'Content-Type': 'application/json'
       };
@@ -216,9 +220,7 @@ void _filterRecipes(String query) {
       });
       final response =
           await http.post(url, headers: headers, body: body);
-      //var parsed = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        // iterate through the JSON to check all availabilities
         print('YIPPEEE');
         setState(() {});
       } else {
@@ -241,11 +243,8 @@ void _filterRecipes(String query) {
           await http.get(url, headers: {'Content-Type': 'application/json'});
       var parsed = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        // iterate through the JSON to check all availabilities
-        print(parsed);
         for (int i = 0; i < parsed.length; i++) {
           if (parsed[i]['available'] == 0) {
-            // if any ONE of the ingredients has insufficient amounts
             available = false;
             setState(() {});
             return;
@@ -289,18 +288,15 @@ void _filterRecipes(String query) {
             child: StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
                 return SizedBox(
-                  width: MediaQuery.of(context).size.width *
-                      0.85, // Make the popup wider
-                  height: MediaQuery.of(context).size.height *
-                      0.7, // Make the popup longer
+                  width: MediaQuery.of(context).size.width * 0.85,
+                  height: MediaQuery.of(context).size.height * 0.7,
                   child: Stack(
                     children: [
                       Column(
                         children: [
                           Center(
                             child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 16.0),
+                              padding: const EdgeInsets.symmetric(vertical: 16.0),
                               child: Text(
                                 recipe.recipeName,
                                 style: const TextStyle(
@@ -314,33 +310,25 @@ void _filterRecipes(String query) {
                           Expanded(
                             child: PageView.builder(
                               controller: _pageController,
-                              itemCount:
-                                  3, // constant 3 pages (ing, equip, inst)
+                              itemCount: 3,
                               onPageChanged: (int index) {
                                 setState(() {
                                   currentPage = index;
-                                  isDoneEnabled = currentPage ==
-                                      totalPages -
-                                          1; // Enable "Done" on last page
+                                  isDoneEnabled = currentPage == totalPages - 1;
                                 });
                               },
                               itemBuilder: (context, index) {
-                                List<String> currentList =
-                                    getListForPage(index);
+                                List<String> currentList = getListForPage(index);
                                 return Container(
                                     margin: const EdgeInsets.all(16.0),
-                                    color: Theme.of(context)
-                                        .primaryColor, // Example colors for different pages
+                                    color: Theme.of(context).primaryColor,
                                     child: SingleChildScrollView(
                                         child: Column(children: [
                                       Text(
-                                        pageHeaders[
-                                            index], // Example page content
+                                        pageHeaders[index],
                                         style: const TextStyle(fontSize: 24),
                                       ),
                                       const Divider(),
-                                      // black magic from ChatGPT to do what I need :)
-                                      // had to sell my soul to the devil for this one
                                       ...currentList.map((item) => Padding(
                                           padding: const EdgeInsets.symmetric(
                                               vertical: 4.0),
@@ -348,121 +336,115 @@ void _filterRecipes(String query) {
                                             item,
                                             style:
                                                 const TextStyle(fontSize: 18),
-                                          )))
+                                          ))),
                                     ])));
                               },
                             ),
                           ),
-                          available == false
-                              ? const Text(
-                                  'One or more ingredients are unavailable!',
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 16,
-                                  ),
-                                )
-                              : Container(), // Empty Container when available is true
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.remove_circle_outline),
-                                  iconSize:
-                                      40, // Increase the size of the minus button
-                                  onPressed: () {
-                                    setState(() {
-                                      if (quantity > 1) {
-                                        quantity--; // Decrease quantity, cap at 0
-                                      }
-                                    });
-                                  },
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal:
-                                          20.0), // Add space between buttons and number
-                                  child: Text(
-                                    '$quantity',
-                                    style: const TextStyle(
-                                        fontSize: 28), // Make the count larger
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.add_circle_outline),
-                                  iconSize:
-                                      40, // Increase the size of the plus button
-                                  onPressed: () async {
-                                    await _checkRecipeIngredients(
-                                        recipe, quantity);
-                                    setState(() {
-                                      if (available != null) {
-                                        if (available == true &&
-                                            quantity < 10) {
-                                          quantity++; // Increase quantity, cap at 10
-                                        }
-                                      }
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: const Size.fromHeight(
-                                  50), // "Start Baking" button spans the bottom
-                              backgroundColor: isDoneEnabled
-                                  ? Colors.green
-                                  : Colors.grey, // Button color
-                            ),
-                            onPressed: isDoneEnabled
-                                ? () => _startBaking(recipe, quantity)
-                                : null, // Only enable on last page
-                            child: const Text(
-                              'Start Baking',
-                              style: TextStyle(
-                                fontSize: 18, // Increase font size
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.arrow_back),
+                                onPressed: currentPage == 0
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          currentPage--;
+                                          _pageController.previousPage(
+                                            duration: const Duration(
+                                                milliseconds: 300),
+                                            curve: Curves.easeInOut,
+                                          );
+                                        });
+                                      },
                               ),
-                            ),
+                              IconButton(
+                                icon: const Icon(Icons.arrow_forward),
+                                onPressed: currentPage == totalPages - 1
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          currentPage++;
+                                          _pageController.nextPage(
+                                            duration: const Duration(
+                                                milliseconds: 300),
+                                            curve: Curves.easeInOut,
+                                          );
+                                        });
+                                      },
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.remove),
+                                onPressed: quantity > 1
+                                    ? () {
+                                        setState(() {
+                                          quantity--;
+                                        });
+                                        _checkRecipeIngredients(
+                                            recipe, quantity);
+                                      }
+                                    : null,
+                              ),
+                              Text(
+                                quantity.toString(),
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.add),
+                                onPressed: quantity < 10
+                                    ? () {
+                                        setState(() {
+                                          quantity++;
+                                        });
+                                        _checkRecipeIngredients(
+                                            recipe, quantity);
+                                      }
+                                    : null,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          available == null
+                              ? Container()
+                              : available == true
+                                  ? const Text(
+                                      'Available!',
+                                      style: TextStyle(
+                                          fontSize: 24,
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  : const Text(
+                                      'Not available',
+                                      style: TextStyle(
+                                          fontSize: 24,
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                          const SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: available == true
+                                ? () {
+                                    _startBaking(recipe, quantity);
+                                  }
+                                : null,
+                            child: const Text('Start Baking'),
+                          ),
+                          const SizedBox(height: 10),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('Close'),
                           ),
                         ],
                       ),
-                      if (currentPage >
-                          0) // Show left arrow if not on the first page
-                        Positioned(
-                          left: 0,
-                          top: MediaQuery.of(context).size.height * 0.25,
-                          child: IconButton(
-                            icon: const Icon(Icons.arrow_left, size: 40),
-                            onPressed: () {
-                              _pageController.previousPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            },
-                          ),
-                        ),
-                      if (currentPage <
-                          totalPages -
-                              1) // Show right arrow if not on the last page
-                        Positioned(
-                          right: 0,
-                          top: MediaQuery.of(context).size.height * 0.25,
-                          child: IconButton(
-                            icon: const Icon(Icons.arrow_right, size: 40),
-                            onPressed: () {
-                              _pageController.nextPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            },
-                          ),
-                        ),
                     ],
                   ),
                 );
@@ -473,8 +455,7 @@ void _filterRecipes(String query) {
       );
     }
   }
-
-  @override
+@override
   Widget build(BuildContext context) {
     if (recipeNames.isEmpty) {
       // Show a loading indicator while checking the session
@@ -536,6 +517,7 @@ void _filterRecipes(String query) {
                     title: const Text('Cake'),
                     leading: const Icon(Icons.cake_sharp),
                     onTap: () {
+                        
                       _navigateToPage(const RecipesPage(category: 'Cake'));
                     },
                   ),
@@ -666,3 +648,5 @@ void _filterRecipes(String query) {
     );
   }
 }
+
+  

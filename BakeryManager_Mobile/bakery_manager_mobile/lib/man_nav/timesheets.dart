@@ -86,7 +86,7 @@ class _TimePageState extends State<TimePage> {
 
   Future<void> _retrieveEmpHours() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? sessionID = await prefs.getString('SessionID');
+    String? sessionID = prefs.getString('SessionID');
     if (sessionID == null) {
       // send back to home page?
     } else {
