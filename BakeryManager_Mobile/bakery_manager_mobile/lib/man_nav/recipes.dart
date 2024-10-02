@@ -9,7 +9,6 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
-
 class Recipe {
   final String recipeID;
   final String recipeName;
@@ -51,6 +50,9 @@ class _RecipesPageState extends State<RecipesPage> {
 
   List<String> pageHeaders = ["Ingredients", "Equipment", "Instructions"];
   List<Recipe> recipeNames = [];
+  List<Recipe> filteredRecipes = []; // List to hold filtered recipes
+
+  bool? available;
 
   Future<void> _retrieveRecipeNames(String category) async {
     final url = Uri.parse('$baseURL/api/recipeNames?category=$category');
@@ -119,6 +121,60 @@ class _RecipesPageState extends State<RecipesPage> {
       }
     } catch (error) {
       print('Error logging out: $error');
+    }
+  }
+
+  Future<void> _startBaking(Recipe recipe, int quantity) async {
+    try {
+      final url = Uri.parse('$baseURL/api/startBaking');
+      final headers = {'Content-Type': 'application/json'};
+      final body = jsonEncode({'recipeID': recipe.recipeID, 'num': quantity});
+      final response = await http.post(url, headers: headers, body: body);
+      //var parsed = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        // iterate through the JSON to check all availabilities
+        print('YIPPEEE');
+        setState(() {});
+      } else {
+        print(response.statusCode);
+        setState(() {});
+      }
+    } catch (error) {
+      print(error);
+      setState(() {});
+    }
+  }
+
+  Future<void> _checkRecipeIngredients(Recipe recipe, int quantity) async {
+    try {
+      final url = Uri.parse(
+          '$baseURL/api/checkRecipeIngredients?recipeID=${recipe.recipeID}&quantity=$quantity');
+      final response =
+          await http.get(url, headers: {'Content-Type': 'application/json'});
+      var parsed = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        // iterate through the JSON to check all availabilities
+        print(parsed);
+        for (int i = 0; i < parsed.length; i++) {
+          if (parsed[i]['available'] == 0) {
+            // if any ONE of the ingredients has insufficient amounts
+            available = false;
+            setState(() {});
+            return;
+          }
+        }
+        available = true;
+        setState(() {});
+      } else {
+        setState(() {
+          available = false;
+        });
+      }
+    } catch (error) {
+      print(error);
+      setState(() {
+        available = false;
+      });
     }
   }
 
@@ -209,6 +265,15 @@ class _RecipesPageState extends State<RecipesPage> {
                               },
                             ),
                           ),
+                          available == false
+                              ? const Text(
+                                  'One or more ingredients are unavailable!',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 16,
+                                  ),
+                                )
+                              : Container(), //
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: Row(
@@ -240,10 +305,15 @@ class _RecipesPageState extends State<RecipesPage> {
                                   icon: const Icon(Icons.add_circle_outline),
                                   iconSize:
                                       40, // Increase the size of the plus button
-                                  onPressed: () {
+                                  onPressed: () async {
+                                    await _checkRecipeIngredients(
+                                        recipe, quantity);
                                     setState(() {
-                                      if (quantity < 10) {
-                                        quantity++; // Increase quantity, cap at 10
+                                      if (available != null) {
+                                        if (available == true &&
+                                            quantity < 10) {
+                                          quantity++; // Increase quantity, cap at 10
+                                        }
                                       }
                                     });
                                   },
@@ -261,7 +331,7 @@ class _RecipesPageState extends State<RecipesPage> {
                                   : Colors.grey, // Button color
                             ),
                             onPressed: isDoneEnabled
-                                ? () => Navigator.pop(context)
+                                ? () => _startBaking(recipe, quantity)
                                 : null, // Only enable on last page
                             child: const Text(
                               'Start Baking',
@@ -398,7 +468,7 @@ class _RecipesPageState extends State<RecipesPage> {
                     title: const Text('Muffins'),
                     leading: const Icon(Icons.cake_outlined),
                     onTap: () {
-                      _navigateToPage(const RecipesPage(category: 'Muffin'));
+                      _navigateToPage(const RecipesPage(category: 'Muffins'));
                     },
                   ),
                 ),
@@ -418,7 +488,8 @@ class _RecipesPageState extends State<RecipesPage> {
                     title: const Text('Croissants'),
                     leading: const Icon(Icons.cookie_sharp),
                     onTap: () {
-                      _navigateToPage(const RecipesPage(category: 'Croissants'));
+                      _navigateToPage(
+                          const RecipesPage(category: 'Croissants'));
                     },
                   ),
                 ),
@@ -464,7 +535,8 @@ class _RecipesPageState extends State<RecipesPage> {
                     title: const Text('Ingredients'),
                     leading: const Icon(Icons.egg),
                     onTap: () {
-                      _navigateToPage(const InventoryPage(category: 'Ingredients'));
+                      _navigateToPage(
+                          const InventoryPage(category: 'Ingredients'));
                     },
                   ),
                 ),
@@ -474,7 +546,8 @@ class _RecipesPageState extends State<RecipesPage> {
                     title: const Text('Finished Products'),
                     leading: const Icon(Icons.breakfast_dining_rounded),
                     onTap: () {
-                      _navigateToPage(const InventoryPage(category: 'Finished Products'));
+                      _navigateToPage(
+                          const InventoryPage(category: 'Finished Products'));
                     },
                   ),
                 ),
@@ -494,7 +567,8 @@ class _RecipesPageState extends State<RecipesPage> {
                     title: const Text('Cleaning Products'),
                     leading: const Icon(Icons.clean_hands),
                     onTap: () {
-                      _navigateToPage(const InventoryPage(category: 'Cleaning Products'));
+                      _navigateToPage(
+                          const InventoryPage(category: 'Cleaning Products'));
                     },
                   ),
                 ),

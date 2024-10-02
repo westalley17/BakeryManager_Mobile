@@ -169,7 +169,8 @@ class _RecipesPageState extends State<RecipesPage> {
       filteredRecipes = recipeNames;
     } else {
       filteredRecipes = recipeNames
-          .where((recipe) => recipe.recipeName.toLowerCase().contains(query.toLowerCase()))
+          .where((recipe) =>
+              recipe.recipeName.toLowerCase().contains(query.toLowerCase()))
           .toList();
     }
     setState(() {});
@@ -211,9 +212,9 @@ class _RecipesPageState extends State<RecipesPage> {
   Future<void> _startBaking(Recipe recipe, int quantity) async {
     try {
       final url = Uri.parse('$baseURL/api/startBaking');
-      final headers = {
-        'Content-Type': 'application/json'
-      };
+      final headers = {'Content-Type': 'application/json'};
+      //var parsed = jsonDecode(response.body);
+      
       final body = jsonEncode({
         'recipeID': recipe.recipeID,
         'num': quantity
@@ -225,13 +226,11 @@ class _RecipesPageState extends State<RecipesPage> {
         setState(() {});
       } else {
         print(response.statusCode);
-        setState(() {
-        });
+        setState(() {});
       }
     } catch (error) {
       print(error);
-      setState(() {
-      });
+      setState(() {});
     }
   }
 
@@ -538,7 +537,7 @@ class _RecipesPageState extends State<RecipesPage> {
                     title: const Text('Muffins'),
                     leading: const Icon(Icons.cake_outlined),
                     onTap: () {
-                      _navigateToPage(const RecipesPage(category: 'Muffin'));
+                      _navigateToPage(const RecipesPage(category: 'Muffins'));
                     },
                   ),
                 ),
@@ -558,7 +557,8 @@ class _RecipesPageState extends State<RecipesPage> {
                     title: const Text('Croissants'),
                     leading: const Icon(Icons.cookie_sharp),
                     onTap: () {
-                      _navigateToPage(const RecipesPage(category: 'Croissants'));
+                      _navigateToPage(
+                          const RecipesPage(category: 'Croissants'));
                     },
                   ),
                 ),
@@ -648,5 +648,3 @@ class _RecipesPageState extends State<RecipesPage> {
     );
   }
 }
-
-  
