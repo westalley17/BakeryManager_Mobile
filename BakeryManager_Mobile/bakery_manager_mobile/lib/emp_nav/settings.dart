@@ -1,15 +1,15 @@
-import 'dart:convert';
-
 import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
 import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
+import 'package:bakery_manager_mobile/emp_nav/inventory.dart';
 import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
-import '../env/env_config.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 import '../widgets/landing_page.dart';
+import '../env/env_config.dart';
+import 'dart:convert';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -187,6 +187,32 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                   ),
                 ),
+              ],
+            ),
+            ExpansionTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: const Text('Inventory'),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Ingredients'),
+                    leading: const Icon(Icons.egg),
+                    onTap: () {
+                      _navigateToPage(const InventoryPage(category: 'Ingredients'));
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: ListTile(
+                    title: const Text('Products'),
+                    leading: const Icon(Icons.breakfast_dining_rounded),
+                    onTap: () {
+                      _navigateToPage(const InventoryPage(category: 'Products'));
+                    },
+                  ),
+                ),  
               ],
             ),
             ListTile(

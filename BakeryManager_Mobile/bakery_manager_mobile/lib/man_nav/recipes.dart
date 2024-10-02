@@ -5,6 +5,7 @@ import 'package:bakery_manager_mobile/man_nav/inventory.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
 import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:bakery_manager_mobile/man_nav/admin.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -16,6 +17,7 @@ class Recipe {
   List<String> recipeIngredients = [];
   List<String> recipeEquipment = [];
   List<String> recipeInstructions = [];
+  List<Recipe> filteredItems = []; //me dunno if this worky yet:) 
 
   Recipe({
     required this.recipeID,

@@ -1,17 +1,18 @@
-import 'package:bakery_manager_mobile/man_nav/admin.dart';
-import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
-import 'package:bakery_manager_mobile/man_nav/recipes.dart';
-import 'package:bakery_manager_mobile/man_nav/settings.dart';
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
+import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
+import 'package:bakery_manager_mobile/man_nav/settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bakery_manager_mobile/man_nav/recipes.dart';
+import 'package:bakery_manager_mobile/man_nav/admin.dart';
+
+import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
+import '../widgets/landing_page.dart';
 import '../env/env_config.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import '../widgets/landing_page.dart';
+
 
 class EmpBiWeeks {
   final String userID;
@@ -191,10 +192,8 @@ class _TimePageState extends State<TimePage> {
                 _buildRecipeTile('Cake', Icons.cake, 'Cake'),
                 _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
                 _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
-                _buildRecipeTile('Cookies', Icons.cookie,
-                    'Cookies'), // Adjust as per actual page
-                _buildRecipeTile('Croissants', Icons.cookie_outlined,
-                    'Croissants'), // Adjust as per actual page
+                _buildRecipeTile('Cookies', Icons.cookie,'Cookies'),
+                _buildRecipeTile('Croissants', Icons.cookie_outlined,'Croissants'), 
                 _buildRecipeTile('Bagels', Icons.cookie_rounded, 'Bagels'),
                 _buildRecipeTile('Pies', Icons.cookie_sharp, 'Pies'),
                 _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
@@ -204,21 +203,15 @@ class _TimePageState extends State<TimePage> {
               leading: const Icon(Icons.inventory_2_outlined),
               title: const Text('Inventory'),
               children: [
-                _buildRecipeTile(
-                    'Raw Ingredients', Icons.egg, 'Raw Ingredients'),
-                _buildRecipeTile('Finished Products',
-                    Icons.breakfast_dining_rounded, 'Finished Products'),
+                _buildRecipeTile('Raw Ingredients', Icons.egg, 'Raw Ingredients'),
+                _buildRecipeTile('Finished Products',Icons.breakfast_dining_rounded, 'Finished Products'),
                 _buildRecipeTile('Vendors', Icons.contact_emergency, 'Vendors'),
-                _buildRecipeTile('Cleaning Products', Icons.clean_hands,
-                    'Cleaning Products'),
+                _buildRecipeTile('Cleaning Products', Icons.clean_hands,'Cleaning Products'),
               ],
             ),
-            _buildDrawerTile(
-                'Clock In/Out', Icons.lock_clock, const ClockPage()),
-            _buildDrawerTile(
-                'Settings', Icons.settings_outlined, const SettingsPage()),
-            _buildDrawerTile(
-                'Admin', Icons.admin_panel_settings_sharp, const AdminPage()),
+            _buildDrawerTile('Clock In/Out', Icons.lock_clock, const ClockPage()),
+            _buildDrawerTile('Settings', Icons.settings_outlined, const SettingsPage()),
+            _buildDrawerTile('Admin', Icons.admin_panel_settings_sharp, const AdminPage()),
           ],
         ),
       ),

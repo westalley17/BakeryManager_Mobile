@@ -1,17 +1,17 @@
-import 'dart:convert';
-
-import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
 import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bakery_manager_mobile/man_nav/recipes.dart';
+import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:bakery_manager_mobile/man_nav/admin.dart';
+
+import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-
 import '../widgets/landing_page.dart';
+import 'dart:convert';
+
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -119,8 +119,8 @@ Widget _buildRecipeTile(String title, IconData icon, String category) {
                 _buildRecipeTile('Cake', Icons.cake, 'Cake'),
                 _buildRecipeTile('Bread', Icons.bakery_dining,'Bread'),
                 _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
-                _buildRecipeTile('Cookies', Icons.cookie, 'Cookies'), // Adjust as per actual page
-                _buildRecipeTile('Croissants', Icons.cookie_outlined, 'Croissants'), // Adjust as per actual page
+                _buildRecipeTile('Cookies', Icons.cookie, 'Cookies'), 
+                _buildRecipeTile('Croissants', Icons.cookie_outlined, 'Croissants'), 
                 _buildRecipeTile('Bagels', Icons.cookie_rounded, 'Bagels'),
                 _buildRecipeTile('Pies', Icons.cookie_sharp, 'Pies'),
                 _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
