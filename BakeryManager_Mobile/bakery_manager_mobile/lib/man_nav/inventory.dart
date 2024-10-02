@@ -291,10 +291,7 @@ class _InventoryPageState extends State<InventoryPage> {
                 ),
               ),
             ),
-            _buildDrawerTile(
-              'Dashboard',
-              Icons.house_outlined,
-              const ManagerHomePage(),
+            _buildDrawerTile('Dashboard',Icons.house_outlined,const ManagerHomePage(),
             ),
             _buildExpansionTile(
               title: 'Recipes',
