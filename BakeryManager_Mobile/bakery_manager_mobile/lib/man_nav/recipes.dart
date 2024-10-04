@@ -10,7 +10,6 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
-
 class Recipe {
   final String recipeID;
   final String recipeName;
@@ -53,6 +52,9 @@ class _RecipesPageState extends State<RecipesPage> {
 
   List<String> pageHeaders = ["Ingredients", "Equipment", "Instructions"];
   List<Recipe> recipeNames = [];
+  List<Recipe> filteredRecipes = []; // List to hold filtered recipes
+
+  bool? available;
 
   Future<void> _retrieveRecipeNames(String category) async {
     final url = Uri.parse('$baseURL/api/recipeNames?category=$category');
@@ -165,6 +167,60 @@ class _RecipesPageState extends State<RecipesPage> {
     }
   }
 
+  Future<void> _startBaking(Recipe recipe, int quantity) async {
+    try {
+      final url = Uri.parse('$baseURL/api/startBaking');
+      final headers = {'Content-Type': 'application/json'};
+      final body = jsonEncode({'recipeID': recipe.recipeID, 'num': quantity});
+      final response = await http.post(url, headers: headers, body: body);
+      //var parsed = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        // iterate through the JSON to check all availabilities
+        print('YIPPEEE');
+        setState(() {});
+      } else {
+        print(response.statusCode);
+        setState(() {});
+      }
+    } catch (error) {
+      print(error);
+      setState(() {});
+    }
+  }
+
+  Future<void> _checkRecipeIngredients(Recipe recipe, int quantity) async {
+    try {
+      final url = Uri.parse(
+          '$baseURL/api/checkRecipeIngredients?recipeID=${recipe.recipeID}&quantity=$quantity');
+      final response =
+          await http.get(url, headers: {'Content-Type': 'application/json'});
+      var parsed = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        // iterate through the JSON to check all availabilities
+        print(parsed);
+        for (int i = 0; i < parsed.length; i++) {
+          if (parsed[i]['available'] == 0) {
+            // if any ONE of the ingredients has insufficient amounts
+            available = false;
+            setState(() {});
+            return;
+          }
+        }
+        available = true;
+        setState(() {});
+      } else {
+        setState(() {
+          available = false;
+        });
+      }
+    } catch (error) {
+      print(error);
+      setState(() {
+        available = false;
+      });
+    }
+  }
+
   void _showRecipeOptions(Recipe recipe) {
     List<String> getListForPage(index) {
       if (index == 0) {
@@ -252,6 +308,15 @@ class _RecipesPageState extends State<RecipesPage> {
                               },
                             ),
                           ),
+                          available == false
+                              ? const Text(
+                                  'One or more ingredients are unavailable!',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 16,
+                                  ),
+                                )
+                              : Container(), //
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: Row(
@@ -283,10 +348,15 @@ class _RecipesPageState extends State<RecipesPage> {
                                   icon: const Icon(Icons.add_circle_outline),
                                   iconSize:
                                       40, // Increase the size of the plus button
-                                  onPressed: () {
+                                  onPressed: () async {
+                                    await _checkRecipeIngredients(
+                                        recipe, quantity);
                                     setState(() {
-                                      if (quantity < 10) {
-                                        quantity++; // Increase quantity, cap at 10
+                                      if (available != null) {
+                                        if (available == true &&
+                                            quantity < 10) {
+                                          quantity++; // Increase quantity, cap at 10
+                                        }
                                       }
                                     });
                                   },
@@ -304,7 +374,7 @@ class _RecipesPageState extends State<RecipesPage> {
                                   : Colors.grey, // Button color
                             ),
                             onPressed: isDoneEnabled
-                                ? () => Navigator.pop(context)
+                                ? () => _startBaking(recipe, quantity)
                                 : null, // Only enable on last page
                             child: const Text(
                               'Start Baking',

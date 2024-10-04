@@ -213,7 +213,8 @@ Widget _buildDrawerTile(String title, IconData icon, Widget page) {
       filteredRecipes = recipeNames;
     } else {
       filteredRecipes = recipeNames
-          .where((recipe) => recipe.recipeName.toLowerCase().contains(query.toLowerCase()))
+          .where((recipe) =>
+              recipe.recipeName.toLowerCase().contains(query.toLowerCase()))
           .toList();
     }
     setState(() {});
@@ -255,9 +256,9 @@ Widget _buildDrawerTile(String title, IconData icon, Widget page) {
   Future<void> _startBaking(Recipe recipe, int quantity) async {
     try {
       final url = Uri.parse('$baseURL/api/startBaking');
-      final headers = {
-        'Content-Type': 'application/json'
-      };
+      final headers = {'Content-Type': 'application/json'};
+      //var parsed = jsonDecode(response.body);
+      
       final body = jsonEncode({
         'recipeID': recipe.recipeID,
         'num': quantity
@@ -269,13 +270,11 @@ Widget _buildDrawerTile(String title, IconData icon, Widget page) {
         setState(() {});
       } else {
         print(response.statusCode);
-        setState(() {
-        });
+        setState(() {});
       }
     } catch (error) {
       print(error);
-      setState(() {
-      });
+      setState(() {});
     }
   }
 
@@ -604,5 +603,3 @@ Widget _buildDrawerTile(String title, IconData icon, Widget page) {
     );
   }
 }
-
-  
