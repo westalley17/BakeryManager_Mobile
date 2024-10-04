@@ -1,10 +1,7 @@
-import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
-import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
-import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
-import 'package:bakery_manager_mobile/man_nav/settings.dart';
-import 'package:bakery_manager_mobile/man_nav/recipes.dart';
-import 'package:bakery_manager_mobile/man_nav/admin.dart';
-
+import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
+import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
+import 'package:bakery_manager_mobile/emp_nav/settings.dart';
+import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -294,8 +291,11 @@ class _InventoryPageState extends State<InventoryPage> {
                 ),
               ),
             ),
-            _buildDrawerTile('Dashboard',Icons.house_outlined,const ManagerHomePage(),),
-            _buildExpansionTile(title: 'Recipes',icon: Icons.restaurant_menu,
+            _buildDrawerTile('Dashboard',Icons.house_outlined,const EmployeeHomePage(),
+            ),
+            _buildExpansionTile(
+              title: 'Recipes',
+              icon: Icons.restaurant_menu,
               children: [
                 _buildRecipeTile('Cake', Icons.cake, 'Cake'),
                 _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
@@ -303,18 +303,18 @@ class _InventoryPageState extends State<InventoryPage> {
                 _buildRecipeTile('Cookie', Icons.cookie, 'Cookie'),
               ],
             ),
-            _buildExpansionTile(title: 'Inventory',icon: Icons.inventory_2_outlined,
+            _buildExpansionTile(
+              title: 'Inventory',
+              icon: Icons.inventory_2_outlined,
               children: [
-                _buildInventoryTile('Raw Ingredients', Icons.egg, 'Ingredients'),
-                _buildInventoryTile('Finished Products',Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
+                _buildInventoryTile('Products',Icons.breakfast_dining_rounded, 'Products'),
                 _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
                 _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile('Timesheets',Icons.watch_later,const TimePage()),
-            _buildDrawerTile('Clock In/Out',Icons.access_time_outlined,const ClockPage()),
-            _buildDrawerTile('Admin',Icons.admin_panel_settings,const AdminPage()),
-            _buildDrawerTile('Settings',Icons.settings,const SettingsPage()),
+            _buildDrawerTile('Clock In/Out',Icons.access_time_outlined,const ClockPage(),),
+            _buildDrawerTile('Settings',Icons.settings,const SettingsPage(),),
           ],
         ),
       ),

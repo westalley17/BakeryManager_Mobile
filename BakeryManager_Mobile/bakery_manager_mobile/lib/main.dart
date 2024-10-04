@@ -1,11 +1,11 @@
-import 'dart:convert';
-import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bakery_manager_mobile/env/env_config.dart';
 
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import 'dart:convert';
 
 void main() {
   runApp(const BakeryManager());
@@ -92,7 +92,7 @@ class _BakeryManagerState extends State<BakeryManager> {
       // no longer eepy, just need to test Azure pipeline :)
       debugShowCheckedModeBanner: false,
       // conditionally render homepage if Session is invalid, else render whichever dashboard they need to go to.
-      home: (_validSession! == false) ? const ManagerHomePage() : _dashboard(),
+      home: (_validSession! == false) ? const EmployeeHomePage() : _dashboard(),
       theme: ThemeData(
         primaryColor: const Color(0xFFFFFBED),
         colorScheme: ColorScheme.fromSwatch().copyWith(

@@ -5,6 +5,7 @@ import 'package:bakery_manager_mobile/man_nav/inventory.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
 import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:bakery_manager_mobile/man_nav/admin.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -15,6 +16,7 @@ class Recipe {
   List<String> recipeIngredients = [];
   List<String> recipeEquipment = [];
   List<String> recipeInstructions = [];
+  List<Recipe> filteredItems = []; //me dunno if this worky yet:) 
 
   Recipe({
     required this.recipeID,
@@ -87,6 +89,47 @@ class _RecipesPageState extends State<RecipesPage> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => page),
+    );
+  }
+  Widget _buildDrawerTile(String title, IconData icon, Widget page) {
+    return ListTile(
+      title: Text(title),
+      leading: Icon(icon),
+      onTap: () => _navigateToPage(page),
+    );
+  }
+
+  Widget _buildRecipeTile(String title, IconData icon, String category) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: ListTile(
+        title: Text(title),
+        leading: Icon(icon),
+        onTap: () => _navigateToPage(RecipesPage(category: category)),
+      ),
+    );
+  }
+
+   Widget _buildInventoryTile(String title, IconData icon, String category) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: ListTile(
+        title: Text(title),
+        leading: Icon(icon),
+        onTap: () => _navigateToPage(InventoryPage(category: category)),
+      ),
+    );
+  }
+
+  Widget _buildExpansionTile({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return ExpansionTile(
+      leading: Icon(icon),
+      title: Text(title),
+      children: children,
     );
   }
 
@@ -416,7 +459,7 @@ class _RecipesPageState extends State<RecipesPage> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              padding: const EdgeInsets.only(top: 10.0, bottom: 0.0),
+              padding: const EdgeInsets.only(top: 5.0),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
               ),
@@ -431,180 +474,31 @@ class _RecipesPageState extends State<RecipesPage> {
                 ),
               ),
             ),
-            ListTile(
-              title: const Text('Dashboard'),
-              leading: const Icon(Icons.house_outlined),
-              onTap: () {
-                _navigateToPage(const ManagerHomePage());
-              },
-            ),
-            ExpansionTile(
-              leading: const Icon(Icons.restaurant_menu),
-              title: const Text('Recipes'),
+            _buildDrawerTile('Dashboard',Icons.house_outlined,const ManagerHomePage()),
+            _buildExpansionTile(title: 'Recipes',icon: Icons.restaurant_menu,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: ListTile(
-                    title: const Text('Cake'),
-                    leading: const Icon(Icons.cake),
-                    onTap: () {
-                      _navigateToPage(const RecipesPage(category: 'Cake'));
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: ListTile(
-                    title: const Text('Bread'),
-                    leading: const Icon(Icons.bakery_dining),
-                    onTap: () {
-                      _navigateToPage(const RecipesPage(category: 'Bread'));
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: ListTile(
-                    title: const Text('Muffins'),
-                    leading: const Icon(Icons.cake_outlined),
-                    onTap: () {
-                      _navigateToPage(const RecipesPage(category: 'Muffins'));
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: ListTile(
-                    title: const Text('Cookies'),
-                    leading: const Icon(Icons.cookie_outlined),
-                    onTap: () {
-                      _navigateToPage(const RecipesPage(category: 'Cookies'));
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: ListTile(
-                    title: const Text('Croissants'),
-                    leading: const Icon(Icons.cookie_sharp),
-                    onTap: () {
-                      _navigateToPage(
-                          const RecipesPage(category: 'Croissants'));
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: ListTile(
-                    title: const Text('Bagels'),
-                    leading: const Icon(Icons.cookie_sharp),
-                    onTap: () {
-                      _navigateToPage(const RecipesPage(category: 'Bagels'));
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: ListTile(
-                    title: const Text('Pies'),
-                    leading: const Icon(Icons.pie_chart_outline_outlined),
-                    onTap: () {
-                      _navigateToPage(const RecipesPage(category: 'Pies'));
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: ListTile(
-                    title: const Text('Brownies'),
-                    leading: const Icon(Icons.cookie_sharp),
-                    onTap: () {
-                      _navigateToPage(const RecipesPage(category: 'Brownies'));
-                    },
-                  ),
-                ),
+                _buildRecipeTile('Cake', Icons.cake, 'Cake'),
+                _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
+                _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
+                _buildRecipeTile('Cookie', Icons.cookie, 'Cookie'),
               ],
             ),
-            ExpansionTile(
-              leading: const Icon(Icons.inventory_2_outlined),
-              title: const Text('Inventory'),
+            _buildExpansionTile(title: 'Inventory',icon: Icons.inventory_2_outlined,
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: ListTile(
-                    title: const Text('Ingredients'),
-                    leading: const Icon(Icons.egg),
-                    onTap: () {
-                      _navigateToPage(
-                          const InventoryPage(category: 'Ingredients'));
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: ListTile(
-                    title: const Text('Finished Products'),
-                    leading: const Icon(Icons.breakfast_dining_rounded),
-                    onTap: () {
-                      _navigateToPage(
-                          const InventoryPage(category: 'Finished Products'));
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: ListTile(
-                    title: const Text('Vendors'),
-                    leading: const Icon(Icons.contact_emergency),
-                    onTap: () {
-                      _navigateToPage(const InventoryPage(category: 'Vendors'));
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: ListTile(
-                    title: const Text('Cleaning Products'),
-                    leading: const Icon(Icons.clean_hands),
-                    onTap: () {
-                      _navigateToPage(
-                          const InventoryPage(category: 'Cleaning Products'));
-                    },
-                  ),
-                ),
+                _buildInventoryTile('Raw Ingredients', Icons.egg, 'Ingredients'),
+                _buildInventoryTile('Finished Products',Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
+                _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            ListTile(
-              title: const Text('Timesheets'),
-              leading: const Icon(Icons.timer_sharp),
-              onTap: () {
-                _navigateToPage(const TimePage());
-              },
-            ),
-            ListTile(
-              title: const Text('Clock In/Out'),
-              leading: const Icon(Icons.lock_clock),
-              onTap: () {
-                _navigateToPage(const ClockPage());
-              },
-            ),
-            ListTile(
-              title: const Text('Settings'),
-              leading: const Icon(Icons.settings_outlined),
-              onTap: () {
-                _navigateToPage(const SettingsPage());
-              },
-            ),
-            ListTile(
-              title: const Text('Admin'),
-              leading: const Icon(Icons.admin_panel_settings),
-              onTap: () {
-                _navigateToPage(const AdminPage());
-              },
-            ),
+            _buildDrawerTile('Timesheets',Icons.watch_later,const TimePage()),
+            _buildDrawerTile('Clock In/Out',Icons.access_time_outlined,const ClockPage()),
+            _buildDrawerTile('Admin',Icons.admin_panel_settings,const AdminPage()),
+            _buildDrawerTile('Settings',Icons.settings,const SettingsPage()),
           ],
         ),
       ),
+      
       body: Container(
         color: Colors.grey[200], // Set to the background color of the dashboard
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),

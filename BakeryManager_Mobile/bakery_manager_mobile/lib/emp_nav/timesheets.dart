@@ -1,10 +1,9 @@
-import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
-import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
-import 'package:bakery_manager_mobile/man_nav/inventory.dart';
-import 'package:bakery_manager_mobile/man_nav/settings.dart';
+import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
+import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
+import 'package:bakery_manager_mobile/emp_nav/inventory.dart';
+import 'package:bakery_manager_mobile/emp_nav/settings.dart';
+import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bakery_manager_mobile/man_nav/recipes.dart';
-import 'package:bakery_manager_mobile/man_nav/admin.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
@@ -211,7 +210,7 @@ class _TimePageState extends State<TimePage> {
                 ),
               ),
             ),
-            _buildDrawerTile('Dashboard',Icons.house_outlined,const ManagerHomePage()),
+            _buildDrawerTile('Dashboard',Icons.house_outlined,const EmployeeHomePage()),
             _buildExpansionTile(title: 'Recipes',icon: Icons.restaurant_menu,
               children: [
                 _buildRecipeTile('Cake', Icons.cake, 'Cake'),
@@ -230,7 +229,6 @@ class _TimePageState extends State<TimePage> {
             ),
             _buildDrawerTile('Timesheets',Icons.watch_later,const TimePage()),
             _buildDrawerTile('Clock In/Out',Icons.access_time_outlined,const ClockPage()),
-            _buildDrawerTile('Admin',Icons.admin_panel_settings,const AdminPage()),
             _buildDrawerTile('Settings',Icons.settings,const SettingsPage()),
           ],
         ),
