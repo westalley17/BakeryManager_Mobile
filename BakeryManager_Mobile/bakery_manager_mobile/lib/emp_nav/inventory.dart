@@ -1,12 +1,18 @@
+
 import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
 import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
+import 'package:bakery_manager_mobile/emp_nav/timesheets.dart';
 import 'package:bakery_manager_mobile/emp_nav/settings.dart';
 import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../env/env_config.dart';
 import 'dart:convert';
+
+import '../widgets/landing_page.dart';
 
 class InventoryItem {
   final String itemID;
@@ -50,6 +56,62 @@ class InventoryPage extends StatefulWidget {
   @override
   State<InventoryPage> createState() => _InventoryPageState();
 }
+
+class InventoryTile extends StatelessWidget {
+  final String itemName;
+  double? quantity;
+
+  InventoryTile({
+    required this.itemName,
+    this.quantity,
+    super.key,
+  });
+
+  // Function to map inventory item names to icons
+  IconData _getIconForItem(String itemName) {
+    switch (itemName.toLowerCase()) {
+      case 'egg':
+        return Icons.egg;
+      case 'flour':
+        return Icons.bakery_dining;
+      case 'milk':
+        return Icons.local_drink;
+      case 'sugar':
+        return Icons.cookie;
+      case 'butter':
+        return Icons.cake;
+      case 'cheese':
+        return Icons.emoji_food_beverage;
+      default:
+        return Icons.inventory; // Default icon for other items
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(16.0),
+        leading: Icon(_getIconForItem(itemName)), // Display the icon here
+        title: Text(
+          itemName,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        subtitle: (quantity != null) ? Text('Quantity: $quantity') : null,
+        trailing: IconButton(
+          icon: const Icon(Icons.info_outline),
+          onPressed: () {
+            // Add navigation to item details
+          },
+        ),
+      ),
+    );
+  }
+}
+
 
 class _InventoryPageState extends State<InventoryPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -202,6 +264,30 @@ class _InventoryPageState extends State<InventoryPage> {
     }
   }
 
+  Future<void> _logout() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final sessionID = prefs.getString('SessionID');
+      final url = Uri.parse('$baseURL/api/sessions');
+      final response = await http.delete(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'sessionID': sessionID}),
+      );
+
+      if (response.statusCode == 200 && mounted) {
+        Navigator.pushReplacement(
+          context,
+          CupertinoPageRoute(builder: (context) => const HomePage()),
+        );
+      } else {
+        print('Failed to log out. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error logging out: $error');
+    }
+  }
+
   void _navigateToPage(Widget page) {
     Navigator.pop(context); // Close the drawer
     Navigator.pushReplacement(
@@ -266,46 +352,46 @@ class _InventoryPageState extends State<InventoryPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () async {
+              // Handle logout logic here
+              await _logout();
+            },
           ),
         ],
       ),
-      
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
-          children: <Widget>[
+          children: [
             DrawerHeader(
-              padding: const EdgeInsets.only(top: 5.0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-              ),
-              child: Align(
-                alignment: Alignment.center,
+              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+              child: Center(
                 child: Text(
                   'Menu',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: Colors.black,
                       ),
-                  textAlign: TextAlign.center,
                 ),
               ),
             ),
-            _buildDrawerTile('Dashboard',Icons.house_outlined,const EmployeeHomePage(),
-            ),
-            _buildExpansionTile(
-              title: 'Recipes',
-              icon: Icons.restaurant_menu,
+            _buildDrawerTile('Dashboard',Icons.house_outlined,const EmployeeHomePage()),
+            ExpansionTile(
+              leading: const Icon(Icons.restaurant_menu),
+              title: const Text('Recipes'),
               children: [
                 _buildRecipeTile('Cake', Icons.cake, 'Cake'),
                 _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
                 _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
-                _buildRecipeTile('Cookie', Icons.cookie, 'Cookie'),
+                _buildRecipeTile('Cookies', Icons.cookie, 'Cookies'),
+                _buildRecipeTile('Croissants', Icons.cookie, 'Croissants'),
+                _buildRecipeTile('Bagels', Icons.cookie, 'Bagels'),
+                _buildRecipeTile('Pies', Icons.cookie, 'Pies'),
+                _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
               ],
             ),
-            _buildExpansionTile(
-              title: 'Inventory',
-              icon: Icons.inventory_2_outlined,
+            ExpansionTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: const Text('Inventory'),
               children: [
                 _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
                 _buildInventoryTile('Products',Icons.breakfast_dining_rounded, 'Products'),
@@ -313,8 +399,9 @@ class _InventoryPageState extends State<InventoryPage> {
                 _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile('Clock In/Out',Icons.access_time_outlined,const ClockPage(),),
-            _buildDrawerTile('Settings',Icons.settings,const SettingsPage(),),
+            _buildDrawerTile('Time Sheets',Icons.access_time,const TimePage(),),
+            _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
+            _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
           ],
         ),
       ),
@@ -376,57 +463,3 @@ class _InventoryPageState extends State<InventoryPage> {
 }
 
 // ignore: must_be_immutable
-class InventoryTile extends StatelessWidget {
-  final String itemName;
-  double? quantity;
-
-  InventoryTile({
-    required this.itemName,
-    this.quantity,
-    super.key,
-  });
-
-  // Function to map inventory item names to icons
-  IconData _getIconForItem(String itemName) {
-    switch (itemName.toLowerCase()) {
-      case 'egg':
-        return Icons.egg;
-      case 'flour':
-        return Icons.bakery_dining;
-      case 'milk':
-        return Icons.local_drink;
-      case 'sugar':
-        return Icons.cookie;
-      case 'butter':
-        return Icons.cake;
-      case 'cheese':
-        return Icons.emoji_food_beverage;
-      default:
-        return Icons.inventory; // Default icon for other items
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16.0),
-        leading: Icon(_getIconForItem(itemName)), // Display the icon here
-        title: Text(
-          itemName,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        subtitle: (quantity != null) ? Text('Quantity: $quantity') : null,
-        trailing: IconButton(
-          icon: const Icon(Icons.info_outline),
-          onPressed: () {
-            // Add navigation to item details
-          },
-        ),
-      ),
-    );
-  }
-}

@@ -4,10 +4,15 @@ import 'package:bakery_manager_mobile/emp_nav/timesheets.dart';
 import 'package:bakery_manager_mobile/emp_nav/inventory.dart';
 import 'package:bakery_manager_mobile/emp_nav/settings.dart';
 import 'package:bakery_manager_mobile/env/env_config.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../widgets/landing_page.dart';
 
 class Recipe {
   final String recipeID;
@@ -143,7 +148,7 @@ class _RecipesPageState extends State<RecipesPage> {
     );
   }
 
-Widget _buildDrawerTile(String title, IconData icon, Widget page) {
+  Widget _buildDrawerTile(String title, IconData icon, Widget page) {
     return ListTile(
       title: Text(title),
       leading: Icon(icon),
@@ -498,6 +503,30 @@ Widget _buildDrawerTile(String title, IconData icon, Widget page) {
       );
     }
   }
+  
+  Future<void> _logout() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final sessionID = prefs.getString('SessionID');
+      final url = Uri.parse('$baseURL/api/sessions');
+      final response = await http.delete(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'sessionID': sessionID}),
+      );
+
+      if (response.statusCode == 200 && mounted) {
+        Navigator.pushReplacement(
+          context,
+          CupertinoPageRoute(builder: (context) => const HomePage()),
+        );
+      } else {
+        print('Failed to log out. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error logging out: $error');
+    }
+  }
 @override
   Widget build(BuildContext context) {
     if (recipeNames.isEmpty) {
@@ -522,50 +551,63 @@ Widget _buildDrawerTile(String title, IconData icon, Widget page) {
             _scaffoldKey.currentState?.openDrawer();
           },
         ),
+         actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              // Handle logout logic here
+              await _logout();
+            },
+          ),
+        ],
       ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
-          children: <Widget>[
+          children: [
             DrawerHeader(
-              padding: const EdgeInsets.only(top: 5.0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-              ),
-              child: Align(
-                alignment: Alignment.center,
+              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+              child: Center(
                 child: Text(
                   'Menu',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: Colors.black,
                       ),
-                  textAlign: TextAlign.center,
                 ),
               ),
             ),
             _buildDrawerTile('Dashboard',Icons.house_outlined,const EmployeeHomePage()),
-            _buildExpansionTile(title: 'Recipes',icon: Icons.restaurant_menu,
+            ExpansionTile(
+              leading: const Icon(Icons.restaurant_menu),
+              title: const Text('Recipes'),
               children: [
                 _buildRecipeTile('Cake', Icons.cake, 'Cake'),
                 _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
                 _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
-                _buildRecipeTile('Cookie', Icons.cookie, 'Cookie'),
+                _buildRecipeTile('Cookies', Icons.cookie, 'Cookies'),
+                _buildRecipeTile('Croissants', Icons.cookie, 'Croissants'),
+                _buildRecipeTile('Bagels', Icons.cookie, 'Bagels'),
+                _buildRecipeTile('Pies', Icons.cookie, 'Pies'),
+                _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
               ],
             ),
-            _buildExpansionTile(title: 'Inventory',icon: Icons.inventory_2_outlined,
+            ExpansionTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: const Text('Inventory'),
               children: [
-                _buildInventoryTile('Raw Ingredients', Icons.egg, 'Ingredients'),
-                _buildInventoryTile('Finished Products',Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
+                _buildInventoryTile('Products',Icons.breakfast_dining_rounded, 'Products'),
                 _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
                 _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile('Timesheets',Icons.watch_later,const TimePage()),
-            _buildDrawerTile('Clock In/Out',Icons.access_time_outlined,const ClockPage()),
-            _buildDrawerTile('Settings',Icons.settings,const SettingsPage()),
+            _buildDrawerTile('Time Sheets',Icons.access_time,const TimePage(),),
+            _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
+            _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
           ],
         ),
       ),
+
       body: Container(
         color: Colors.grey[200], // Set to the background color of the dashboard
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),

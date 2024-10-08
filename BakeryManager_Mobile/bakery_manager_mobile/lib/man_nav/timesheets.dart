@@ -183,10 +183,9 @@ class _TimePageState extends State<TimePage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
+            onPressed: () async {
               // Handle logout logic here
-              _logout();
-              Navigator.pop(context);
+              await _logout();
             },
           ),
         ],
@@ -194,48 +193,50 @@ class _TimePageState extends State<TimePage> {
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
-          children: <Widget>[
+          children: [
             DrawerHeader(
-              padding: const EdgeInsets.only(top: 5.0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-              ),
-              child: Align(
-                alignment: Alignment.center,
+              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+              child: Center(
                 child: Text(
                   'Menu',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: Colors.black,
                       ),
-                  textAlign: TextAlign.center,
                 ),
               ),
             ),
             _buildDrawerTile('Dashboard',Icons.house_outlined,const ManagerHomePage()),
-            _buildExpansionTile(title: 'Recipes',icon: Icons.restaurant_menu,
+            ExpansionTile(
+              leading: const Icon(Icons.restaurant_menu),
+              title: const Text('Recipes'),
               children: [
                 _buildRecipeTile('Cake', Icons.cake, 'Cake'),
                 _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
                 _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
-                _buildRecipeTile('Cookie', Icons.cookie, 'Cookie'),
+                _buildRecipeTile('Cookies', Icons.cookie, 'Cookies'),
+                _buildRecipeTile('Croissants', Icons.cookie, 'Croissants'),
+                _buildRecipeTile('Bagels', Icons.cookie, 'Bagels'),
+                _buildRecipeTile('Pies', Icons.cookie, 'Pies'),
+                _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
               ],
             ),
-            _buildExpansionTile(title: 'Inventory',icon: Icons.inventory_2_outlined,
+            ExpansionTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: const Text('Inventory'),
               children: [
-                _buildInventoryTile('Raw Ingredients', Icons.egg, 'Ingredients'),
-                _buildInventoryTile('Finished Products',Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
+                _buildInventoryTile('Products',Icons.breakfast_dining_rounded, 'Products'),
                 _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
                 _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile('Timesheets',Icons.watch_later,const TimePage()),
-            _buildDrawerTile('Clock In/Out',Icons.access_time_outlined,const ClockPage()),
-            _buildDrawerTile('Admin',Icons.admin_panel_settings,const AdminPage()),
-            _buildDrawerTile('Settings',Icons.settings,const SettingsPage()),
+            _buildDrawerTile('Time Sheets',Icons.access_time,const TimePage(),),
+            _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
+            _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
+            _buildDrawerTile('Admin',Icons.admin_panel_settings_sharp,const AdminPage(),),
           ],
         ),
       ),
-      
       body: SafeArea(
         child: Scrollbar(
           // Scrollbar here

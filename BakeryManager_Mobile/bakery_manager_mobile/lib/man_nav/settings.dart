@@ -21,6 +21,39 @@ class SettingsPage extends StatefulWidget {
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
+class RecipeTile extends StatelessWidget {
+  final String title;
+  final String description;
+
+  const RecipeTile({
+    required this.title,
+    required this.description,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(16.0),
+        title: Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(description),
+        leading: const Icon(Icons.restaurant_menu),
+        onTap: () {
+          // Handle recipe tap if needed
+        },
+      ),
+    );
+  }
+}
+
+
 class _SettingsPageState extends State<SettingsPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -113,9 +146,9 @@ class _SettingsPageState extends State<SettingsPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              _logout();
-              Navigator.pop(context); // Handle logout
+            onPressed: () async {
+              // Handle logout logic here
+              await _logout();
             },
           ),
         ],
@@ -123,44 +156,47 @@ class _SettingsPageState extends State<SettingsPage> {
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
-          children: <Widget>[
+          children: [
             DrawerHeader(
-              padding: const EdgeInsets.only(top: 5.0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-              ),
-              child: Align(
-                alignment: Alignment.center,
+              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+              child: Center(
                 child: Text(
                   'Menu',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: Colors.black,
                       ),
-                  textAlign: TextAlign.center,
                 ),
               ),
             ),
             _buildDrawerTile('Dashboard',Icons.house_outlined,const ManagerHomePage()),
-            _buildExpansionTile(title: 'Recipes',icon: Icons.restaurant_menu,
+            ExpansionTile(
+              leading: const Icon(Icons.restaurant_menu),
+              title: const Text('Recipes'),
               children: [
                 _buildRecipeTile('Cake', Icons.cake, 'Cake'),
                 _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
                 _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
-                _buildRecipeTile('Cookie', Icons.cookie, 'Cookie'),
+                _buildRecipeTile('Cookies', Icons.cookie, 'Cookies'),
+                _buildRecipeTile('Croissants', Icons.cookie, 'Croissants'),
+                _buildRecipeTile('Bagels', Icons.cookie, 'Bagels'),
+                _buildRecipeTile('Pies', Icons.cookie, 'Pies'),
+                _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
               ],
             ),
-            _buildExpansionTile(title: 'Inventory',icon: Icons.inventory_2_outlined,
+            ExpansionTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: const Text('Inventory'),
               children: [
-                _buildInventoryTile('Raw Ingredients', Icons.egg, 'Ingredients'),
-                _buildInventoryTile('Finished Products',Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
+                _buildInventoryTile('Products',Icons.breakfast_dining_rounded, 'Products'),
                 _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
                 _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile('Timesheets',Icons.watch_later,const TimePage()),
-            _buildDrawerTile('Clock In/Out',Icons.access_time_outlined,const ClockPage()),
-            _buildDrawerTile('Admin',Icons.admin_panel_settings,const AdminPage()),
-            _buildDrawerTile('Settings',Icons.settings,const SettingsPage()),
+            _buildDrawerTile('Time Sheets',Icons.access_time,const TimePage(),),
+            _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
+            _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
+            _buildDrawerTile('Admin',Icons.admin_panel_settings_sharp,const AdminPage(),),
           ],
         ),
       ),
@@ -204,34 +240,3 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 }
 
-class RecipeTile extends StatelessWidget {
-  final String title;
-  final String description;
-
-  const RecipeTile({
-    required this.title,
-    required this.description,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16.0),
-        title: Text(
-          title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        subtitle: Text(description),
-        leading: const Icon(Icons.restaurant_menu),
-        onTap: () {
-          // Handle recipe tap if needed
-        },
-      ),
-    );
-  }
-}

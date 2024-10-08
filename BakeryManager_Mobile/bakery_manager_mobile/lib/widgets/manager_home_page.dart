@@ -19,18 +19,12 @@ class ManagerHomePage extends StatefulWidget {
 
   @override
   State<ManagerHomePage> createState() => _ManagerHomePage();
+
 }
 
 class _ManagerHomePage extends State<ManagerHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  void _navigateToPage(Widget page) {
-    Navigator.pop(context); // Close the drawer
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => page),
-    );
-  }
 
   Future<void> _logout() async {
     try {
@@ -56,11 +50,15 @@ class _ManagerHomePage extends State<ManagerHomePage> {
     }
   }
 
-  Widget _buildDrawerTile({
-    required String title,
-    required IconData icon,
-    required Widget page,
-  }) {
+void _navigateToPage(Widget page) {
+    Navigator.pop(context); // Close the drawer
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    );
+  }
+
+Widget _buildDrawerTile(String title, IconData icon, Widget page) {
     return ListTile(
       title: Text(title),
       leading: Icon(icon),
@@ -79,7 +77,6 @@ class _ManagerHomePage extends State<ManagerHomePage> {
     );
   }
 
-  // Function for inventory tiles
   Widget _buildInventoryTile(String title, IconData icon, String category) {
     return Padding(
       padding: const EdgeInsets.only(left: 16.0),
@@ -88,6 +85,18 @@ class _ManagerHomePage extends State<ManagerHomePage> {
         leading: Icon(icon),
         onTap: () => _navigateToPage(InventoryPage(category: category)),
       ),
+    );
+  }
+
+  Widget _buildExpansionTile({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return ExpansionTile(
+      leading: Icon(icon),
+      title: Text(title),
+      children: children,
     );
   }
 
@@ -142,36 +151,16 @@ class _ManagerHomePage extends State<ManagerHomePage> {
               leading: const Icon(Icons.inventory_2_outlined),
               title: const Text('Inventory'),
               children: [
-                _buildInventoryTile(
-                    'Raw Ingredients', Icons.egg, 'Ingredients'),
-                _buildInventoryTile('Finished Products',
-                    Icons.breakfast_dining_rounded, 'Products'),
-                _buildInventoryTile(
-                    'Vendors', Icons.contact_emergency, 'Vendors'),
-                _buildInventoryTile('Cleaning Products', Icons.clean_hands,
-                    'CleaningEquipment'),
+                _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
+                _buildInventoryTile('Products',Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
+                _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile(
-              title: 'Time Sheets',
-              icon: Icons.access_time,
-              page: const TimePage(),
-            ),
-            _buildDrawerTile(
-              title: 'Clock In/Out',
-              icon: Icons.lock_clock,
-              page: const ClockPage(),
-            ),
-            _buildDrawerTile(
-              title: 'Settings',
-              icon: Icons.settings_outlined,
-              page: const SettingsPage(),
-            ),
-            _buildDrawerTile(
-              title: 'Admin',
-              icon: Icons.admin_panel_settings_sharp,
-              page: const AdminPage(),
-            ),
+            _buildDrawerTile('Time Sheets',Icons.access_time,const TimePage(),),
+            _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
+            _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
+            _buildDrawerTile('Admin',Icons.admin_panel_settings_sharp,const AdminPage(),),
           ],
         ),
       ),
