@@ -119,48 +119,61 @@ class _InventoryPageState extends State<InventoryPage> {
   List<InventoryItem> filteredItems = []; 
   final TextEditingController _searchController = TextEditingController();
 
+@override
+  void initState() {
+    super.initState();
+    _retrieveInventoryNames(widget.category).then((_) {
+      // Initialize filteredItems with the full inventoryItems list
+      setState(() {
+        filteredItems = List.from(inventoryItems); // Copy all items initially
+      });
+    });
+
+    // Add a listener to dynamically filter items as the search text changes
+    _searchController.addListener(_filterItems);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_filterItems); // Remove the listener on dispose
+    _searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> _retrieveInventoryNames(String category) async {
     final url = Uri.parse('$baseURL/api/inventoryItems?category=$category');
     final headers = {
       'Content-Type': 'application/json',
     };
     try {
-
       final response = await http.get(url, headers: headers);
       var parsed = jsonDecode(response.body) as List;
-      
+
       if (response.statusCode == 200) {
         inventoryItems =
             parsed.map((json) => InventoryItem.fromJson(json)).toList();
-        setState(() {});
-      } else {
-        setState(() {});
+        setState(() {
+          filteredItems = List.from(inventoryItems); // Initialize with all items
+        });
       }
     } catch (error) {
-      setState(() {});
+      print('Error retrieving inventory names: $error');
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _retrieveInventoryNames(widget.category);
-  }
-
-  void _filterItems() {
-    final query = _searchController.text.toLowerCase();
-    setState(() {
-      filteredItems = inventoryItems
-          .where((item) => item.itemName.toLowerCase().contains(query))
-          .toList();
-    });
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
+ void _filterItems() {
+  final query = _searchController.text.trim().toLowerCase(); // Trim spaces and convert to lowercase
+  setState(() {
+    if (query.isEmpty) {
+      filteredItems = List.from(inventoryItems); // If the query is empty, show all items
+    } else {
+      filteredItems = inventoryItems.where((item) {
+        final itemName = item.itemName.toLowerCase(); // Convert item name to lowercase
+        return itemName.startsWith(query); // Match based on the start of the name
+      }).toList();
+    }
+  });
+}
 
   Future<void> _getIngredientInfo(String ingredientID) async {
     try {
@@ -353,13 +366,12 @@ class _InventoryPageState extends State<InventoryPage> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              // Handle logout logic here
               await _logout();
             },
           ),
         ],
       ),
-      drawer: Drawer(
+       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -407,21 +419,17 @@ class _InventoryPageState extends State<InventoryPage> {
       ),
       body: SafeArea(
         child: Scrollbar(
-          // Scrollbar here
           child: SingleChildScrollView(
-            // Ensure scrollable content
             child: Container(
               color: Theme.of(context).primaryColor,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                    Padding(
+                  Padding(
                     padding: const EdgeInsets.only(bottom: 16.0),
                     child: TextField(
                       controller: _searchController,
-                      onChanged: (value) => _filterItems(), // Filters items as you type
                       decoration: InputDecoration(
                         hintText: 'Search',
                         filled: true,
@@ -432,20 +440,17 @@ class _InventoryPageState extends State<InventoryPage> {
                         ),
                         prefixIcon: const Icon(Icons.search, color: Colors.black),
                       ),
-                      style: const TextStyle(
-                        color: Colors.black,
-                      ),
+                      style: const TextStyle(color: Colors.black),
                     ),
                   ),
                   const SizedBox(height: 20.0),
                   ListView.builder(
-                    physics:
-                        const NeverScrollableScrollPhysics(), // Disable inner scroll for list
-                    shrinkWrap:
-                        true, // Allow ListView to wrap inside the scrollable container
-                    itemCount: inventoryItems.length,
+                    physics: const NeverScrollableScrollPhysics(), // Disable inner scroll for list
+                    shrinkWrap: true, // Allow ListView to wrap inside the scrollable container
+                    itemCount: filteredItems.length,
                     itemBuilder: (context, index) {
-                      final item = inventoryItems[index];
+                      
+                      final item = filteredItems[index];
                       return InventoryTile(
                         itemName: item.itemName,
                         quantity: (item.quantity != null) ? item.quantity : null,
@@ -461,5 +466,3 @@ class _InventoryPageState extends State<InventoryPage> {
     );
   }
 }
-
-// ignore: must_be_immutable

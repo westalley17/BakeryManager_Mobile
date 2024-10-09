@@ -34,77 +34,6 @@ class Recipe {
   }
 }
 
-class SearchBarApp extends StatefulWidget {
-  const SearchBarApp({super.key});
-
-  @override
-  State<SearchBarApp> createState() => _SearchBarAppState();
-}
-
-class _SearchBarAppState extends State<SearchBarApp> {
-  bool isDark = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData themeData = ThemeData(
-        useMaterial3: true,
-        brightness: isDark ? Brightness.dark : Brightness.light);
-
-    return MaterialApp(
-      theme: themeData,
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Search Bar Sample')),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SearchAnchor(
-              builder: (BuildContext context, SearchController controller) {
-            return SearchBar(
-              controller: controller,
-              padding: const WidgetStatePropertyAll<EdgeInsets>(
-                  EdgeInsets.symmetric(horizontal: 16.0)),
-              onTap: () {
-                controller.openView();
-              },
-              onChanged: (_) {
-                controller.openView();
-              },
-              leading: const Icon(Icons.search),
-              trailing: <Widget>[
-                Tooltip(
-                  message: 'Change brightness mode',
-                  child: IconButton(
-                    isSelected: isDark,
-                    onPressed: () {
-                      setState(() {
-                        isDark = !isDark;
-                      });
-                    },
-                    icon: const Icon(Icons.wb_sunny_outlined),
-                    selectedIcon: const Icon(Icons.brightness_2_outlined),
-                  ),
-                )
-              ],
-            );
-          }, suggestionsBuilder:
-                  (BuildContext context, SearchController controller) {
-            return List<ListTile>.generate(5, (int index) {
-              final String item = 'item $index';
-              return ListTile(
-                title: Text(item),
-                onTap: () {
-                  setState(() {
-                    controller.closeView(item);
-                  });
-                },
-              );
-            });
-          }),
-        ),
-      ),
-    );
-  }
-}
-
 class RecipesPage extends StatefulWidget {
   final String category;
 
@@ -131,13 +60,58 @@ class _RecipesPageState extends State<RecipesPage> {
 
   bool? available;
 
-  @override
+ @override
   void initState() {
     super.initState();
-    _retrieveRecipeNames(widget.category);
-    _searchController.addListener(() {
-      _filterRecipes(_searchController.text);
+    _retrieveRecipeNames(widget.category).then((_) {
+      setState(() {
+        filteredRecipes = List.from(recipeNames);
+      });
     });
+    _searchController.addListener(_filterItems);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_filterItems); // Remove the listener on dispose
+    _searchController.dispose();
+    super.dispose();
+  }
+
+ void _filterItems() {
+    final query = _searchController.text.trim().toLowerCase(); // Trim spaces and convert to lowercase
+    setState(() {
+      if (query.isEmpty) {
+        filteredRecipes = List.from(recipeNames); // If the query is empty, show all items
+      } else {
+        filteredRecipes = recipeNames.where((item) {
+          final itemName = item.recipeName.toLowerCase(); // Convert item name to lowercase
+          return itemName.startsWith(query); // Match based on the start of the name
+        }).toList();
+      }
+    });
+  }
+
+ Future<void> _retrieveRecipeNames(String category) async {
+    final url = Uri.parse('$baseURL/api/recipeNames?category=$category');
+    final headers = {
+      'Content-Type': 'application/json',
+    };
+    try {
+      final response = await http.get(url, headers: headers);
+      var parsed = jsonDecode(response.body) as List;
+      if (response.statusCode == 200) {
+        recipeNames = parsed.map((json) => Recipe.fromJson(json)).toList();
+        filteredRecipes = recipeNames; // Initially show all recipes
+        setState(() {});
+      } else {
+        setState(() {});
+      }
+    } catch (error) {
+      recipeNames = [Recipe(recipeID: "", recipeName: error.toString())];
+      filteredRecipes = recipeNames; // Handle error by showing message
+      setState(() {});
+    }
   }
 
   void _navigateToPage(Widget page) {
@@ -190,40 +164,6 @@ class _RecipesPageState extends State<RecipesPage> {
     );
   }
 
-
-  Future<void> _retrieveRecipeNames(String category) async {
-    final url = Uri.parse('$baseURL/api/recipeNames?category=$category');
-    final headers = {
-      'Content-Type': 'application/json',
-    };
-    try {
-      final response = await http.get(url, headers: headers);
-      var parsed = jsonDecode(response.body) as List;
-      if (response.statusCode == 200) {
-        recipeNames = parsed.map((json) => Recipe.fromJson(json)).toList();
-        filteredRecipes = recipeNames; // Initially show all recipes
-        setState(() {});
-      } else {
-        setState(() {});
-      }
-    } catch (error) {
-      recipeNames = [Recipe(recipeID: "", recipeName: error.toString())];
-      filteredRecipes = recipeNames; // Handle error by showing message
-      setState(() {});
-    }
-  }
-
-  void _filterRecipes(String query) {
-    if (query.isEmpty) {
-      filteredRecipes = recipeNames;
-    } else {
-      filteredRecipes = recipeNames
-          .where((recipe) =>
-              recipe.recipeName.toLowerCase().contains(query.toLowerCase()))
-          .toList();
-    }
-    setState(() {});
-  }
 
   Future<void> _getRecipeInfo(Recipe recipe) async {
     try {
@@ -527,15 +467,13 @@ class _RecipesPageState extends State<RecipesPage> {
       print('Error logging out: $error');
     }
   }
+
 @override
   Widget build(BuildContext context) {
     if (recipeNames.isEmpty) {
-      // Show a loading indicator while checking the session
-      return const MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
         ),
       );
     }
@@ -551,15 +489,30 @@ class _RecipesPageState extends State<RecipesPage> {
             _scaffoldKey.currentState?.openDrawer();
           },
         ),
-         actions: [
+        actions: [
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              // Handle logout logic here
               await _logout();
             },
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(60.0), // Set the size of the search bar
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search Recipes...',
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.white,
+                prefixIcon: const Icon(Icons.search),
+              ),
+            ),
+          ),
+        ),
       ),
       drawer: Drawer(
         child: ListView(
@@ -576,7 +529,7 @@ class _RecipesPageState extends State<RecipesPage> {
                 ),
               ),
             ),
-            _buildDrawerTile('Dashboard',Icons.house_outlined,const EmployeeHomePage()),
+            _buildDrawerTile('Dashboard', Icons.house_outlined, const EmployeeHomePage()),
             ExpansionTile(
               leading: const Icon(Icons.restaurant_menu),
               title: const Text('Recipes'),
@@ -596,20 +549,20 @@ class _RecipesPageState extends State<RecipesPage> {
               title: const Text('Inventory'),
               children: [
                 _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
-                _buildInventoryTile('Products',Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile('Products', Icons.breakfast_dining_rounded, 'Products'),
                 _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
                 _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile('Time Sheets',Icons.access_time,const TimePage(),),
-            _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
-            _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
+            _buildDrawerTile('Time Sheets', Icons.access_time, const TimePage()),
+            _buildDrawerTile('Clock In/Out', Icons.lock_clock, const ClockPage()),
+            _buildDrawerTile('Settings', Icons.settings_outlined, const SettingsPage()),
           ],
         ),
       ),
 
       body: Container(
-        color: Colors.grey[200], // Set to the background color of the dashboard
+        color: Theme.of(context).primaryColor,
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
         child: Column(
           children: [
