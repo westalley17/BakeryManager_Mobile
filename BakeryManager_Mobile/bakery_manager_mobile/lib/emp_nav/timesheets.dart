@@ -12,8 +12,6 @@ import '../widgets/landing_page.dart';
 import '../env/env_config.dart';
 import 'dart:convert';
 
-
-
 class EmpBiWeeks {
   final String userID;
   final String firstName;
@@ -42,9 +40,9 @@ class EmpBiWeeks {
       lastName: json['LastName'],
       biWeekID: json['biWeekID'],
       biWeekNum: json['biWeekNum'],
-      totalNormalHours: json['TotalNormalHours'],
-      totalOvertimeHours: json['TotalOvertimeHours'],
-      totalHolidayHours: json['TotalHolidayHours'],
+      totalNormalHours: double.parse(json['TotalNormalHours']),
+      totalOvertimeHours: double.parse(json['TotalOvertimeHours']),
+      totalHolidayHours: double.parse(json['TotalHolidayHours']),
     );
   }
 }
@@ -62,8 +60,6 @@ class TimesheetTile extends StatelessWidget {
 
   const TimesheetTile(
       {super.key, required this.firstName, required this.lastName});
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -123,19 +119,21 @@ class _TimePageState extends State<TimePage> {
     String? sessionID = prefs.getString('SessionID');
     if (sessionID == null) {
       // send back to home page?
+      _navigateToPage(const HomePage());
     } else {
-      final url = Uri.parse('$baseURL/api/manager/employeeHours?sessionID=$sessionID');
+      final url =
+          Uri.parse('$baseURL/api/employee/employeeHours?sessionID=$sessionID');
       final headers = {
         'Content-Type': 'application/json',
       };
       try {
         final response = await http.get(url, headers: headers);
-        var parsed = jsonDecode(response.body) as List;
         if (response.statusCode == 200) {
+          var parsed = jsonDecode(response.body) as List;
           employeeHours =
               parsed.map((json) => EmpBiWeeks.fromJson(json)).toList();
           setState(() {});
-        } else {
+        } else if (response.statusCode == 404) {
           setState(() {});
         }
       } catch (error) {
@@ -165,7 +163,7 @@ class _TimePageState extends State<TimePage> {
       onTap: () => _navigateToPage(page),
     );
   }
-  
+
   Widget _buildRecipeTile(String title, IconData icon, String category) {
     return Padding(
       padding: const EdgeInsets.only(left: 16.0),
@@ -221,7 +219,7 @@ class _TimePageState extends State<TimePage> {
           ),
         ],
       ),
-    drawer: Drawer(
+      drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -236,7 +234,8 @@ class _TimePageState extends State<TimePage> {
                 ),
               ),
             ),
-            _buildDrawerTile('Dashboard',Icons.house_outlined,const EmployeeHomePage()),
+            _buildDrawerTile(
+                'Dashboard', Icons.house_outlined, const EmployeeHomePage()),
             ExpansionTile(
               leading: const Icon(Icons.restaurant_menu),
               title: const Text('Recipes'),
@@ -256,14 +255,28 @@ class _TimePageState extends State<TimePage> {
               title: const Text('Inventory'),
               children: [
                 _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
-                _buildInventoryTile('Products',Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile(
+                    'Products', Icons.breakfast_dining_rounded, 'Products'),
                 _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
-                _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
+                _buildInventoryTile(
+                    'Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile('Time Sheets',Icons.access_time,const TimePage(),),
-            _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
-            _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
+            _buildDrawerTile(
+              'Time Sheets',
+              Icons.access_time,
+              const TimePage(),
+            ),
+            _buildDrawerTile(
+              'Clock In/Out',
+              Icons.lock_clock,
+              const ClockPage(),
+            ),
+            _buildDrawerTile(
+              'Settings',
+              Icons.settings_outlined,
+              const SettingsPage(),
+            ),
           ],
         ),
       ),
@@ -292,13 +305,18 @@ class _TimePageState extends State<TimePage> {
                         const NeverScrollableScrollPhysics(), // Disable inner scroll for list
                     shrinkWrap:
                         true, // Allow ListView to wrap inside the scrollable container
-                    itemCount: 1,
+                    itemCount: employeeHours.length,
                     itemBuilder: (context, index) {
                       final item = employeeHours[index];
-                      return TimesheetTile(
-                        firstName: item.firstName,
-                        lastName: item.lastName,
-                      );
+                      return (employeeHours.isEmpty
+                          ? const TimesheetTile(
+                              firstName: "No logged hours",
+                              lastName: "",
+                            )
+                          : TimesheetTile(
+                              firstName: item.firstName,
+                              lastName: item.lastName,
+                            ));
                     },
                   ),
                 ],
@@ -310,4 +328,3 @@ class _TimePageState extends State<TimePage> {
     );
   }
 }
-

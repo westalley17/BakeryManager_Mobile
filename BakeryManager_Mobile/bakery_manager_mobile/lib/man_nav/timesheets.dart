@@ -13,8 +13,6 @@ import '../widgets/landing_page.dart';
 import '../env/env_config.dart';
 import 'dart:convert';
 
-
-
 class EmpBiWeeks {
   final String userID;
   final String firstName;
@@ -43,9 +41,9 @@ class EmpBiWeeks {
       lastName: json['LastName'],
       biWeekID: json['biWeekID'],
       biWeekNum: json['biWeekNum'],
-      totalNormalHours: json['TotalNormalHours'],
-      totalOvertimeHours: json['TotalOvertimeHours'],
-      totalHolidayHours: json['TotalHolidayHours'],
+      totalNormalHours: double.parse(json['TotalNormalHours']),
+      totalOvertimeHours: double.parse(json['TotalOvertimeHours']),
+      totalHolidayHours: double.parse(json['TotalHolidayHours']),
     );
   }
 }
@@ -92,13 +90,15 @@ class _TimePageState extends State<TimePage> {
     if (sessionID == null) {
       // send back to home page?
     } else {
-      final url = Uri.parse('$baseURL/api/manager/employeeHours?sessionID=$sessionID');
+      final url =
+          Uri.parse('$baseURL/api/manager/employeeHours?sessionID=$sessionID');
       final headers = {
         'Content-Type': 'application/json',
       };
       try {
         final response = await http.get(url, headers: headers);
         var parsed = jsonDecode(response.body) as List;
+        //print(parsed[0]["TotalNormalHours"].runtimeType);
         if (response.statusCode == 200) {
           employeeHours =
               parsed.map((json) => EmpBiWeeks.fromJson(json)).toList();
@@ -133,7 +133,7 @@ class _TimePageState extends State<TimePage> {
       onTap: () => _navigateToPage(page),
     );
   }
-  
+
   Widget _buildRecipeTile(String title, IconData icon, String category) {
     return Padding(
       padding: const EdgeInsets.only(left: 16.0),
@@ -167,7 +167,6 @@ class _TimePageState extends State<TimePage> {
       children: children,
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -205,7 +204,8 @@ class _TimePageState extends State<TimePage> {
                 ),
               ),
             ),
-            _buildDrawerTile('Dashboard',Icons.house_outlined,const ManagerHomePage()),
+            _buildDrawerTile(
+                'Dashboard', Icons.house_outlined, const ManagerHomePage()),
             ExpansionTile(
               leading: const Icon(Icons.restaurant_menu),
               title: const Text('Recipes'),
@@ -225,15 +225,33 @@ class _TimePageState extends State<TimePage> {
               title: const Text('Inventory'),
               children: [
                 _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
-                _buildInventoryTile('Products',Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile(
+                    'Products', Icons.breakfast_dining_rounded, 'Products'),
                 _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
-                _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
+                _buildInventoryTile(
+                    'Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile('Time Sheets',Icons.access_time,const TimePage(),),
-            _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
-            _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
-            _buildDrawerTile('Admin',Icons.admin_panel_settings_sharp,const AdminPage(),),
+            _buildDrawerTile(
+              'Time Sheets',
+              Icons.access_time,
+              const TimePage(),
+            ),
+            _buildDrawerTile(
+              'Clock In/Out',
+              Icons.lock_clock,
+              const ClockPage(),
+            ),
+            _buildDrawerTile(
+              'Settings',
+              Icons.settings_outlined,
+              const SettingsPage(),
+            ),
+            _buildDrawerTile(
+              'Admin',
+              Icons.admin_panel_settings_sharp,
+              const AdminPage(),
+            ),
           ],
         ),
       ),
