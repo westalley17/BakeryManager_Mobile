@@ -581,7 +581,7 @@ class _RecipesPageState extends State<RecipesPage> {
                       foregroundColor: Colors.black,
                       side: const BorderSide(color: Colors.black),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                        borderRadius: BorderRadius.circular(7.0),
                       ),
                     ),
                     onPressed: () {

@@ -166,7 +166,7 @@ Widget _buildDrawerTile(String title, IconData icon, Widget page) {
       ),
       body: Container(
         color: Theme.of(context).primaryColor, // Reverted to previous color
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
         child: Center(
           child: SingleChildScrollView(
             child: Column(
@@ -176,11 +176,11 @@ Widget _buildDrawerTile(String title, IconData icon, Widget page) {
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: Image.asset(
                     'assets/images/bakerHat.png',
-                    width: 175.0,
-                    height: 175.0,
+                    width: 180.0,
+                    height: 180.0,
                   ),
                 ),
-                const SizedBox(height: 15.0),
+                const SizedBox(height: 40.0),
                 Text(
                   'Welcome to your homepage, Manager!',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -188,7 +188,7 @@ Widget _buildDrawerTile(String title, IconData icon, Widget page) {
                         fontWeight: FontWeight.bold,
                       ),
                   textAlign: TextAlign.center,
-                  textScaleFactor: 1.3,
+                  textScaleFactor: 1.5,
                 ),
               ],
             ),

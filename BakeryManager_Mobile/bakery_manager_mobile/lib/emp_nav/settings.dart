@@ -19,6 +19,39 @@ class SettingsPage extends StatefulWidget {
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
+class RecipeTile extends StatelessWidget {
+  final String title;
+  final String description;
+
+  const RecipeTile({
+    required this.title,
+    required this.description,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(16.0),
+        title: Text(
+          title,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(description),
+        leading: const Icon(Icons.restaurant_menu),
+        onTap: () {
+          // Handle recipe tap if needed
+        },
+      ),
+    );
+  }
+}
+
+
 class _SettingsPageState extends State<SettingsPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -105,15 +138,14 @@ class _SettingsPageState extends State<SettingsPage> {
         title: const Text("Settings"),
         backgroundColor: Theme.of(context).primaryColor,
         leading: IconButton(
-          icon: Image.asset('assets/images/leftcorner.png'), 
-          onPressed: () {
-            _scaffoldKey.currentState?.openDrawer();
-          },
+          icon: Image.asset('assets/images/leftcorner.png'), // Stack image for drawer
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
+              // Handle logout logic here
               await _logout();
             },
           ),
@@ -165,25 +197,36 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
         ),
       ),
-
       body: Container(
         color: Theme.of(context).primaryColor,
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Settings',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
+            const SizedBox(height: 20.0),
+            Expanded(
+              child: ListView(
+                children: const [
+                  RecipeTile(
+                    title: 'Chocolate Cake',
+                    description: 'Delicious and rich chocolate cake recipe.',
+                  ),
+                  RecipeTile(
+                    title: 'Apple Pie',
+                    description: 'Classic apple pie with a flaky crust.',
+                  ),
+                  RecipeTile(
+                    title: 'Cheese Pizza',
+                    description: 'Simple cheese pizza with tomato sauce and mozzarella.',
+                  ),
+                  // Add more recipes here
+                ],
               ),
             ),
-            const SizedBox(height: 20.0),
-            // Add your settings functionality here
           ],
         ),
       ),
     );
   }
 }
+

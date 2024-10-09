@@ -27,7 +27,7 @@ class InventoryItem {
       itemID = json["ProductID"];
     } else if (json["IngredientID"] != null) {
       itemID = json["IngredientID"];
-      quantity = json['Quantity'] as double;
+      quantity = double.parse(json['Quantity']);
     } else if (json["VendorID"] != null) {
       return InventoryItem(
         itemID: json["VendorID"],
@@ -370,6 +370,22 @@ class _InventoryPageState extends State<InventoryPage> {
             },
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(60.0), // Set the size of the search bar
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search Recipes...',
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.white,
+                prefixIcon: const Icon(Icons.search),
+              ),
+            ),
+          ),
+        ),
       ),
        drawer: Drawer(
         child: ListView(
@@ -426,30 +442,12 @@ class _InventoryPageState extends State<InventoryPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Search',
-                        filled: true,
-                        fillColor: Colors.white, // White background for the search bar
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: BorderSide.none, // Remove the border
-                        ),
-                        prefixIcon: const Icon(Icons.search, color: Colors.black),
-                      ),
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ),
                   const SizedBox(height: 20.0),
                   ListView.builder(
                     physics: const NeverScrollableScrollPhysics(), // Disable inner scroll for list
                     shrinkWrap: true, // Allow ListView to wrap inside the scrollable container
                     itemCount: filteredItems.length,
                     itemBuilder: (context, index) {
-                      
                       final item = filteredItems[index];
                       return InventoryTile(
                         itemName: item.itemName,

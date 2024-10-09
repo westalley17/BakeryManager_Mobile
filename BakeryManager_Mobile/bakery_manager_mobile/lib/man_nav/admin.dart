@@ -174,13 +174,6 @@ class _AdminPageState extends State<AdminPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Recipe List',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
             const SizedBox(height: 20.0),
             Expanded(
               child: ListView(

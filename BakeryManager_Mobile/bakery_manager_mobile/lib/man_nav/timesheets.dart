@@ -173,7 +173,7 @@ class _TimePageState extends State<TimePage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text("Inventory"),
+        title: const Text("Timesheets"),
         backgroundColor: Theme.of(context).primaryColor,
         leading: IconButton(
           icon: Image.asset('assets/images/leftcorner.png'),
@@ -225,55 +225,28 @@ class _TimePageState extends State<TimePage> {
               title: const Text('Inventory'),
               children: [
                 _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
-                _buildInventoryTile(
-                    'Products', Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile('Products', Icons.breakfast_dining_rounded, 'Products'),
                 _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
-                _buildInventoryTile(
-                    'Equipment', Icons.kitchen_outlined, 'Equipment'),
+                _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile(
-              'Time Sheets',
-              Icons.access_time,
-              const TimePage(),
-            ),
-            _buildDrawerTile(
-              'Clock In/Out',
-              Icons.lock_clock,
-              const ClockPage(),
-            ),
-            _buildDrawerTile(
-              'Settings',
-              Icons.settings_outlined,
-              const SettingsPage(),
-            ),
-            _buildDrawerTile(
-              'Admin',
-              Icons.admin_panel_settings_sharp,
-              const AdminPage(),
-            ),
+            _buildDrawerTile('Time Sheets',Icons.access_time,const TimePage(),),
+            _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
+            _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
+            _buildDrawerTile('Admin',Icons.admin_panel_settings_sharp,const AdminPage(),),
           ],
         ),
       ),
       body: SafeArea(
-        child: Scrollbar(
-          // Scrollbar here
-          child: SingleChildScrollView(
-            // Ensure scrollable content
+        child: Scrollbar(// Scrollbar here
+          child: SingleChildScrollView(// Ensure scrollable content
             child: Container(
               color: Theme.of(context).primaryColor,
               padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Timesheets',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
                   const SizedBox(height: 20.0),
                   ListView.builder(
                     physics:

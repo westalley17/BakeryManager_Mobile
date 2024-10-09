@@ -184,15 +184,15 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  padding: const EdgeInsets.symmetric(vertical: 1.0),
                   child: Column(
                     children: [
                       Image.asset(
                         'assets/images/bakerHat.png',
-                        width: 175.0,
-                        height: 175.0,
+                        width: 180.0,
+                        height: 180.0,
                       ),
-                      const SizedBox(height: 15.0),
+                      const SizedBox(height: 40.0),
                     ],
                   ),
                 ),
