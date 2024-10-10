@@ -3,6 +3,7 @@ import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/emp_nav/timesheets.dart';
 import 'package:bakery_manager_mobile/emp_nav/settings.dart';
 import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
+
 import 'package:flutter/cupertino.dart';
 
 import 'package:http/http.dart' as http;
@@ -358,105 +359,93 @@ class _InventoryPageState extends State<InventoryPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: const Text("Inventory"),
-        backgroundColor: Theme.of(context).primaryColor,
-        leading: IconButton(
-          icon: Image.asset('assets/images/leftcorner.png'),
-          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+
+
+@override
+ Widget build(BuildContext context) {
+  return Scaffold(
+    key: _scaffoldKey,
+    appBar: AppBar(
+      title: Text('${widget.category} '),
+      backgroundColor: Theme.of(context).primaryColor,
+      leading: IconButton(
+        icon: Image.asset('assets/images/leftcorner.png'),
+        onPressed: () {
+          _scaffoldKey.currentState?.openDrawer();
+        },
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.logout),
+          onPressed: () async {
+            await _logout();
+          },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await _logout();
-            },
+      ],
+      bottom: PreferredSize(
+        preferredSize: Size.fromHeight(60.0), // Set the size of the search bar
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Search Recipes...',
+              border: OutlineInputBorder(),
+              filled: true,
+              fillColor: Colors.white,
+              prefixIcon: const Icon(Icons.search),
+            ),
           ),
+        ),
+      ),
+    ),
+    drawer: Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+            child: Center(
+              child: Text(
+                'Menu',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Colors.black,
+                    ),
+              ),
+            ),
+          ),
+          _buildDrawerTile('Dashboard', Icons.house_outlined, const EmployeeHomePage()),
+          ExpansionTile(
+            leading: const Icon(Icons.restaurant_menu),
+            title: const Text('Recipes'),
+            children: [
+              _buildRecipeTile('Cake', Icons.cake, 'Cake'),
+              _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
+              _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
+              _buildRecipeTile('Cookies', Icons.cookie, 'Cookies'),
+              _buildRecipeTile('Croissants', Icons.cookie, 'Croissants'),
+              _buildRecipeTile('Bagels', Icons.cookie, 'Bagels'),
+              _buildRecipeTile('Pies', Icons.cookie, 'Pies'),
+              _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
+            ],
+          ),
+          ExpansionTile(
+            leading: const Icon(Icons.inventory_2_outlined),
+            title: const Text('Inventory'),
+            children: [
+              _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
+              _buildInventoryTile('Products', Icons.breakfast_dining_rounded, 'Products'),
+              _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
+              _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
+            ],
+          ),
+          _buildDrawerTile('Time Sheets', Icons.access_time, const TimePage()),
+          _buildDrawerTile('Clock In/Out', Icons.lock_clock, const ClockPage()),
+          _buildDrawerTile('Settings', Icons.settings_outlined, const SettingsPage()),
         ],
-        bottom: PreferredSize(
-          preferredSize:
-              Size.fromHeight(60.0), // Set the size of the search bar
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search Recipes...',
-                border: OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.white,
-                prefixIcon: const Icon(Icons.search),
-              ),
-            ),
-          ),
-        ),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-              child: Center(
-                child: Text(
-                  'Menu',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: Colors.black,
-                      ),
-                ),
-              ),
-            ),
-            _buildDrawerTile(
-                'Dashboard', Icons.house_outlined, const EmployeeHomePage()),
-            ExpansionTile(
-              leading: const Icon(Icons.restaurant_menu),
-              title: const Text('Recipes'),
-              children: [
-                _buildRecipeTile('Cake', Icons.cake, 'Cake'),
-                _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
-                _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
-                _buildRecipeTile('Cookies', Icons.cookie, 'Cookies'),
-                _buildRecipeTile('Croissants', Icons.cookie, 'Croissants'),
-                _buildRecipeTile('Bagels', Icons.cookie, 'Bagels'),
-                _buildRecipeTile('Pies', Icons.cookie, 'Pies'),
-                _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
-              ],
-            ),
-            ExpansionTile(
-              leading: const Icon(Icons.inventory_2_outlined),
-              title: const Text('Inventory'),
-              children: [
-                _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
-                _buildInventoryTile(
-                    'Products', Icons.breakfast_dining_rounded, 'Products'),
-                _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
-                _buildInventoryTile(
-                    'Equipment', Icons.kitchen_outlined, 'Equipment'),
-              ],
-            ),
-            _buildDrawerTile(
-              'Time Sheets',
-              Icons.access_time,
-              const TimePage(),
-            ),
-            _buildDrawerTile(
-              'Clock In/Out',
-              Icons.lock_clock,
-              const ClockPage(),
-            ),
-            _buildDrawerTile(
-              'Settings',
-              Icons.settings_outlined,
-              const SettingsPage(),
-            ),
-          ],
-        ),
-      ),
-      body: SafeArea(
+    ),
+   body: SafeArea(
         child: Scrollbar(
           child: SingleChildScrollView(
             child: Container(
@@ -488,6 +477,150 @@ class _InventoryPageState extends State<InventoryPage> {
           ),
         ),
       ),
-    );
-  }
+    floatingActionButton: FloatingActionButton(
+    onPressed: () {
+    _showFullScreenAddRecipe(); },
+    backgroundColor: Colors.white, // Button background color white
+    child: const Icon(
+      Icons.add,
+      size: 36,  // Adjust the icon size
+      color: Colors.black, // Icon color black
+    ),
+  ),
+  floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+  );
+}
+
+// Define the full-screen pop-up function
+void _showFullScreenAddRecipe() {
+  final TextEditingController recipeNameController = TextEditingController();
+  final TextEditingController ingredientController = TextEditingController();
+  final TextEditingController equipmentController = TextEditingController();
+  final TextEditingController instructionController = TextEditingController();
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true, // Allows the sheet to take up the full screen - dark magic helped with this part :) 
+    backgroundColor: Colors.transparent, 
+    builder: (BuildContext context) {
+      return Container(
+        height: MediaQuery.of(context).size.height * 0.95, 
+        padding: const EdgeInsets.all(16.0), 
+        decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 5,
+              blurRadius: 10,
+            ),
+          ], 
+        ),
+        child: SingleChildScrollView( 
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.of(context).pop(); 
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Add to the Inventory',
+                style: TextStyle(
+                  fontSize: 26, 
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20), 
+              _buildInputField(
+                controller: recipeNameController,label: 'What is it? ',hint: 'Enter the name here...',
+              ),
+              const SizedBox(height: 15), 
+              _buildInputField(
+                controller: ingredientController,label: 'Amount',hint: 'Enter amount here...',
+              ),
+              const SizedBox(height: 15), 
+              const SizedBox(height: 20), 
+              Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32.0,
+                      vertical: 12.0,
+                    ), // Larger button
+                    textStyle: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    _addNewRecipe(recipeNameController.text,ingredientController.text,equipmentController.text,instructionController.text,
+                    );
+                    Navigator.of(context).pop(); // Close dialog after adding
+                  },
+                  child: const Text('Finish!'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+// Build consistent input fields
+Widget _buildInputField({
+  required TextEditingController controller,
+  required String label,
+  required String hint,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      const SizedBox(height: 8), // Add space between label and input
+      TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          hintText: hint,
+          filled: true,
+          fillColor: Colors.grey[200], // Light grey background for input
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.0),
+            borderSide: BorderSide.none, // Remove default border
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 14.0,
+            horizontal: 16.0,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+
+// Define the function to handle adding the new recipe
+void _addNewRecipe(String recipeName, String ingredients, String equipment, String instructions) {
+}
 }

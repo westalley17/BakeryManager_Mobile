@@ -477,7 +477,6 @@ Widget build(BuildContext context) {
       ),
     );
   }
-
   return Scaffold(
     key: _scaffoldKey,
     appBar: AppBar(
@@ -596,22 +595,20 @@ Widget build(BuildContext context) {
     ),
     // FloatingActionButton for the 'add recipe' full-page pop-up
     floatingActionButton: FloatingActionButton(
-  onPressed: () {
-    _showFullScreenAddRecipeDialog(); // Show full-page pop-up for adding recipe
-  },
-  backgroundColor: Colors.white, // Button background color white
-  child: const Icon(
-    Icons.add,
-    size: 36,  // Adjust the icon size
-    color: Colors.black, // Icon color black
+    onPressed: () {
+    _showFullScreenAddRecipe(); },
+    backgroundColor: Colors.white, // Button background color white
+    child: const Icon(
+      Icons.add,
+      size: 36,  // Adjust the icon size
+      color: Colors.black, // Icon color black
+    ),
   ),
-),
-floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+  floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
   );
 }
 
-// Define the full-screen pop-up function
-void _showFullScreenAddRecipeDialog() {
+void _showFullScreenAddRecipe() {
   final TextEditingController recipeNameController = TextEditingController();
   final TextEditingController ingredientController = TextEditingController();
   final TextEditingController equipmentController = TextEditingController();
@@ -662,27 +659,18 @@ void _showFullScreenAddRecipeDialog() {
               ),
               const SizedBox(height: 20), 
               _buildInputField(
-                controller: recipeNameController,
-                label: 'Recipe Name',
-                hint: 'Enter the recipe name...',
+                controller: recipeNameController,label: 'Recipe Name',hint: 'Enter the recipe name...',
               ),
               const SizedBox(height: 15), 
               _buildInputField(
-                controller: ingredientController,
-                label: 'Ingredients',
-                hint: 'Enter ingredients...',
+                controller: ingredientController,label: 'Ingredients',hint: 'Enter ingredients...',
               ),
               const SizedBox(height: 15), 
               _buildInputField(
-                controller: equipmentController,
-                label: 'Equipment',
-                hint: 'Enter equipment...',
+                controller: equipmentController,label: 'Equipment', hint: 'Enter equipment...',
               ),
               const SizedBox(height: 15), 
-              _buildInputField(
-                controller: instructionController,
-                label: 'Instructions',
-                hint: 'Enter instructions...',
+              _buildInputField(controller: instructionController,label: 'Instructions',hint: 'Enter instructions...',
               ),
               const SizedBox(height: 20), 
               Center(
@@ -701,12 +689,11 @@ void _showFullScreenAddRecipeDialog() {
                     ),
                   ),
                   onPressed: () {
-                    _addNewRecipe(
-                      recipeNameController.text,
-                      ingredientController.text,
-                      equipmentController.text,
-                      instructionController.text,
+                    _addNewRecipe(recipeNameController.text,
+                    ingredientController.text,
+                    equipmentController.text,instructionController.text,
                     );
+            
                     Navigator.of(context).pop(); // Close dialog after adding
                   },
                   child: const Text('Add Recipe'),
@@ -719,6 +706,7 @@ void _showFullScreenAddRecipeDialog() {
     },
   );
 }
+       
 
 // Build consistent input fields
 Widget _buildInputField({
@@ -756,19 +744,17 @@ Widget _buildInputField({
     ],
   );
 }
-
-
-// Define the function to handle adding the new recipe
-void _addNewRecipe(String recipeName, String ingredients, String equipment, String instructions) {
-  final newRecipe = Recipe(
-    recipeID: DateTime.now().millisecondsSinceEpoch.toString(), // Unique ID generation
-    recipeName: recipeName,
-  );
   
-  setState(() {
-    recipeNames.add(newRecipe);
-    filteredRecipes.add(newRecipe); // Add to filtered list as well
-  });
-}
-  // Call the API to persist the recipe to your backend
+  // Define the function to handle adding the new recipe
+void _addNewRecipe(String recipeName, String ingredients, String equipment, String instructions) {
+    final newRecipe = Recipe(
+      recipeID: DateTime.now().millisecondsSinceEpoch.toString(), // Unique ID generation
+      recipeName: recipeName,
+    );
+  
+    setState(() {
+      recipeNames.add(newRecipe);
+      filteredRecipes.add(newRecipe); // Add to filtered list as well
+    });
+  }
 }

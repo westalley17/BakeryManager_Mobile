@@ -469,52 +469,51 @@ class _RecipesPageState extends State<RecipesPage> {
   }
 
 @override
-  Widget build(BuildContext context) {
-    if (recipeNames.isEmpty) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text('${widget.category} Recipes'),
-        backgroundColor: Theme.of(context).primaryColor,
-        leading: IconButton(
-          icon: Image.asset('assets/images/leftcorner.png'),
-          onPressed: () {
-            _scaffoldKey.currentState?.openDrawer();
+Widget build(BuildContext context) {
+  if (recipeNames.isEmpty) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+  return Scaffold(
+    key: _scaffoldKey,
+    appBar: AppBar(
+      title: Text('${widget.category} Recipes'),
+      backgroundColor: Theme.of(context).primaryColor,
+      leading: IconButton(
+        icon: Image.asset('assets/images/leftcorner.png'),
+        onPressed: () {
+          _scaffoldKey.currentState?.openDrawer();
+        },
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.logout),
+          onPressed: () async {
+            await _logout();
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await _logout();
-            },
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(60.0), // Set the size of the search bar
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search Recipes...',
-                border: OutlineInputBorder(),
-                filled: true,
-                fillColor: Colors.white,
-                prefixIcon: const Icon(Icons.search),
-              ),
+      ],
+      bottom: PreferredSize(
+        preferredSize: Size.fromHeight(60.0), // Set the size of the search bar
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Search Recipes...',
+              border: OutlineInputBorder(),
+              filled: true,
+              fillColor: Colors.white,
+              prefixIcon: const Icon(Icons.search),
             ),
           ),
         ),
       ),
-      drawer: Drawer(
+    ),
+    drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -561,41 +560,203 @@ class _RecipesPageState extends State<RecipesPage> {
           ],
         ),
       ),
-
-      body: Container(
-        color: Theme.of(context).primaryColor,
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16.0,
-                  mainAxisSpacing: 16.0,
-                ),
-                itemCount: filteredRecipes.length, // Use filtered list
-                itemBuilder: (context, index) {
-                  return ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
-                      foregroundColor: Colors.black,
-                      side: const BorderSide(color: Colors.black),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(7.0),
-                      ),
-                    ),
-                    onPressed: () {
-                      _getRecipeInfo(filteredRecipes[index]);
-                    },
-                    child: Text(filteredRecipes[index].recipeName),
-                  );
-                },
+    body: Container(
+      color: Theme.of(context).primaryColor,
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+      child: Column(
+        children: [
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16.0,
+                mainAxisSpacing: 16.0,
               ),
+              itemCount: filteredRecipes.length, // Use filtered list
+              itemBuilder: (context, index) {
+                return ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.black,
+                    side: const BorderSide(color: Colors.black),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(7.0),
+                    ),
+                  ),
+                  onPressed: () {
+                    _getRecipeInfo(filteredRecipes[index]);
+                  },
+                  child: Text(filteredRecipes[index].recipeName),
+                );
+              },
             ),
-          ],
+          ),
+        ],
+      ),
+    ),
+    // FloatingActionButton for the 'add recipe' full-page pop-up
+    floatingActionButton: FloatingActionButton(
+    onPressed: () {
+    _showFullScreenAddRecipe(); },
+    backgroundColor: Colors.white, // Button background color white
+    child: const Icon(
+      Icons.add,
+      size: 36,  // Adjust the icon size
+      color: Colors.black, // Icon color black
+    ),
+  ),
+  floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+  );
+}
+
+void _showFullScreenAddRecipe() {
+  final TextEditingController recipeNameController = TextEditingController();
+  final TextEditingController ingredientController = TextEditingController();
+  final TextEditingController equipmentController = TextEditingController();
+  final TextEditingController instructionController = TextEditingController();
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true, // Allows the sheet to take up the full screen - dark magic helped with this part :) 
+    backgroundColor: Colors.transparent, 
+    builder: (BuildContext context) {
+      return Container(
+        height: MediaQuery.of(context).size.height * 0.95, 
+        padding: const EdgeInsets.all(16.0), 
+        decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 5,
+              blurRadius: 10,
+            ),
+          ], 
+        ),
+        child: SingleChildScrollView( 
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.of(context).pop(); 
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Add New Recipe',
+                style: TextStyle(
+                  fontSize: 26, 
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20), 
+              _buildInputField(
+                controller: recipeNameController,label: 'Recipe Name',hint: 'Enter the recipe name...',
+              ),
+              const SizedBox(height: 15), 
+              _buildInputField(
+                controller: ingredientController,label: 'Ingredients',hint: 'Enter ingredients...',
+              ),
+              const SizedBox(height: 15), 
+              _buildInputField(
+                controller: equipmentController,label: 'Equipment', hint: 'Enter equipment...',
+              ),
+              const SizedBox(height: 15), 
+              _buildInputField(controller: instructionController,label: 'Instructions',hint: 'Enter instructions...',
+              ),
+              const SizedBox(height: 20), 
+              Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32.0,
+                      vertical: 12.0,
+                    ), // Larger button
+                    textStyle: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {
+                    _addNewRecipe(recipeNameController.text,
+                    ingredientController.text,
+                    equipmentController.text,instructionController.text,
+                    );
+            
+                    Navigator.of(context).pop(); // Close dialog after adding
+                  },
+                  child: const Text('Add Recipe'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+       
+
+// Build consistent input fields
+Widget _buildInputField({
+  required TextEditingController controller,
+  required String label,
+  required String hint,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
         ),
       ),
+      const SizedBox(height: 8), // Add space between label and input
+      TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          hintText: hint,
+          filled: true,
+          fillColor: Colors.grey[200], // Light grey background for input
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.0),
+            borderSide: BorderSide.none, // Remove default border
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 14.0,
+            horizontal: 16.0,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+
+  // Define the function to handle adding the new recipe
+  void _addNewRecipe(String recipeName, String ingredients, String equipment, String instructions) {
+    final newRecipe = Recipe(
+      recipeID: DateTime.now().millisecondsSinceEpoch.toString(), // Unique ID generation
+      recipeName: recipeName,
     );
+  
+    setState(() {
+      recipeNames.add(newRecipe);
+      filteredRecipes.add(newRecipe); // Add to filtered list as well
+    });
   }
 }
