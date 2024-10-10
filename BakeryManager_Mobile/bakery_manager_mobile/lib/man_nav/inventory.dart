@@ -6,7 +6,6 @@ import 'package:bakery_manager_mobile/man_nav/recipes.dart';
 import 'package:bakery_manager_mobile/man_nav/admin.dart';
 import 'package:flutter/cupertino.dart';
 
-
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,7 +27,7 @@ class InventoryItem {
       itemID = json["ProductID"];
     } else if (json["IngredientID"] != null) {
       itemID = json["IngredientID"];
-      quantity = json['Quantity'] as double;
+      quantity = double.parse(json['Quantity']);
     } else if (json["VendorID"] != null) {
       return InventoryItem(
         itemID: json["VendorID"],
@@ -101,7 +100,9 @@ class InventoryTile extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
         ),
-        subtitle: (quantity != null) ? Text('Quantity: $quantity') : null,
+        subtitle: (quantity != null)
+            ? Text('Quantity: ${quantity!.toStringAsFixed(2)}')
+            : null,
         trailing: IconButton(
           icon: const Icon(Icons.info_outline),
           onPressed: () {
@@ -113,14 +114,13 @@ class InventoryTile extends StatelessWidget {
   }
 }
 
-
 class _InventoryPageState extends State<InventoryPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<InventoryItem> inventoryItems = [];
-  List<InventoryItem> filteredItems = []; 
+  List<InventoryItem> filteredItems = [];
   final TextEditingController _searchController = TextEditingController();
 
-@override
+  @override
   void initState() {
     super.initState();
     _retrieveInventoryNames(widget.category).then((_) {
@@ -136,7 +136,8 @@ class _InventoryPageState extends State<InventoryPage> {
 
   @override
   void dispose() {
-    _searchController.removeListener(_filterItems); // Remove the listener on dispose
+    _searchController
+        .removeListener(_filterItems); // Remove the listener on dispose
     _searchController.dispose();
     super.dispose();
   }
@@ -154,7 +155,8 @@ class _InventoryPageState extends State<InventoryPage> {
         inventoryItems =
             parsed.map((json) => InventoryItem.fromJson(json)).toList();
         setState(() {
-          filteredItems = List.from(inventoryItems); // Initialize with all items
+          filteredItems =
+              List.from(inventoryItems); // Initialize with all items
         });
       }
     } catch (error) {
@@ -162,19 +164,24 @@ class _InventoryPageState extends State<InventoryPage> {
     }
   }
 
- void _filterItems() {
-  final query = _searchController.text.trim().toLowerCase(); // Trim spaces and convert to lowercase
-  setState(() {
-    if (query.isEmpty) {
-      filteredItems = List.from(inventoryItems); // If the query is empty, show all items
-    } else {
-      filteredItems = inventoryItems.where((item) {
-        final itemName = item.itemName.toLowerCase(); // Convert item name to lowercase
-        return itemName.startsWith(query); // Match based on the start of the name
-      }).toList();
-    }
-  });
-}
+  void _filterItems() {
+    final query = _searchController.text
+        .trim()
+        .toLowerCase(); // Trim spaces and convert to lowercase
+    setState(() {
+      if (query.isEmpty) {
+        filteredItems =
+            List.from(inventoryItems); // If the query is empty, show all items
+      } else {
+        filteredItems = inventoryItems.where((item) {
+          final itemName =
+              item.itemName.toLowerCase(); // Convert item name to lowercase
+          return itemName
+              .startsWith(query); // Match based on the start of the name
+        }).toList();
+      }
+    });
+  }
 
   Future<void> _getIngredientInfo(String ingredientID) async {
     try {
@@ -372,7 +379,8 @@ class _InventoryPageState extends State<InventoryPage> {
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(60.0), // Set the size of the search bar
+          preferredSize:
+              Size.fromHeight(60.0), // Set the size of the search bar
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
@@ -388,7 +396,7 @@ class _InventoryPageState extends State<InventoryPage> {
           ),
         ),
       ),
-       drawer: Drawer(
+      drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -403,7 +411,8 @@ class _InventoryPageState extends State<InventoryPage> {
                 ),
               ),
             ),
-            _buildDrawerTile('Dashboard',Icons.house_outlined,const ManagerHomePage()),
+            _buildDrawerTile(
+                'Dashboard', Icons.house_outlined, const ManagerHomePage()),
             ExpansionTile(
               leading: const Icon(Icons.restaurant_menu),
               title: const Text('Recipes'),
@@ -423,15 +432,33 @@ class _InventoryPageState extends State<InventoryPage> {
               title: const Text('Inventory'),
               children: [
                 _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
-                _buildInventoryTile('Products',Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile(
+                    'Products', Icons.breakfast_dining_rounded, 'Products'),
                 _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
-                _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
+                _buildInventoryTile(
+                    'Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile('Time Sheets',Icons.access_time,const TimePage(),),
-            _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
-            _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
-            _buildDrawerTile('Admin',Icons.admin_panel_settings_sharp,const AdminPage(),),
+            _buildDrawerTile(
+              'Time Sheets',
+              Icons.access_time,
+              const TimePage(),
+            ),
+            _buildDrawerTile(
+              'Clock In/Out',
+              Icons.lock_clock,
+              const ClockPage(),
+            ),
+            _buildDrawerTile(
+              'Settings',
+              Icons.settings_outlined,
+              const SettingsPage(),
+            ),
+            _buildDrawerTile(
+              'Admin',
+              Icons.admin_panel_settings_sharp,
+              const AdminPage(),
+            ),
           ],
         ),
       ),
@@ -440,20 +467,24 @@ class _InventoryPageState extends State<InventoryPage> {
           child: SingleChildScrollView(
             child: Container(
               color: Theme.of(context).primaryColor,
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20.0),
                   ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(), // Disable inner scroll for list
-                    shrinkWrap: true, // Allow ListView to wrap inside the scrollable container
+                    physics:
+                        const NeverScrollableScrollPhysics(), // Disable inner scroll for list
+                    shrinkWrap:
+                        true, // Allow ListView to wrap inside the scrollable container
                     itemCount: filteredItems.length,
                     itemBuilder: (context, index) {
                       final item = filteredItems[index];
                       return InventoryTile(
                         itemName: item.itemName,
-                        quantity: (item.quantity != null) ? item.quantity : null,
+                        quantity:
+                            (item.quantity != null) ? item.quantity : null,
                       );
                     },
                   ),
