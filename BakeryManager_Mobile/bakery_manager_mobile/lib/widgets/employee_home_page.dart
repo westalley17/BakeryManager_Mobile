@@ -6,7 +6,6 @@ import 'package:bakery_manager_mobile/emp_nav/settings.dart';
 import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
 import 'package:bakery_manager_mobile/env/env_config.dart';
 
-
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -109,7 +108,6 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,7 +124,70 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: _logout,
+            onPressed: () async {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: StatefulBuilder(
+                      builder: (BuildContext context, StateSetter setState) {
+                        return SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.85,
+                          height: MediaQuery.of(context).size.height *
+                              0.3, // Adjust height
+                          child: Padding(
+                            padding: const EdgeInsets.all(
+                                16.0), // Padding around content
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(
+                                  width: 40.0,
+                                  height: 40.0,
+                                  child: Icon(Icons.error),
+                                ),
+                                const Text(
+                                  'Are you sure you want to sign out?',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const Divider(
+                                  thickness: 0.8,
+                                  color: Colors.black,
+                                ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                  ),
+                                  onPressed: () async {
+                                    await _logout();
+                                  },
+                                  child: const Text(
+                                    "Sign Out",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              );
+            },
           ),
         ],
       ),
@@ -164,14 +225,28 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
               title: const Text('Inventory'),
               children: [
                 _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
-                _buildInventoryTile('Products',Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile(
+                    'Products', Icons.breakfast_dining_rounded, 'Products'),
                 _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
-                _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
+                _buildInventoryTile(
+                    'Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile('Time Sheets',Icons.access_time,const TimePage(),),
-            _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
-            _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
+            _buildDrawerTile(
+              'Time Sheets',
+              Icons.access_time,
+              const TimePage(),
+            ),
+            _buildDrawerTile(
+              'Clock In/Out',
+              Icons.lock_clock,
+              const ClockPage(),
+            ),
+            _buildDrawerTile(
+              'Settings',
+              Icons.settings_outlined,
+              const SettingsPage(),
+            ),
           ],
         ),
       ),
@@ -205,7 +280,6 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
                           fontWeight: FontWeight.bold,
                         ),
                     textAlign: TextAlign.center,
-                    textScaleFactor: 1.3,
                   ),
                 ),
                 // Add more widgets if needed
@@ -217,6 +291,3 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
     );
   }
 }
-
-
-
