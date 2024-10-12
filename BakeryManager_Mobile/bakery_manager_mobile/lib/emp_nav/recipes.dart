@@ -681,7 +681,6 @@ class _RecipesPageState extends State<RecipesPage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
-
 void _showFullScreenAddRecipeDialog() {
   final TextEditingController recipeNameController = TextEditingController();
   final TextEditingController ingredientController = TextEditingController();
@@ -708,27 +707,26 @@ void _showFullScreenAddRecipeDialog() {
               spreadRadius: 5,
               blurRadius: 10,
             ),
-          ], 
-        ),
-        child: SingleChildScrollView( 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    Navigator.of(context).pop(); 
-                  },
-                ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 5,
+                blurRadius: 10,
               ),
-              const SizedBox(height: 10),
-              const Text(
-                'Add New Recipe',
-                style: TextStyle(
-                  fontSize: 26, 
-                  fontWeight: FontWeight.bold,
+            ],
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 20), 
@@ -760,7 +758,18 @@ void _showFullScreenAddRecipeDialog() {
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
+
                     ),
+                    onPressed: () {
+                      _addNewRecipe(
+                        recipeNameController.text,
+                        ingredientController.text,
+                        equipmentController.text,
+                        instructionController.text,
+                      );
+                      Navigator.of(context).pop(); // Close dialog after adding
+                    },
+                    child: const Text('Add Recipe'),
                   ),
                   onPressed: () {
                     _addNewRecipe(recipeNameController.text,
@@ -772,46 +781,46 @@ void _showFullScreenAddRecipeDialog() {
                   },
                   child: const Text('Add Recipe'),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
     },
   );
 }
-       
 
 // Build consistent input fields
-Widget _buildInputField({
-  required TextEditingController controller,
-  required String label,
-  required String hint,
-}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        label,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      const SizedBox(height: 8), // Add space between label and input
-      TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          hintText: hint,
-          filled: true,
-          fillColor: Colors.grey[200], // Light grey background for input
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide.none, // Remove default border
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
           ),
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 14.0,
-            horizontal: 16.0,
+        ),
+        const SizedBox(height: 8), // Add space between label and input
+        TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: hint,
+            filled: true,
+            fillColor: Colors.grey[200], // Light grey background for input
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+              borderSide: BorderSide.none, // Remove default border
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 14.0,
+              horizontal: 16.0,
+            ),
           ),
         ),
       ),
@@ -826,6 +835,7 @@ void _addNewRecipe(String recipeName, String ingredients, String equipment, Stri
       recipeName: recipeName,
     );
   
+
     setState(() {
       recipeNames.add(newRecipe);
       filteredRecipes.add(newRecipe); // Add to filtered list as well
