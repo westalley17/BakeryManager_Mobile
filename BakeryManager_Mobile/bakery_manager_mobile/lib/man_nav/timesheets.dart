@@ -48,6 +48,42 @@ class EmpBiWeeks {
   }
 }
 
+class TimesheetTile extends StatelessWidget {
+  final String firstName;
+  final String lastName;
+  VoidCallback? showModal;
+
+  TimesheetTile(
+      {super.key,
+      required this.firstName,
+      required this.lastName,
+      this.showModal});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(16.0),
+        leading: const Icon(Icons.person), // Display the icon here
+        title: Text(
+          "$firstName $lastName",
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.info_outline),
+          onPressed: () {
+            // Add navigation to item details
+            showModal!();
+          },
+        ),
+      ),
+    );
+  }
+}
+
 class TimePage extends StatefulWidget {
   const TimePage({super.key});
 
@@ -58,7 +94,87 @@ class TimePage extends StatefulWidget {
 class _TimePageState extends State<TimePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  List<EmpBiWeeks> employeeHours = [];
+  List<EmpBiWeeks>? _employeeHours;
+
+  // Define the full-screen pop-up function
+  void _showFullScreenAddRecipeDialog(int index) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled:
+          true, // Allows the sheet to take up the full screen - dark magic helped with this part :)
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.95,
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 5,
+                blurRadius: 10,
+              ),
+            ],
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Clocked Hours',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Divider(
+                  height: 30.0,
+                  color: Colors.black,
+                ),
+                // add EmpBiWeek info here
+                Text(
+                  'Total Hours Worked: ${_employeeHours?[index].totalNormalHours.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  'Total Overtime Worked: ${_employeeHours?[index].totalOvertimeHours.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  'Total Holiday Worked: ${_employeeHours?[index].totalHolidayHours.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   Future<void> _logout() async {
     try {
@@ -100,7 +216,7 @@ class _TimePageState extends State<TimePage> {
         var parsed = jsonDecode(response.body) as List;
         //print(parsed[0]["TotalNormalHours"].runtimeType);
         if (response.statusCode == 200) {
-          employeeHours =
+          _employeeHours =
               parsed.map((json) => EmpBiWeeks.fromJson(json)).toList();
           setState(() {});
         } else {
@@ -170,6 +286,14 @@ class _TimePageState extends State<TimePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_employeeHours == null) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -184,7 +308,68 @@ class _TimePageState extends State<TimePage> {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               // Handle logout logic here
-              await _logout();
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: StatefulBuilder(
+                      builder: (BuildContext context, StateSetter setState) {
+                        return SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.85,
+                          height: MediaQuery.of(context).size.height *
+                              0.3, // Adjust height
+                          child: Padding(
+                            padding: const EdgeInsets.all(
+                                16.0), // Padding around content
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(
+                                  width: 40.0,
+                                  height: 40.0,
+                                  child: Icon(Icons.error),
+                                ),
+                                const Text(
+                                  'Are you sure you want to sign out?',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const Divider(
+                                  thickness: 0.8,
+                                  color: Colors.black,
+                                ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                  ),
+                                  onPressed: () async {
+                                    await _logout();
+                                  },
+                                  child: const Text(
+                                    "Sign Out",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              );
             },
           ),
         ],
@@ -225,78 +410,64 @@ class _TimePageState extends State<TimePage> {
               title: const Text('Inventory'),
               children: [
                 _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
-                _buildInventoryTile('Products', Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile(
+                    'Products', Icons.breakfast_dining_rounded, 'Products'),
                 _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
-                _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
+                _buildInventoryTile(
+                    'Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile('Time Sheets',Icons.access_time,const TimePage(),),
-            _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
-            _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
-            _buildDrawerTile('Admin',Icons.admin_panel_settings_sharp,const AdminPage(),),
+            _buildDrawerTile(
+              'Time Sheets',
+              Icons.access_time,
+              const TimePage(),
+            ),
+            _buildDrawerTile(
+              'Clock In/Out',
+              Icons.lock_clock,
+              const ClockPage(),
+            ),
+            _buildDrawerTile(
+              'Settings',
+              Icons.settings_outlined,
+              const SettingsPage(),
+            ),
+            _buildDrawerTile(
+              'Admin',
+              Icons.admin_panel_settings_sharp,
+              const AdminPage(),
+            ),
           ],
         ),
       ),
       body: SafeArea(
-        child: Scrollbar(// Scrollbar here
-          child: SingleChildScrollView(// Ensure scrollable content
+        child: Scrollbar(
+          // Scrollbar here
+          child: SingleChildScrollView(
+            // Ensure scrollable content
             child: Container(
               color: Theme.of(context).primaryColor,
               padding:
-                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20.0),
-                  ListView.builder(
-                    physics:
-                        const NeverScrollableScrollPhysics(), // Disable inner scroll for list
-                    shrinkWrap:
-                        true, // Allow ListView to wrap inside the scrollable container
-                    itemCount: employeeHours.length, //timesheets.length,
-                    itemBuilder: (context, index) {
-                      final item = employeeHours[index];
-                      return TimesheetTile(
-                        firstName: item.firstName,
-                        lastName: item.lastName,
-                      );
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+              child: ListView.builder(
+                physics:
+                    const NeverScrollableScrollPhysics(), // Disable inner scroll for list
+                shrinkWrap:
+                    true, // Allow ListView to wrap inside the scrollable container
+                itemCount: _employeeHours!.length, //timesheets.length,
+                itemBuilder: (context, index) {
+                  final item = _employeeHours?[index];
+                  return TimesheetTile(
+                    firstName: item!.firstName,
+                    lastName: item.lastName,
+                    showModal: () {
+                      _showFullScreenAddRecipeDialog(index);
                     },
-                  ),
-                ],
+                  );
+                },
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class TimesheetTile extends StatelessWidget {
-  final String firstName;
-  final String lastName;
-
-  const TimesheetTile(
-      {super.key, required this.firstName, required this.lastName});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16.0),
-        leading: const Icon(Icons.person), // Display the icon here
-        title: Text(
-          "$firstName $lastName",
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-        trailing: IconButton(
-          icon: const Icon(Icons.info_outline),
-          onPressed: () {
-            // Add navigation to item details
-          },
         ),
       ),
     );

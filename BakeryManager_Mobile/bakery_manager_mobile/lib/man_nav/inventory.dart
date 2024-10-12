@@ -374,7 +374,68 @@ class _InventoryPageState extends State<InventoryPage> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              await _logout();
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: StatefulBuilder(
+                      builder: (BuildContext context, StateSetter setState) {
+                        return SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.85,
+                          height: MediaQuery.of(context).size.height *
+                              0.3, // Adjust height
+                          child: Padding(
+                            padding: const EdgeInsets.all(
+                                16.0), // Padding around content
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(
+                                  width: 40.0,
+                                  height: 40.0,
+                                  child: Icon(Icons.error),
+                                ),
+                                const Text(
+                                  'Are you sure you want to sign out?',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const Divider(
+                                  thickness: 0.8,
+                                  color: Colors.black,
+                                ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                  ),
+                                  onPressed: () async {
+                                    await _logout();
+                                  },
+                                  child: const Text(
+                                    "Sign Out",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              );
             },
           ),
         ],
