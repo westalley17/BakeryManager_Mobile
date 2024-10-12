@@ -13,7 +13,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/landing_page.dart';
-//making comments 
+//making comments
 
 class Recipe {
   final String recipeID;
@@ -681,31 +681,26 @@ class _RecipesPageState extends State<RecipesPage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
-void _showFullScreenAddRecipeDialog() {
-  final TextEditingController recipeNameController = TextEditingController();
-  final TextEditingController ingredientController = TextEditingController();
-  final TextEditingController equipmentController = TextEditingController();
-  final TextEditingController instructionController = TextEditingController();
 
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true, // Allows the sheet to take up the full screen - dark magic helped with this part :) 
-    backgroundColor: Colors.transparent, 
-    builder: (BuildContext context) {
-      return Container(
-        height: MediaQuery.of(context).size.height * 0.95, 
-        padding: const EdgeInsets.all(16.0), 
-        decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              spreadRadius: 5,
-              blurRadius: 10,
+  void _showFullScreenAddRecipeDialog() {
+    final TextEditingController recipeNameController = TextEditingController();
+    final TextEditingController ingredientController = TextEditingController();
+    final TextEditingController equipmentController = TextEditingController();
+    final TextEditingController instructionController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Allows the sheet to take up the full screen
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.95,
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
             ),
             boxShadow: [
               BoxShadow(
@@ -728,37 +723,45 @@ void _showFullScreenAddRecipeDialog() {
                     },
                   ),
                 ),
-              ),
-              const SizedBox(height: 20), 
-              _buildInputField(
-                controller: recipeNameController,label: 'Recipe Name',hint: 'Enter the recipe name...',
-              ),
-              const SizedBox(height: 15), 
-              _buildInputField(
-                controller: ingredientController,label: 'Ingredients',hint: 'Enter ingredients...',
-              ),
-              const SizedBox(height: 15), 
-              _buildInputField(
-                controller: equipmentController,label: 'Equipment', hint: 'Enter equipment...',
-              ),
-              const SizedBox(height: 15), 
-              _buildInputField(controller: instructionController,label: 'Instructions',hint: 'Enter instructions...',
-              ),
-              const SizedBox(height: 20), 
-              Center(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32.0,
-                      vertical: 12.0,
-                    ), // Larger button
-                    textStyle: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-
+                const SizedBox(height: 20),
+                _buildInputField(
+                  controller: recipeNameController,
+                  label: 'Recipe Name',
+                  hint: 'Enter the recipe name...',
+                ),
+                const SizedBox(height: 15),
+                _buildInputField(
+                  controller: ingredientController,
+                  label: 'Ingredients',
+                  hint: 'Enter ingredients...',
+                ),
+                const SizedBox(height: 15),
+                _buildInputField(
+                  controller: equipmentController,
+                  label: 'Equipment',
+                  hint: 'Enter equipment...',
+                ),
+                const SizedBox(height: 15),
+                _buildInputField(
+                  controller: instructionController,
+                  label: 'Instructions',
+                  hint: 'Enter instructions...',
+                ),
+                const SizedBox(height: 20),
+                Center(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32.0,
+                        vertical: 12.0,
+                      ), // Larger button
+                      textStyle: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                     onPressed: () {
                       _addNewRecipe(
@@ -771,24 +774,14 @@ void _showFullScreenAddRecipeDialog() {
                     },
                     child: const Text('Add Recipe'),
                   ),
-                  onPressed: () {
-                    _addNewRecipe(recipeNameController.text,
-                    ingredientController.text,
-                    equipmentController.text,instructionController.text,
-                    );
-            
-                    Navigator.of(context).pop(); // Close dialog after adding
-                  },
-                  child: const Text('Add Recipe'),
                 ),
               ],
             ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
 // Build consistent input fields
   Widget _buildInputField({
@@ -823,18 +816,19 @@ void _showFullScreenAddRecipeDialog() {
             ),
           ),
         ),
-      ),
-    ],
-  );
-}
-  
+      ],
+    );
+  }
+
   // Define the function to handle adding the new recipe
-void _addNewRecipe(String recipeName, String ingredients, String equipment, String instructions) {
+  void _addNewRecipe(String recipeName, String ingredients, String equipment,
+      String instructions) {
     final newRecipe = Recipe(
-      recipeID: DateTime.now().millisecondsSinceEpoch.toString(), // Unique ID generation
+      recipeID: DateTime.now()
+          .millisecondsSinceEpoch
+          .toString(), // Unique ID generation
       recipeName: recipeName,
     );
-  
 
     setState(() {
       recipeNames.add(newRecipe);
