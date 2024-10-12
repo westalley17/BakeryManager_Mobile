@@ -61,7 +61,7 @@ class _RecipesPageState extends State<RecipesPage> {
 
   bool? available;
 
- @override
+  @override
   void initState() {
     super.initState();
     _retrieveRecipeNames(widget.category).then((_) {
@@ -74,26 +74,32 @@ class _RecipesPageState extends State<RecipesPage> {
 
   @override
   void dispose() {
-    _searchController.removeListener(_filterItems); // Remove the listener on dispose
+    _searchController
+        .removeListener(_filterItems); // Remove the listener on dispose
     _searchController.dispose();
     super.dispose();
   }
 
- void _filterItems() {
-    final query = _searchController.text.trim().toLowerCase(); // Trim spaces and convert to lowercase
+  void _filterItems() {
+    final query = _searchController.text
+        .trim()
+        .toLowerCase(); // Trim spaces and convert to lowercase
     setState(() {
       if (query.isEmpty) {
-        filteredRecipes = List.from(recipeNames); // If the query is empty, show all items
+        filteredRecipes =
+            List.from(recipeNames); // If the query is empty, show all items
       } else {
         filteredRecipes = recipeNames.where((item) {
-          final itemName = item.recipeName.toLowerCase(); // Convert item name to lowercase
-          return itemName.startsWith(query); // Match based on the start of the name
+          final itemName =
+              item.recipeName.toLowerCase(); // Convert item name to lowercase
+          return itemName
+              .startsWith(query); // Match based on the start of the name
         }).toList();
       }
     });
   }
 
- Future<void> _retrieveRecipeNames(String category) async {
+  Future<void> _retrieveRecipeNames(String category) async {
     final url = Uri.parse('$baseURL/api/recipeNames?category=$category');
     final headers = {
       'Content-Type': 'application/json',
@@ -165,7 +171,6 @@ class _RecipesPageState extends State<RecipesPage> {
     );
   }
 
-
   Future<void> _getRecipeInfo(Recipe recipe) async {
     try {
       final url =
@@ -204,13 +209,9 @@ class _RecipesPageState extends State<RecipesPage> {
       final url = Uri.parse('$baseURL/api/startBaking');
       final headers = {'Content-Type': 'application/json'};
       //var parsed = jsonDecode(response.body);
-      
-      final body = jsonEncode({
-        'recipeID': recipe.recipeID,
-        'num': quantity
-      });
-      final response =
-          await http.post(url, headers: headers, body: body);
+
+      final body = jsonEncode({'recipeID': recipe.recipeID, 'num': quantity});
+      final response = await http.post(url, headers: headers, body: body);
       if (response.statusCode == 200) {
         print('YIPPEEE');
         setState(() {});
@@ -285,7 +286,8 @@ class _RecipesPageState extends State<RecipesPage> {
                         children: [
                           Center(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16.0),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 16.0),
                               child: Text(
                                 recipe.recipeName,
                                 style: const TextStyle(
@@ -307,7 +309,8 @@ class _RecipesPageState extends State<RecipesPage> {
                                 });
                               },
                               itemBuilder: (context, index) {
-                                List<String> currentList = getListForPage(index);
+                                List<String> currentList =
+                                    getListForPage(index);
                                 return Container(
                                     margin: const EdgeInsets.all(16.0),
                                     color: Theme.of(context).primaryColor,
@@ -444,7 +447,7 @@ class _RecipesPageState extends State<RecipesPage> {
       );
     }
   }
-  
+
   Future<void> _logout() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -469,147 +472,217 @@ class _RecipesPageState extends State<RecipesPage> {
     }
   }
 
-@override
-Widget build(BuildContext context) {
-  if (recipeNames.isEmpty) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
-  return Scaffold(
-    key: _scaffoldKey,
-    appBar: AppBar(
-      title: Text('${widget.category} Recipes'),
-      backgroundColor: Theme.of(context).primaryColor,
-      leading: IconButton(
-        icon: Image.asset('assets/images/leftcorner.png'),
-        onPressed: () {
-          _scaffoldKey.currentState?.openDrawer();
-        },
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.logout),
-          onPressed: () async {
-            await _logout();
+  @override
+  Widget build(BuildContext context) {
+    if (recipeNames.isEmpty) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: Text('${widget.category} Recipes'),
+        backgroundColor: Theme.of(context).primaryColor,
+        leading: IconButton(
+          icon: Image.asset('assets/images/leftcorner.png'),
+          onPressed: () {
+            _scaffoldKey.currentState?.openDrawer();
           },
         ),
-      ],
-      bottom: PreferredSize(
-        preferredSize: Size.fromHeight(60.0), // Set the size of the search bar
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'Search Recipes...',
-              border: OutlineInputBorder(),
-              filled: true,
-              fillColor: Colors.white,
-              prefixIcon: const Icon(Icons.search),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: StatefulBuilder(
+                      builder: (BuildContext context, StateSetter setState) {
+                        return SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.85,
+                          height: MediaQuery.of(context).size.height *
+                              0.3, // Adjust height
+                          child: Padding(
+                            padding: const EdgeInsets.all(
+                                16.0), // Padding around content
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(
+                                  width: 40.0,
+                                  height: 40.0,
+                                  child: Icon(Icons.error),
+                                ),
+                                const Text(
+                                  'Are you sure you want to sign out?',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const Divider(
+                                  thickness: 0.8,
+                                  color: Colors.black,
+                                ),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                  ),
+                                  onPressed: () async {
+                                    await _logout();
+                                  },
+                                  child: const Text(
+                                    "Sign Out",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize:
+              Size.fromHeight(60.0), // Set the size of the search bar
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search Recipes...',
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.white,
+                prefixIcon: const Icon(Icons.search),
+              ),
             ),
           ),
         ),
       ),
-    ),
-    drawer: Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-            child: Center(
-              child: Text(
-                'Menu',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.black,
-                    ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
+              child: Center(
+                child: Text(
+                  'Menu',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.black,
+                      ),
+                ),
               ),
             ),
-          ),
-          _buildDrawerTile('Dashboard', Icons.house_outlined, const EmployeeHomePage()),
-          ExpansionTile(
-            leading: const Icon(Icons.restaurant_menu),
-            title: const Text('Recipes'),
-            children: [
-              _buildRecipeTile('Cake', Icons.cake, 'Cake'),
-              _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
-              _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
-              _buildRecipeTile('Cookies', Icons.cookie, 'Cookies'),
-              _buildRecipeTile('Croissants', Icons.cookie, 'Croissants'),
-              _buildRecipeTile('Bagels', Icons.cookie, 'Bagels'),
-              _buildRecipeTile('Pies', Icons.cookie, 'Pies'),
-              _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
-            ],
-          ),
-          ExpansionTile(
-            leading: const Icon(Icons.inventory_2_outlined),
-            title: const Text('Inventory'),
-            children: [
-              _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
-              _buildInventoryTile('Products', Icons.breakfast_dining_rounded, 'Products'),
-              _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
-              _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
-            ],
-          ),
-          _buildDrawerTile('Time Sheets', Icons.access_time, const TimePage()),
-          _buildDrawerTile('Clock In/Out', Icons.lock_clock, const ClockPage()),
-          _buildDrawerTile('Settings', Icons.settings_outlined, const SettingsPage()),
-        ],
-      ),
-    ),
-    body: Container(
-      color: Theme.of(context).primaryColor,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-      child: Column(
-        children: [
-          Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16.0,
-                mainAxisSpacing: 16.0,
-              ),
-              itemCount: filteredRecipes.length, // Use filtered list
-              itemBuilder: (context, index) {
-                return ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Colors.black,
-                    side: const BorderSide(color: Colors.black),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(7.0),
-                    ),
-                  ),
-                  onPressed: () {
-                    _getRecipeInfo(filteredRecipes[index]);
-                  },
-                  child: Text(filteredRecipes[index].recipeName),
-                );
-              },
+            _buildDrawerTile(
+                'Dashboard', Icons.house_outlined, const EmployeeHomePage()),
+            ExpansionTile(
+              leading: const Icon(Icons.restaurant_menu),
+              title: const Text('Recipes'),
+              children: [
+                _buildRecipeTile('Cake', Icons.cake, 'Cake'),
+                _buildRecipeTile('Bread', Icons.bakery_dining, 'Bread'),
+                _buildRecipeTile('Muffins', Icons.cake_outlined, 'Muffins'),
+                _buildRecipeTile('Cookies', Icons.cookie, 'Cookies'),
+                _buildRecipeTile('Croissants', Icons.cookie, 'Croissants'),
+                _buildRecipeTile('Bagels', Icons.cookie, 'Bagels'),
+                _buildRecipeTile('Pies', Icons.cookie, 'Pies'),
+                _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
+              ],
             ),
-          ),
-        ],
+            ExpansionTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: const Text('Inventory'),
+              children: [
+                _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
+                _buildInventoryTile(
+                    'Products', Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
+                _buildInventoryTile(
+                    'Equipment', Icons.kitchen_outlined, 'Equipment'),
+              ],
+            ),
+            _buildDrawerTile(
+                'Time Sheets', Icons.access_time, const TimePage()),
+            _buildDrawerTile(
+                'Clock In/Out', Icons.lock_clock, const ClockPage()),
+            _buildDrawerTile(
+                'Settings', Icons.settings_outlined, const SettingsPage()),
+          ],
+        ),
       ),
-    ),
-    // FloatingActionButton for the 'add recipe' full-page pop-up
-    floatingActionButton: FloatingActionButton(
-    onPressed: () {
-    _showFullScreenAddRecipe(); },
-    backgroundColor: Colors.white, // Button background color white
-    child: const Icon(
-      Icons.add,
-      size: 36,  // Adjust the icon size
-      color: Colors.black, // Icon color black
-    ),
-  ),
-  floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-  );
-}
+      body: Container(
+        color: Theme.of(context).primaryColor,
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16.0,
+                  mainAxisSpacing: 16.0,
+                ),
+                itemCount: filteredRecipes.length, // Use filtered list
+                itemBuilder: (context, index) {
+                  return ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      foregroundColor: Colors.black,
+                      side: const BorderSide(color: Colors.black),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(7.0),
+                      ),
+                    ),
+                    onPressed: () {
+                      _getRecipeInfo(filteredRecipes[index]);
+                    },
+                    child: Text(filteredRecipes[index].recipeName),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      // FloatingActionButton for the 'add recipe' full-page pop-up
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showFullScreenAddRecipeDialog(); // Show full-page pop-up for adding recipe
+        },
+        backgroundColor: Colors.white, // Button background color white
+        child: const Icon(
+          Icons.add,
+          size: 36, // Adjust the icon size
+          color: Colors.black, // Icon color black
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
+  }
 
-void _showFullScreenAddRecipe() {
+void _showFullScreenAddRecipeDialog() {
   final TextEditingController recipeNameController = TextEditingController();
   final TextEditingController ingredientController = TextEditingController();
   final TextEditingController equipmentController = TextEditingController();
