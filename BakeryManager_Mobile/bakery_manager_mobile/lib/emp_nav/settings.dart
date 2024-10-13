@@ -1,6 +1,5 @@
 import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
 import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
-import 'package:bakery_manager_mobile/emp_nav/timesheets.dart';
 import 'package:bakery_manager_mobile/emp_nav/inventory.dart'; 
 import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -252,7 +251,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile('Time Sheets',Icons.access_time,const TimePage(),),
             _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
             _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
           ],
