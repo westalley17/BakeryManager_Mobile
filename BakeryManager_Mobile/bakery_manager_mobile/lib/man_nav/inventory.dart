@@ -130,29 +130,14 @@ class _InventoryPageState extends State<InventoryPage> {
     // use inventoryItems along with "index" to call whichever get*Info we need :)
     InventoryItem invItem = inventoryItems[index];
     String? category = invItem.category;
-    String? endpoint;
     if (category == "Ingredients") {
-      endpoint = "ingredientInfo?ingredientID=";
+      _getIngredientInfo(invItem.itemID);
     } else if (category == "Products") {
-      endpoint = "productInfo?productID=";
+      _getProductInfo(invItem.itemID);
     } else if (category == "Vendors") {
-      endpoint = "vendorInfo?vendorID=";
+      _getVendorInfo(invItem.itemID);
     } else if (category == "Equipment") {
-      endpoint = "equipmentInfo?equipmentID=";
-    }
-    try {
-      final url = Uri.parse("$baseURL/api/$endpoint${invItem.itemID}");
-      final headers = {'Content': 'application/json'};
-      final response = await http.get(url, headers: headers);
-      print(response.body);
-      if (response.statusCode == 200) {
-        // add data from endpoint to the bottom modal
-        // MAKE A CLASS FOR THIS DATA DEPENDING ON CATEGORY :)
-      } else {
-        // we are cooked
-      }
-    } catch (error) {
-      print(error);
+      _getEquipmentInfo(invItem.itemID);
     }
 
     showModalBottomSheet(
@@ -323,7 +308,7 @@ class _InventoryPageState extends State<InventoryPage> {
           await http.get(url, headers: {'Content-Type': 'application/json'});
       var parsed = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        // make pop-up here :)
+        // USE INFO TO POPULATE MODAL
       } else {
         if (mounted) {
           showDialog(
@@ -348,7 +333,7 @@ class _InventoryPageState extends State<InventoryPage> {
           await http.get(url, headers: {'Content-Type': 'application/json'});
       var parsed = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        // make pop-up here :)
+        // USE INFO TO POPULATE MODAL
       } else {
         if (mounted) {
           showDialog(
@@ -373,7 +358,7 @@ class _InventoryPageState extends State<InventoryPage> {
           await http.get(url, headers: {'Content-Type': 'application/json'});
       var parsed = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        // make pop-up here :)
+        // USE INFO TO POPULATE MODAL
       } else {
         if (mounted) {
           showDialog(
@@ -399,7 +384,7 @@ class _InventoryPageState extends State<InventoryPage> {
           await http.get(url, headers: {'Content-Type': 'application/json'});
       var parsed = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        // make pop-up here :)
+        // USE INFO TO POPULATE MODAL
       } else {
         if (mounted) {
           showDialog(
