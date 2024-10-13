@@ -96,85 +96,116 @@ class _TimePageState extends State<TimePage> {
 
   List<EmpBiWeeks>? _employeeHours;
 
-  // Define the full-screen pop-up function
   void _showFullScreenAddRecipeDialog(int index) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled:
-          true, // Allows the sheet to take up the full screen - dark magic helped with this part :)
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.95,
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true, 
+    backgroundColor: Colors.transparent,
+    builder: (BuildContext context) {
+      return Container(
+        height: MediaQuery.of(context).size.height * 0.95,
+        padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 20.0),
+        decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 5,
+              blurRadius: 15,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                spreadRadius: 5,
-                blurRadius: 10,
+          ],
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+              const SizedBox(height: 15),
+              const Text(
+                'Employee Hours Summary',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              const Divider(
+                height: 40.0,
+                thickness: 2.0,
+                color: Colors.black,
+              ),
+              const SizedBox(height: 10),
+              _buildInfoRowWithBorder(
+                'Total Normal Hours', 
+                '${_employeeHours?[index].totalNormalHours.toStringAsFixed(2)}'
+              ),
+              _buildInfoRowWithBorder(
+                'Total Overtime Hours', 
+                '${_employeeHours?[index].totalOvertimeHours.toStringAsFixed(2)}'
+              ),
+              _buildInfoRowWithBorder(
+                'Total Holiday Hours', 
+                '${_employeeHours?[index].totalHolidayHours.toStringAsFixed(2)}'
               ),
             ],
           ),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Clocked Hours',
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Divider(
-                  height: 30.0,
-                  color: Colors.black,
-                ),
-                // add EmpBiWeek info here
-                Text(
-                  'Total Hours Worked: ${_employeeHours?[index].totalNormalHours.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  'Total Overtime Worked: ${_employeeHours?[index].totalOvertimeHours.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  'Total Holiday Worked: ${_employeeHours?[index].totalHolidayHours.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+        ),
+      );
+    },
+  );
+}
+
+  Widget _buildInfoRowWithBorder(String label, String value) {
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    padding: const EdgeInsets.all(16.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: Colors.black54, width: 1.5),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.white.withOpacity(0.05),
+          spreadRadius: 2,
+          blurRadius: 8,
+        ),
+      ],
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 22,
+            color: Colors.black,
           ),
-        );
-      },
-    );
-  }
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 
   Future<void> _logout() async {
     try {
@@ -454,7 +485,6 @@ class _TimePageState extends State<TimePage> {
                     const NeverScrollableScrollPhysics(), // Disable inner scroll for list
                 shrinkWrap:
                     true, // Allow ListView to wrap inside the scrollable container
-                itemCount: _employeeHours!.length, //timesheets.length,
                 itemBuilder: (context, index) {
                   final item = _employeeHours?[index];
                   return TimesheetTile(

@@ -563,17 +563,17 @@ class _RecipesPageState extends State<RecipesPage> {
         ],
         bottom: PreferredSize(
           preferredSize:
-              Size.fromHeight(60.0), // Set the size of the search bar
+              const Size.fromHeight(60.0), // Set the size of the search bar
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: _searchController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Search Recipes...',
                 border: OutlineInputBorder(),
                 filled: true,
                 fillColor: Colors.white,
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: Icon(Icons.search),
               ),
             ),
           ),

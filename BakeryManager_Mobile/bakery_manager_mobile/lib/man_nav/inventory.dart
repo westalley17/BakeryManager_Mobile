@@ -60,11 +60,13 @@ class InventoryPage extends StatefulWidget {
 class InventoryTile extends StatelessWidget {
   final String itemName;
   double? quantity;
+  VoidCallback? showModal;
 
   InventoryTile({
     required this.itemName,
     this.quantity,
     super.key,
+    this.showModal
   });
 
   // Function to map inventory item names to icons
@@ -106,7 +108,7 @@ class InventoryTile extends StatelessWidget {
         trailing: IconButton(
           icon: const Icon(Icons.info_outline),
           onPressed: () {
-            // Add navigation to item details
+            showModal!();
           },
         ),
       ),
@@ -119,6 +121,107 @@ class _InventoryPageState extends State<InventoryPage> {
   List<InventoryItem> inventoryItems = [];
   List<InventoryItem> filteredItems = [];
   final TextEditingController _searchController = TextEditingController();
+
+void _showFullScreenAddRecipeDialog(int index) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true, 
+    backgroundColor: Colors.transparent,
+    builder: (BuildContext context) {
+      return Container(
+        height: MediaQuery.of(context).size.height * 0.95,
+        padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 20.0),
+        decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(30),
+            topRight: Radius.circular(30),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 5,
+              blurRadius: 15,
+            ),
+          ],
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+              const SizedBox(height: 15),
+              const Text(
+                'Inventory Information',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+              const Divider(
+                height: 40.0,
+                thickness: 2.0,
+                color: Colors.black,
+              ),
+              const SizedBox(height: 10),
+              
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
+Widget _buildInfoRowWithBorder(String label, String value) {
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    padding: const EdgeInsets.all(16.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: Colors.black54, width: 1.5),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.white.withOpacity(0.05),
+          spreadRadius: 2,
+          blurRadius: 8,
+        ),
+      ],
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 22,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
 
   @override
   void initState() {
@@ -546,6 +649,9 @@ class _InventoryPageState extends State<InventoryPage> {
                         itemName: item.itemName,
                         quantity:
                             (item.quantity != null) ? item.quantity : null,
+                            showModal: () {
+                              _showFullScreenAddRecipeDialog(index);
+                          },
                       );
                     },
                   ),

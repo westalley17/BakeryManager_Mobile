@@ -1,5 +1,4 @@
 import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
-import 'package:bakery_manager_mobile/widgets/landing_page.dart';
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bakery_manager_mobile/env/env_config.dart';
