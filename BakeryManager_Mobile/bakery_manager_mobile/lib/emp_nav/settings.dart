@@ -1,6 +1,6 @@
 import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
 import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
-import 'package:bakery_manager_mobile/emp_nav/inventory.dart'; 
+import 'package:bakery_manager_mobile/emp_nav/inventory.dart';
 import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -37,8 +37,8 @@ class RecipeTile extends StatelessWidget {
         title: Text(
           title,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+                fontWeight: FontWeight.bold,
+              ),
         ),
         subtitle: Text(description),
         leading: const Icon(Icons.restaurant_menu),
@@ -49,7 +49,6 @@ class RecipeTile extends StatelessWidget {
     );
   }
 }
-
 
 class _SettingsPageState extends State<SettingsPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -128,7 +127,6 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,7 +135,8 @@ class _SettingsPageState extends State<SettingsPage> {
         title: const Text("Settings"),
         backgroundColor: Theme.of(context).primaryColor,
         leading: IconButton(
-          icon: Image.asset('assets/images/leftcorner.png'), // Stack image for drawer
+          icon: Image.asset(
+              'assets/images/leftcorner.png'), // Stack image for drawer
           onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
         actions: [
@@ -226,7 +225,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
             ),
-            _buildDrawerTile('Dashboard',Icons.house_outlined,const EmployeeHomePage()),
+            _buildDrawerTile(
+                'Dashboard', Icons.house_outlined, const EmployeeHomePage()),
             ExpansionTile(
               leading: const Icon(Icons.restaurant_menu),
               title: const Text('Recipes'),
@@ -241,18 +241,16 @@ class _SettingsPageState extends State<SettingsPage> {
                 _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
               ],
             ),
-            ExpansionTile(
-              leading: const Icon(Icons.inventory_2_outlined),
-              title: const Text('Inventory'),
-              children: [
-                _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
-                _buildInventoryTile('Products',Icons.breakfast_dining_rounded, 'Products'),
-                _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
-                _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
-              ],
+            _buildDrawerTile(
+              'Clock In/Out',
+              Icons.lock_clock,
+              const ClockPage(),
             ),
-            _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
-            _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
+            _buildDrawerTile(
+              'Settings',
+              Icons.settings_outlined,
+              const SettingsPage(),
+            ),
           ],
         ),
       ),
@@ -276,7 +274,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   RecipeTile(
                     title: 'Cheese Pizza',
-                    description: 'Simple cheese pizza with tomato sauce and mozzarella.',
+                    description:
+                        'Simple cheese pizza with tomato sauce and mozzarella.',
                   ),
                   // Add more recipes here
                 ],
@@ -288,4 +287,3 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 }
-

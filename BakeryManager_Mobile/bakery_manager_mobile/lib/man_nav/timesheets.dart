@@ -245,7 +245,6 @@ class _TimePageState extends State<TimePage> {
       try {
         final response = await http.get(url, headers: headers);
         var parsed = jsonDecode(response.body) as List;
-        //print(parsed[0]["TotalNormalHours"].runtimeType);
         if (response.statusCode == 200) {
           _employeeHours =
               parsed.map((json) => EmpBiWeeks.fromJson(json)).toList();
@@ -300,18 +299,6 @@ class _TimePageState extends State<TimePage> {
         leading: Icon(icon),
         onTap: () => _navigateToPage(InventoryPage(category: category)),
       ),
-    );
-  }
-
-  Widget _buildExpansionTile({
-    required String title,
-    required IconData icon,
-    required List<Widget> children,
-  }) {
-    return ExpansionTile(
-      leading: Icon(icon),
-      title: Text(title),
-      children: children,
     );
   }
 

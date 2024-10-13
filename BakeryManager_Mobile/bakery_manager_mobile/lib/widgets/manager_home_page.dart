@@ -86,18 +86,6 @@ class _ManagerHomePage extends State<ManagerHomePage> {
     );
   }
 
-  Widget _buildExpansionTile({
-    required String title,
-    required IconData icon,
-    required List<Widget> children,
-  }) {
-    return ExpansionTile(
-      leading: Icon(icon),
-      title: Text(title),
-      children: children,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -268,7 +256,6 @@ class _ManagerHomePage extends State<ManagerHomePage> {
                         fontWeight: FontWeight.bold,
                       ),
                   textAlign: TextAlign.center,
-                  textScaleFactor: 1.5,
                 ),
               ],
             ),

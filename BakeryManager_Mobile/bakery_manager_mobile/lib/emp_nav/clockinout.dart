@@ -13,6 +13,41 @@ import '../env/env_config.dart';
 import 'dart:convert';
 import 'dart:async';
 
+class EmpBiWeeks {
+  final String userID;
+  final String firstName;
+  final String lastName;
+  final String biWeekID;
+  final int biWeekNum;
+  final double totalNormalHours;
+  final double totalOvertimeHours;
+  final double totalHolidayHours;
+
+  const EmpBiWeeks({
+    required this.userID,
+    required this.firstName,
+    required this.lastName,
+    required this.biWeekID,
+    required this.biWeekNum,
+    required this.totalNormalHours,
+    required this.totalOvertimeHours,
+    required this.totalHolidayHours,
+  });
+
+  factory EmpBiWeeks.fromJson(Map<String, dynamic> json) {
+    return EmpBiWeeks(
+      userID: json['userID'],
+      firstName: json['FirstName'],
+      lastName: json['LastName'],
+      biWeekID: json['biWeekID'],
+      biWeekNum: json['biWeekNum'],
+      totalNormalHours: double.parse(json['TotalNormalHours']),
+      totalOvertimeHours: double.parse(json['TotalOvertimeHours']),
+      totalHolidayHours: double.parse(json['TotalHolidayHours']),
+    );
+  }
+}
+
 class ClockPage extends StatefulWidget {
   const ClockPage({super.key});
 
@@ -26,6 +61,7 @@ class _ClockPageState extends State<ClockPage> {
   String _currentTime = '';
   bool _clockedIn = false; // Toggle between clocked in and out
   Timer? _timer;
+  EmpBiWeeks? _empBiWeeks;
 
   // Create a 2D list to keep track of selected cells
   List<List<bool>> selectedCells = List.generate(
@@ -36,6 +72,7 @@ class _ClockPageState extends State<ClockPage> {
   @override
   void initState() {
     super.initState();
+    _getEmpHours();
     //_startClock(); // Start the real-time clock
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
@@ -151,29 +188,31 @@ class _ClockPageState extends State<ClockPage> {
     );
   }
 
-  Widget _buildInventoryTile(String title, IconData icon, String category) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16.0),
-      child: ListTile(
-        title: Text(title),
-        leading: Icon(icon),
-        onTap: () => _navigateToPage(InventoryPage(category: category)),
-      ),
-    );
+  Future<void> _getEmpHours() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? sessionID = prefs.getString('SessionID');
+    if (sessionID == null) {
+      // send back to home page?
+    } else {
+      final url =
+          Uri.parse('$baseURL/api/manager/employeeHours?sessionID=$sessionID');
+      final headers = {
+        'Content-Type': 'application/json',
+      };
+      try {
+        final response = await http.get(url, headers: headers);
+        var parsed = jsonDecode(response.body);
+        if (response.statusCode == 200) {
+          _empBiWeeks = EmpBiWeeks.fromJson(parsed[0]);
+          setState(() {});
+        } else {
+          setState(() {});
+        }
+      } catch (error) {
+        setState(() {});
+      }
+    }
   }
-
-  Widget _buildExpansionTile({
-    required String title,
-    required IconData icon,
-    required List<Widget> children,
-  }) {
-    return ExpansionTile(
-      leading: Icon(icon),
-      title: Text(title),
-      children: children,
-    );
-  }
-
 
   void _showAvailabilityPopup() {
     showDialog(
@@ -342,7 +381,7 @@ class _ClockPageState extends State<ClockPage> {
           ),
         ],
       ),
-       drawer: Drawer(
+      drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -357,7 +396,8 @@ class _ClockPageState extends State<ClockPage> {
                 ),
               ),
             ),
-		        _buildDrawerTile('Dashboard',Icons.house_outlined,const EmployeeHomePage()),
+            _buildDrawerTile(
+                'Dashboard', Icons.house_outlined, const EmployeeHomePage()),
             ExpansionTile(
               leading: const Icon(Icons.restaurant_menu),
               title: const Text('Recipes'),
@@ -372,18 +412,16 @@ class _ClockPageState extends State<ClockPage> {
                 _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
               ],
             ),
-            ExpansionTile(
-              leading: const Icon(Icons.inventory_2_outlined),
-              title: const Text('Inventory'),
-              children: [
-                _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
-                _buildInventoryTile('Products',Icons.breakfast_dining_rounded, 'Products'),
-                _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
-                _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
-              ],
+            _buildDrawerTile(
+              'Clock In/Out',
+              Icons.lock_clock,
+              const ClockPage(),
             ),
-            _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
-            _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
+            _buildDrawerTile(
+              'Settings',
+              Icons.settings_outlined,
+              const SettingsPage(),
+            ),
           ],
         ),
       ),
@@ -446,12 +484,91 @@ class _ClockPageState extends State<ClockPage> {
 
             const SizedBox(height: 10), // Add spacing between buttons
 
-            // Change Hours button
+            // View Hours button
             SizedBox(
               width: 300, // Adjust the width as needed
               child: ElevatedButton(
                 onPressed: () {
-                  // Implement your change hours functionality
+                  // Implement your View hours functionality
+                  // same thing as the Timesheets view but just for the ONE user
+                  if (_empBiWeeks != null) {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled:
+                          true, // Allows the sheet to take up the full screen - dark magic helped with this part :)
+                      backgroundColor: Colors.transparent,
+                      builder: (BuildContext context) {
+                        return Container(
+                          height: MediaQuery.of(context).size.height * 0.95,
+                          padding: const EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                spreadRadius: 5,
+                                blurRadius: 10,
+                              ),
+                            ],
+                          ),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Align(
+                                  alignment: Alignment.topRight,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.close),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  'Clocked Hours',
+                                  style: TextStyle(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 30.0,
+                                  color: Colors.black,
+                                ),
+                                // add EmpBiWeek info here
+                                Text(
+                                  'Total Hours Worked: ${_empBiWeeks!.totalNormalHours.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  'Total Overtime Worked: ${_empBiWeeks!.totalOvertimeHours.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  'Total Holiday Worked: ${_empBiWeeks!.totalHolidayHours.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 60), // Adjust height
