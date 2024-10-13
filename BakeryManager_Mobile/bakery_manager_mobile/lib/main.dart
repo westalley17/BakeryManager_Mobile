@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
+import 'widgets/landing_page.dart';
+
 void main() {
   runApp(const BakeryManager());
 }

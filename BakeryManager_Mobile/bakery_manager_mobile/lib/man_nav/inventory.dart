@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
 import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
@@ -18,7 +20,12 @@ class InventoryItem {
   final String itemID;
   final String itemName;
   double? quantity;
-  InventoryItem({required this.itemID, required this.itemName, this.quantity});
+  String? category;
+  InventoryItem(
+      {required this.itemID,
+      required this.itemName,
+      this.quantity,
+      this.category});
 
   factory InventoryItem.fromJson(Map<String, dynamic> json) {
     String itemID = "";
@@ -45,6 +52,7 @@ class InventoryItem {
       itemID: itemID,
       itemName: json['Name'],
       quantity: quantity,
+      category: json['Category'],
     );
   }
 }
@@ -62,12 +70,8 @@ class InventoryTile extends StatelessWidget {
   double? quantity;
   VoidCallback? showModal;
 
-  InventoryTile({
-    required this.itemName,
-    this.quantity,
-    super.key,
-    this.showModal
-  });
+  InventoryTile(
+      {required this.itemName, this.quantity, super.key, this.showModal});
 
   // Function to map inventory item names to icons
   IconData _getIconForItem(String itemName) {
@@ -122,106 +126,131 @@ class _InventoryPageState extends State<InventoryPage> {
   List<InventoryItem> filteredItems = [];
   final TextEditingController _searchController = TextEditingController();
 
-void _showFullScreenAddRecipeDialog(int index) {
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true, 
-    backgroundColor: Colors.transparent,
-    builder: (BuildContext context) {
-      return Container(
-        height: MediaQuery.of(context).size.height * 0.95,
-        padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 20.0),
-        decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              spreadRadius: 5,
-              blurRadius: 15,
+  Future<void> _showFullScreenAddRecipeDialog(int index) async {
+    // use inventoryItems along with "index" to call whichever get*Info we need :)
+    InventoryItem invItem = inventoryItems[index];
+    String? category = invItem.category;
+    String? endpoint;
+    if (category == "Ingredients") {
+      endpoint = "ingredientInfo?ingredientID=";
+    } else if (category == "Products") {
+      endpoint = "productInfo?productID=";
+    } else if (category == "Vendors") {
+      endpoint = "vendorInfo?vendorID=";
+    } else if (category == "Equipment") {
+      endpoint = "equipmentInfo?equipmentID=";
+    }
+    try {
+      final url = Uri.parse("$baseURL/api/$endpoint${invItem.itemID}");
+      final headers = {'Content': 'application/json'};
+      final response = await http.get(url, headers: headers);
+      print(response.body);
+      if (response.statusCode == 200) {
+        // add data from endpoint to the bottom modal
+        // MAKE A CLASS FOR THIS DATA DEPENDING ON CATEGORY :)
+      } else {
+        // we are cooked
+      }
+    } catch (error) {
+      print(error);
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.95,
+          padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 20.0),
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
             ),
-          ],
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 5,
+                blurRadius: 15,
               ),
-              const SizedBox(height: 15),
-              const Text(
-                'Inventory Information',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              const Divider(
-                height: 40.0,
-                thickness: 2.0,
-                color: Colors.black,
-              ),
-              const SizedBox(height: 10),
-              
             ],
           ),
-        ),
-      );
-    },
-  );
-}
-
-Widget _buildInfoRowWithBorder(String label, String value) {
-  return Container(
-    margin: const EdgeInsets.symmetric(vertical: 8.0),
-    padding: const EdgeInsets.all(16.0),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: Colors.black54, width: 1.5),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.white.withOpacity(0.05),
-          spreadRadius: 2,
-          blurRadius: 8,
-        ),
-      ],
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 22,
-            color: Colors.black,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 15),
+                const Text(
+                  'Inventory Information',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const Divider(
+                  height: 40.0,
+                  thickness: 2.0,
+                  color: Colors.black,
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
           ),
-        ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+        );
+      },
+    );
+  }
+
+  Widget _buildInfoRowWithBorder(String label, String value) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black54, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.white.withOpacity(0.05),
+            spreadRadius: 2,
+            blurRadius: 8,
           ),
-        ),
-      ],
-    ),
-  );
-}
-
-
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 22,
+              color: Colors.black,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -450,18 +479,6 @@ Widget _buildInfoRowWithBorder(String label, String value) {
     );
   }
 
-  Widget _buildExpansionTile({
-    required String title,
-    required IconData icon,
-    required List<Widget> children,
-  }) {
-    return ExpansionTile(
-      leading: Icon(icon),
-      title: Text(title),
-      children: children,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -544,17 +561,17 @@ Widget _buildInfoRowWithBorder(String label, String value) {
         ],
         bottom: PreferredSize(
           preferredSize:
-              Size.fromHeight(60.0), // Set the size of the search bar
+              const Size.fromHeight(60.0), // Set the size of the search bar
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: _searchController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Search Recipes...',
                 border: OutlineInputBorder(),
                 filled: true,
                 fillColor: Colors.white,
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: Icon(Icons.search),
               ),
             ),
           ),
@@ -649,9 +666,9 @@ Widget _buildInfoRowWithBorder(String label, String value) {
                         itemName: item.itemName,
                         quantity:
                             (item.quantity != null) ? item.quantity : null,
-                            showModal: () {
-                              _showFullScreenAddRecipeDialog(index);
-                          },
+                        showModal: () {
+                          _showFullScreenAddRecipeDialog(index);
+                        },
                       );
                     },
                   ),
@@ -661,149 +678,159 @@ Widget _buildInfoRowWithBorder(String label, String value) {
           ),
         ),
       ),
-    floatingActionButton: FloatingActionButton(
-    onPressed: () {
-    _showFullScreenAddRecipe(); },
-    backgroundColor: Colors.white, // Button background color white
-    child: const Icon(
-      Icons.add,
-      size: 36,  // Adjust the icon size
-      color: Colors.black, // Icon color black
-    ),
-  ),
-  floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-  );
-}
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showFullScreenAddRecipe();
+        },
+        backgroundColor: Colors.white, // Button background color white
+        child: const Icon(
+          Icons.add,
+          size: 36, // Adjust the icon size
+          color: Colors.black, // Icon color black
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    );
+  }
 
 // Define the full-screen pop-up function
-void _showFullScreenAddRecipe() {
-  final TextEditingController recipeNameController = TextEditingController();
-  final TextEditingController ingredientController = TextEditingController();
-  final TextEditingController equipmentController = TextEditingController();
-  final TextEditingController instructionController = TextEditingController();
+  void _showFullScreenAddRecipe() {
+    final TextEditingController recipeNameController = TextEditingController();
+    final TextEditingController ingredientController = TextEditingController();
+    final TextEditingController equipmentController = TextEditingController();
+    final TextEditingController instructionController = TextEditingController();
 
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true, // Allows the sheet to take up the full screen - dark magic helped with this part :) 
-    backgroundColor: Colors.transparent, 
-    builder: (BuildContext context) {
-      return Container(
-        height: MediaQuery.of(context).size.height * 0.95, 
-        padding: const EdgeInsets.all(16.0), 
-        decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              spreadRadius: 5,
-              blurRadius: 10,
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled:
+          true, // Allows the sheet to take up the full screen - dark magic helped with this part :)
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.95,
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
             ),
-          ], 
-        ),
-        child: SingleChildScrollView( 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    Navigator.of(context).pop(); 
-                  },
-                ),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                'Add to the Inventory',
-                style: TextStyle(
-                  fontSize: 26, 
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 20), 
-              _buildInputField(
-                controller: recipeNameController,label: 'What is it? ',hint: 'Enter the name here...',
-              ),
-              const SizedBox(height: 15), 
-              _buildInputField(
-                controller: ingredientController,label: 'Amount',hint: 'Enter amount here...',
-              ),
-              const SizedBox(height: 15), 
-              const SizedBox(height: 20), 
-              Center(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32.0,
-                      vertical: 12.0,
-                    ), // Larger button
-                    textStyle: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () {
-                    _addNewRecipe(recipeNameController.text,ingredientController.text,equipmentController.text,instructionController.text,
-                    );
-                    Navigator.of(context).pop(); // Close dialog after adding
-                  },
-                  child: const Text('Finish!'),
-                ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 5,
+                blurRadius: 10,
               ),
             ],
           ),
-        ),
-      );
-    },
-  );
-}
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Add to the Inventory',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildInputField(
+                  controller: recipeNameController,
+                  label: 'What is it? ',
+                  hint: 'Enter the name here...',
+                ),
+                const SizedBox(height: 15),
+                _buildInputField(
+                  controller: ingredientController,
+                  label: 'Amount',
+                  hint: 'Enter amount here...',
+                ),
+                const SizedBox(height: 15),
+                const SizedBox(height: 20),
+                Center(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32.0,
+                        vertical: 12.0,
+                      ), // Larger button
+                      textStyle: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () {
+                      _addNewRecipe(
+                        recipeNameController.text,
+                        ingredientController.text,
+                        equipmentController.text,
+                        instructionController.text,
+                      );
+                      Navigator.of(context).pop(); // Close dialog after adding
+                    },
+                    child: const Text('Finish!'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
 // Build consistent input fields
-Widget _buildInputField({
-  required TextEditingController controller,
-  required String label,
-  required String hint,
-}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        label,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      const SizedBox(height: 8), // Add space between label and input
-      TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          hintText: hint,
-          filled: true,
-          fillColor: Colors.grey[200], // Light grey background for input
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide.none, // Remove default border
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 14.0,
-            horizontal: 16.0,
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
           ),
         ),
-      ),
-    ],
-  );
-}
-// Define the function to handle adding the new recipe
-void _addNewRecipe(String recipeName, String ingredients, String equipment, String instructions) {
-   
+        const SizedBox(height: 8), // Add space between label and input
+        TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: hint,
+            filled: true,
+            fillColor: Colors.grey[200], // Light grey background for input
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+              borderSide: BorderSide.none, // Remove default border
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 14.0,
+              horizontal: 16.0,
+            ),
+          ),
+        ),
+      ],
+    );
   }
+
+// Define the function to handle adding the new recipe
+  void _addNewRecipe(String recipeName, String ingredients, String equipment,
+      String instructions) {}
 }
