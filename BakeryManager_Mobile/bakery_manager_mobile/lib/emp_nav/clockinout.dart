@@ -1,5 +1,4 @@
 import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
-import 'package:bakery_manager_mobile/emp_nav/inventory.dart';
 import 'package:bakery_manager_mobile/emp_nav/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
@@ -530,10 +529,12 @@ class _ClockPageState extends State<ClockPage> {
                                 ),
                                 const SizedBox(height: 10),
                                 const Text(
+                                  textAlign: TextAlign.center,
                                   'Clocked Hours',
                                   style: TextStyle(
                                     fontSize: 26,
                                     fontWeight: FontWeight.bold,
+                                   
                                   ),
                                 ),
                                 const Divider(
@@ -541,27 +542,12 @@ class _ClockPageState extends State<ClockPage> {
                                   color: Colors.black,
                                 ),
                                 // add EmpBiWeek info here
-                                Text(
-                                  'Total Hours Worked: ${_empBiWeeks!.totalNormalHours.toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  'Total Overtime Worked: ${_empBiWeeks!.totalOvertimeHours.toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  'Total Holiday Worked: ${_empBiWeeks!.totalHolidayHours.toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                                _buildInfoRowWithBorder('Total Normal Hours',
+                                  '${_empBiWeeks!.totalNormalHours.toStringAsFixed(2)}'),
+                                _buildInfoRowWithBorder('Total Overtime Hours',
+                                  '${_empBiWeeks!.totalOvertimeHours.toStringAsFixed(2)}'),
+                                _buildInfoRowWithBorder('Total Holiday Hours',
+                                  '${_empBiWeeks!.totalHolidayHours.toStringAsFixed(2)}'),
                               ],
                             ),
                           ),
@@ -589,3 +575,41 @@ class _ClockPageState extends State<ClockPage> {
     );
   }
 }
+Widget _buildInfoRowWithBorder(String label, String value) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black54, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.white.withOpacity(0.05),
+            spreadRadius: 2,
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 22,
+              color: Colors.black,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
