@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
 import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
@@ -15,6 +13,117 @@ import '../env/env_config.dart';
 import 'dart:convert';
 
 import '../widgets/landing_page.dart';
+
+class IngredientInfo {
+  final String vendorName;
+  final String ingredientName;
+  final String description;
+  final String measurement;
+  final bool allergen;
+  final double totalQuantity;
+  final String categoryName;
+
+  const IngredientInfo({
+    required this.vendorName,
+    required this.ingredientName,
+    required this.description,
+    required this.measurement,
+    required this.allergen,
+    required this.totalQuantity,
+    required this.categoryName,
+  });
+
+  factory IngredientInfo.fromJson(Map<String, dynamic> json) {
+    return IngredientInfo(
+      vendorName: json['VendorName'],
+      ingredientName: json['IngredientName'],
+      description: json['IngredientDescription'],
+      measurement: json['measurement'],
+      allergen: json['Allergen'],
+      totalQuantity: double.parse(json['TotalQuantity']),
+      categoryName: json['CategoryName'],
+    );
+  }
+}
+
+class ProductInfo {
+  final String name;
+  final String description;
+  final int? shelfLife;
+
+  const ProductInfo(
+      {required this.name, required this.description, required this.shelfLife});
+
+  factory ProductInfo.fromJson(Map<String, dynamic> json) {
+    return ProductInfo(
+      name: json['Name'],
+      description: json['Description'],
+      shelfLife: json['ShelfLife'],
+    );
+  }
+}
+
+class VendorInfo {
+  final String vendorName;
+  final String emailAddress;
+  final bool emailValid;
+  final String areaCode;
+  final String phoneNumber;
+  final bool phoneValid;
+  final String address;
+  final bool addressValid;
+  final String state;
+  final String ingredients;
+
+  const VendorInfo(
+      {required this.vendorName,
+      required this.emailAddress,
+      required this.emailValid,
+      required this.areaCode,
+      required this.phoneNumber,
+      required this.phoneValid,
+      required this.address,
+      required this.addressValid,
+      required this.state,
+      required this.ingredients});
+
+  factory VendorInfo.fromJson(Map<String, dynamic> json) {
+    return VendorInfo(
+      vendorName: json['VendorName'],
+      emailAddress: json['emailAddress'],
+      emailValid: json['EmailValid'],
+      areaCode: json['AreaCode'],
+      phoneNumber: json['Number'],
+      phoneValid: json['PhoneValid'],
+      address: json['Address'],
+      addressValid: json['AddressValid'],
+      state: json['StateDescription'],
+      ingredients: json['Ingredients'],
+    );
+  }
+}
+
+class EquipmentInfo {
+  final String name;
+  final String status;
+  final String serial;
+  final String notes;
+
+  const EquipmentInfo(
+      {required this.name,
+      required this.status,
+      required this.serial,
+      required this.notes});
+
+  factory EquipmentInfo.fromJson(Map<String, dynamic> json) {
+    return EquipmentInfo(
+      name: json['Name'],
+      status: json['Status'],
+      serial: json['SerialNumber'],
+      notes: json['Notes'],
+    );
+  }
+}
 
 class InventoryItem {
   final String itemID;
@@ -39,6 +148,7 @@ class InventoryItem {
       return InventoryItem(
         itemID: json["VendorID"],
         itemName: json['VendorName'],
+        category: json['Category'],
       );
     } else if (json["EquipmentID"] != null) {
       itemID = json["EquipmentID"];
@@ -124,6 +234,11 @@ class _InventoryPageState extends State<InventoryPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<InventoryItem> inventoryItems = [];
   List<InventoryItem> filteredItems = [];
+  IngredientInfo? _ingredientInfo;
+  ProductInfo? _productInfo;
+  VendorInfo? _vendorInfo;
+  EquipmentInfo? _equipmentInfo;
+
   final TextEditingController _searchController = TextEditingController();
 
   Future<void> _showFullScreenAddRecipeDialog(int index) async {
@@ -190,6 +305,11 @@ class _InventoryPageState extends State<InventoryPage> {
                   color: Colors.black,
                 ),
                 const SizedBox(height: 10),
+                // Addison, you will need to use the classes I have made at the top of this file
+                // to print out the contents in any way that you want. I just made the classes
+                // so that I could keep them organized asf, and you wouldn't have to worry
+                // about what all data you have. I am going to start the process of making
+                // Widgets out of each of the *Info classes so you can simply call and build them.
               ],
             ),
           ),
@@ -309,6 +429,7 @@ class _InventoryPageState extends State<InventoryPage> {
       var parsed = jsonDecode(response.body);
       if (response.statusCode == 200) {
         // USE INFO TO POPULATE MODAL
+        _ingredientInfo = IngredientInfo.fromJson(parsed);
       } else {
         if (mounted) {
           showDialog(
@@ -334,6 +455,7 @@ class _InventoryPageState extends State<InventoryPage> {
       var parsed = jsonDecode(response.body);
       if (response.statusCode == 200) {
         // USE INFO TO POPULATE MODAL
+        _productInfo = ProductInfo.fromJson(parsed);
       } else {
         if (mounted) {
           showDialog(
@@ -359,6 +481,7 @@ class _InventoryPageState extends State<InventoryPage> {
       var parsed = jsonDecode(response.body);
       if (response.statusCode == 200) {
         // USE INFO TO POPULATE MODAL
+        _vendorInfo = VendorInfo.fromJson(parsed);
       } else {
         if (mounted) {
           showDialog(
@@ -385,6 +508,7 @@ class _InventoryPageState extends State<InventoryPage> {
       var parsed = jsonDecode(response.body);
       if (response.statusCode == 200) {
         // USE INFO TO POPULATE MODAL
+        _equipmentInfo = EquipmentInfo.fromJson(parsed);
       } else {
         if (mounted) {
           showDialog(
