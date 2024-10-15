@@ -204,6 +204,7 @@ class _TimePageState extends State<TimePage> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       final sessionID = prefs.getString('SessionID');
+      await prefs.remove('SessionID');
       final url = Uri.parse('$baseURL/api/sessions');
       final response = await http.delete(
         url,

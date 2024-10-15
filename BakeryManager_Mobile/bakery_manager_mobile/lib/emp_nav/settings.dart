@@ -57,6 +57,7 @@ class _SettingsPageState extends State<SettingsPage> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       final sessionID = prefs.getString('SessionID');
+      await prefs.remove('SessionID');
       final url = Uri.parse('$baseURL/api/sessions');
       final response = await http.delete(
         url,
@@ -112,18 +113,6 @@ class _SettingsPageState extends State<SettingsPage> {
         leading: Icon(icon),
         onTap: () => _navigateToPage(InventoryPage(category: category)),
       ),
-    );
-  }
-
-  Widget _buildExpansionTile({
-    required String title,
-    required IconData icon,
-    required List<Widget> children,
-  }) {
-    return ExpansionTile(
-      leading: Icon(icon),
-      title: Text(title),
-      children: children,
     );
   }
 
@@ -239,6 +228,18 @@ class _SettingsPageState extends State<SettingsPage> {
                 _buildRecipeTile('Bagels', Icons.cookie, 'Bagels'),
                 _buildRecipeTile('Pies', Icons.cookie, 'Pies'),
                 _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
+              ],
+            ),
+            ExpansionTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: const Text('Inventory'),
+              children: [
+                _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
+                _buildInventoryTile(
+                    'Products', Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
+                _buildInventoryTile(
+                    'Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
             _buildDrawerTile(

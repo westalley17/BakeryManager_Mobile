@@ -37,6 +37,7 @@ class _AdminPageState extends State<AdminPage> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       final sessionID = prefs.getString('SessionID');
+      await prefs.remove('SessionID');
       final url = Uri.parse('$baseURL/api/sessions');
       final response = await http.delete(
         url,
@@ -86,19 +87,6 @@ class _AdminPageState extends State<AdminPage> {
       ),
     );
   }
-
-  Widget _buildExpansionTile({
-    required String title,
-    required IconData icon,
-    required List<Widget> children,
-  }) {
-    return ExpansionTile(
-      leading: Icon(icon),
-      title: Text(title),
-      children: children,
-    );
-  }
-
 
   @override
   Widget build(BuildContext context) {

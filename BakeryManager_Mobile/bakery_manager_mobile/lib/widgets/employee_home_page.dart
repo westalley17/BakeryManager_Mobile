@@ -1,3 +1,4 @@
+import 'package:bakery_manager_mobile/emp_nav/inventory.dart';
 import 'package:bakery_manager_mobile/widgets/landing_page.dart';
 import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/emp_nav/settings.dart';
@@ -78,6 +79,17 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
         title: Text(title),
         leading: Icon(icon),
         onTap: () => _navigateToPage(RecipesPage(category: category)),
+      ),
+    );
+  }
+
+  Widget _buildInventoryTile(String title, IconData icon, String category) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: ListTile(
+        title: Text(title),
+        leading: Icon(icon),
+        onTap: () => _navigateToPage(InventoryPage(category: category)),
       ),
     );
   }
@@ -192,6 +204,18 @@ class _EmployeeHomePageState extends State<EmployeeHomePage> {
                 _buildRecipeTile('Bagels', Icons.cookie, 'Bagels'),
                 _buildRecipeTile('Pies', Icons.cookie, 'Pies'),
                 _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
+              ],
+            ),
+            ExpansionTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: const Text('Inventory'),
+              children: [
+                _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
+                _buildInventoryTile(
+                    'Products', Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
+                _buildInventoryTile(
+                    'Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
             _buildDrawerTile(

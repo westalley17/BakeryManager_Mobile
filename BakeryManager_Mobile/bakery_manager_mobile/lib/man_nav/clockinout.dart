@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bakery_manager_mobile/env/env_config.dart';
 import 'package:bakery_manager_mobile/man_nav/admin.dart';
 
-
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,9 +14,6 @@ import '../widgets/landing_page.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'dart:async';
-
-
-
 
 class ClockPage extends StatefulWidget {
   const ClockPage({super.key});
@@ -97,6 +93,7 @@ class _ClockPageState extends State<ClockPage> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       final sessionID = prefs.getString('SessionID');
+      await prefs.remove('SessionID');
       final url = Uri.parse('$baseURL/api/sessions');
       final response = await http.delete(
         url,
@@ -204,19 +201,6 @@ class _ClockPageState extends State<ClockPage> {
       ),
     );
   }
-
-  Widget _buildExpansionTile({
-    required String title,
-    required IconData icon,
-    required List<Widget> children,
-  }) {
-    return ExpansionTile(
-      leading: Icon(icon),
-      title: Text(title),
-      children: children,
-    );
-  }
-
 
   void _showAvailabilityPopup() {
     showDialog(
@@ -396,7 +380,7 @@ class _ClockPageState extends State<ClockPage> {
           ),
         ],
       ),
-     drawer: Drawer(
+      drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -411,7 +395,8 @@ class _ClockPageState extends State<ClockPage> {
                 ),
               ),
             ),
-            _buildDrawerTile('Dashboard',Icons.house_outlined,const ManagerHomePage()),
+            _buildDrawerTile(
+                'Dashboard', Icons.house_outlined, const ManagerHomePage()),
             ExpansionTile(
               leading: const Icon(Icons.restaurant_menu),
               title: const Text('Recipes'),
@@ -431,15 +416,33 @@ class _ClockPageState extends State<ClockPage> {
               title: const Text('Inventory'),
               children: [
                 _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
-                _buildInventoryTile('Products',Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile(
+                    'Products', Icons.breakfast_dining_rounded, 'Products'),
                 _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
-                _buildInventoryTile('Equipment', Icons.kitchen_outlined, 'Equipment'),
+                _buildInventoryTile(
+                    'Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
-            _buildDrawerTile('Time Sheets',Icons.access_time,const TimePage(),),
-            _buildDrawerTile('Clock In/Out',Icons.lock_clock,const ClockPage(),),
-            _buildDrawerTile('Settings',Icons.settings_outlined,const SettingsPage(),),
-            _buildDrawerTile('Admin',Icons.admin_panel_settings_sharp,const AdminPage(),),
+            _buildDrawerTile(
+              'Time Sheets',
+              Icons.access_time,
+              const TimePage(),
+            ),
+            _buildDrawerTile(
+              'Clock In/Out',
+              Icons.lock_clock,
+              const ClockPage(),
+            ),
+            _buildDrawerTile(
+              'Settings',
+              Icons.settings_outlined,
+              const SettingsPage(),
+            ),
+            _buildDrawerTile(
+              'Admin',
+              Icons.admin_panel_settings_sharp,
+              const AdminPage(),
+            ),
           ],
         ),
       ),

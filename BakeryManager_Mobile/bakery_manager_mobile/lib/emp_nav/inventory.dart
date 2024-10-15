@@ -1,8 +1,7 @@
-import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
+import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
 import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/emp_nav/settings.dart';
 import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
-
 import 'package:flutter/cupertino.dart';
 
 import 'package:http/http.dart' as http;
@@ -13,11 +12,127 @@ import 'dart:convert';
 
 import '../widgets/landing_page.dart';
 
+class IngredientInfo {
+  final String vendorName;
+  final String ingredientName;
+  final String description;
+  final String measurement;
+  final bool allergen;
+  final double totalQuantity;
+  final String categoryName;
+
+  const IngredientInfo({
+    required this.vendorName,
+    required this.ingredientName,
+    required this.description,
+    required this.measurement,
+    required this.allergen,
+    required this.totalQuantity,
+    required this.categoryName,
+  });
+
+  factory IngredientInfo.fromJson(Map<String, dynamic> json) {
+    return IngredientInfo(
+      vendorName: json['VendorName'],
+      ingredientName: json['IngredientName'],
+      description: json['IngredientDescription'],
+      measurement: json['measurement'],
+      allergen: json['Allergen'],
+      totalQuantity: double.parse(json['TotalQuantity']),
+      categoryName: json['CategoryName'],
+    );
+  }
+}
+
+class ProductInfo {
+  final String name;
+  final String description;
+  final int? shelfLife;
+
+  const ProductInfo(
+      {required this.name, required this.description, required this.shelfLife});
+
+  factory ProductInfo.fromJson(Map<String, dynamic> json) {
+    return ProductInfo(
+      name: json['Name'],
+      description: json['Description'],
+      shelfLife: json['ShelfLife'],
+    );
+  }
+}
+
+class VendorInfo {
+  final String vendorName;
+  final String emailAddress;
+  final bool emailValid;
+  final String areaCode;
+  final String phoneNumber;
+  final bool phoneValid;
+  final String address;
+  final bool addressValid;
+  final String state;
+  final String ingredients;
+
+  const VendorInfo(
+      {required this.vendorName,
+      required this.emailAddress,
+      required this.emailValid,
+      required this.areaCode,
+      required this.phoneNumber,
+      required this.phoneValid,
+      required this.address,
+      required this.addressValid,
+      required this.state,
+      required this.ingredients});
+
+  factory VendorInfo.fromJson(Map<String, dynamic> json) {
+    return VendorInfo(
+      vendorName: json['VendorName'],
+      emailAddress: json['emailAddress'],
+      emailValid: json['EmailValid'],
+      areaCode: json['AreaCode'],
+      phoneNumber: json['Number'],
+      phoneValid: json['PhoneValid'],
+      address: json['Address'],
+      addressValid: json['AddressValid'],
+      state: json['StateDescription'],
+      ingredients: json['Ingredients'],
+    );
+  }
+}
+
+class EquipmentInfo {
+  final String name;
+  final String status;
+  final String serial;
+  final String notes;
+
+  const EquipmentInfo(
+      {required this.name,
+      required this.status,
+      required this.serial,
+      required this.notes});
+
+  factory EquipmentInfo.fromJson(Map<String, dynamic> json) {
+    return EquipmentInfo(
+      name: json['Name'],
+      status: json['Status'],
+      serial: json['SerialNumber'],
+      notes: json['Notes'],
+    );
+  }
+}
+
 class InventoryItem {
   final String itemID;
   final String itemName;
   double? quantity;
-  InventoryItem({required this.itemID, required this.itemName, this.quantity});
+  String? category;
+  InventoryItem(
+      {required this.itemID,
+      required this.itemName,
+      this.quantity,
+      this.category});
 
   factory InventoryItem.fromJson(Map<String, dynamic> json) {
     String itemID = "";
@@ -31,6 +146,7 @@ class InventoryItem {
       return InventoryItem(
         itemID: json["VendorID"],
         itemName: json['VendorName'],
+        category: json['Category'],
       );
     } else if (json["EquipmentID"] != null) {
       itemID = json["EquipmentID"];
@@ -44,6 +160,7 @@ class InventoryItem {
       itemID: itemID,
       itemName: json['Name'],
       quantity: quantity,
+      category: json['Category'],
     );
   }
 }
@@ -59,12 +176,10 @@ class InventoryPage extends StatefulWidget {
 class InventoryTile extends StatelessWidget {
   final String itemName;
   double? quantity;
+  VoidCallback? showModal;
 
-  InventoryTile({
-    required this.itemName,
-    this.quantity,
-    super.key,
-  });
+  InventoryTile(
+      {required this.itemName, this.quantity, super.key, this.showModal});
 
   // Function to map inventory item names to icons
   IconData _getIconForItem(String itemName) {
@@ -105,7 +220,7 @@ class InventoryTile extends StatelessWidget {
         trailing: IconButton(
           icon: const Icon(Icons.info_outline),
           onPressed: () {
-            // Add navigation to item details
+            showModal!();
           },
         ),
       ),
@@ -117,7 +232,128 @@ class _InventoryPageState extends State<InventoryPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<InventoryItem> inventoryItems = [];
   List<InventoryItem> filteredItems = [];
+  IngredientInfo? _ingredientInfo;
+  ProductInfo? _productInfo;
+  VendorInfo? _vendorInfo;
+  EquipmentInfo? _equipmentInfo;
+
   final TextEditingController _searchController = TextEditingController();
+
+  Future<void> _showFullScreenAddRecipeDialog(int index) async {
+    // use inventoryItems along with "index" to call whichever get*Info we need :)
+    InventoryItem invItem = inventoryItems[index];
+    String? category = invItem.category;
+    if (category == "Ingredients") {
+      _getIngredientInfo(invItem.itemID);
+    } else if (category == "Products") {
+      _getProductInfo(invItem.itemID);
+    } else if (category == "Vendors") {
+      _getVendorInfo(invItem.itemID);
+    } else if (category == "Equipment") {
+      _getEquipmentInfo(invItem.itemID);
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.95,
+          padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 20.0),
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 5,
+                blurRadius: 15,
+              ),
+            ],
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 15),
+                const Text(
+                  'Inventory Information',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const Divider(
+                  height: 40.0,
+                  thickness: 2.0,
+                  color: Colors.black,
+                ),
+                const SizedBox(height: 10),
+                // Addison, you will need to use the classes I have made at the top of this file
+                // to print out the contents in any way that you want. I just made the classes
+                // so that I could keep them organized asf, and you wouldn't have to worry
+                // about what all data you have. I am going to start the process of making
+                // Widgets out of each of the *Info classes so you can simply call and build them.
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildInfoRowWithBorder(String label, String value) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black54, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.white.withOpacity(0.05),
+            spreadRadius: 2,
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 22,
+              color: Colors.black,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -190,7 +426,8 @@ class _InventoryPageState extends State<InventoryPage> {
           await http.get(url, headers: {'Content-Type': 'application/json'});
       var parsed = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        // make pop-up here :)
+        // USE INFO TO POPULATE MODAL
+        _ingredientInfo = IngredientInfo.fromJson(parsed);
       } else {
         if (mounted) {
           showDialog(
@@ -215,7 +452,8 @@ class _InventoryPageState extends State<InventoryPage> {
           await http.get(url, headers: {'Content-Type': 'application/json'});
       var parsed = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        // make pop-up here :)
+        // USE INFO TO POPULATE MODAL
+        _productInfo = ProductInfo.fromJson(parsed);
       } else {
         if (mounted) {
           showDialog(
@@ -240,7 +478,8 @@ class _InventoryPageState extends State<InventoryPage> {
           await http.get(url, headers: {'Content-Type': 'application/json'});
       var parsed = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        // make pop-up here :)
+        // USE INFO TO POPULATE MODAL
+        _vendorInfo = VendorInfo.fromJson(parsed);
       } else {
         if (mounted) {
           showDialog(
@@ -266,7 +505,8 @@ class _InventoryPageState extends State<InventoryPage> {
           await http.get(url, headers: {'Content-Type': 'application/json'});
       var parsed = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        // make pop-up here :)
+        // USE INFO TO POPULATE MODAL
+        _equipmentInfo = EquipmentInfo.fromJson(parsed);
       } else {
         if (mounted) {
           showDialog(
@@ -288,6 +528,7 @@ class _InventoryPageState extends State<InventoryPage> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       final sessionID = prefs.getString('SessionID');
+      await prefs.remove('SessionID');
       final url = Uri.parse('$baseURL/api/sessions');
       final response = await http.delete(
         url,
@@ -343,18 +584,6 @@ class _InventoryPageState extends State<InventoryPage> {
         leading: Icon(icon),
         onTap: () => _navigateToPage(InventoryPage(category: category)),
       ),
-    );
-  }
-
-  Widget _buildExpansionTile({
-    required String title,
-    required IconData icon,
-    required List<Widget> children,
-  }) {
-    return ExpansionTile(
-      leading: Icon(icon),
-      title: Text(title),
-      children: children,
     );
   }
 
@@ -472,7 +701,7 @@ class _InventoryPageState extends State<InventoryPage> {
               ),
             ),
             _buildDrawerTile(
-                'Dashboard', Icons.house_outlined, const EmployeeHomePage()),
+                'Dashboard', Icons.house_outlined, const ManagerHomePage()),
             ExpansionTile(
               leading: const Icon(Icons.restaurant_menu),
               title: const Text('Recipes'),
@@ -535,6 +764,9 @@ class _InventoryPageState extends State<InventoryPage> {
                         itemName: item.itemName,
                         quantity:
                             (item.quantity != null) ? item.quantity : null,
+                        showModal: () {
+                          _showFullScreenAddRecipeDialog(index);
+                        },
                       );
                     },
                   ),
@@ -544,150 +776,6 @@ class _InventoryPageState extends State<InventoryPage> {
           ),
         ),
       ),
-    floatingActionButton: FloatingActionButton(
-    onPressed: () {
-    _showFullScreenAddRecipe(); },
-    backgroundColor: Colors.white, // Button background color white
-    child: const Icon(
-      Icons.add,
-      size: 36,  // Adjust the icon size
-      color: Colors.black, // Icon color black
-    ),
-  ),
-  floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-  );
-}
-
-// Define the full-screen pop-up function
-void _showFullScreenAddRecipe() {
-  final TextEditingController recipeNameController = TextEditingController();
-  final TextEditingController ingredientController = TextEditingController();
-  final TextEditingController equipmentController = TextEditingController();
-  final TextEditingController instructionController = TextEditingController();
-
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true, // Allows the sheet to take up the full screen - dark magic helped with this part :) 
-    backgroundColor: Colors.transparent, 
-    builder: (BuildContext context) {
-      return Container(
-        height: MediaQuery.of(context).size.height * 0.95, 
-        padding: const EdgeInsets.all(16.0), 
-        decoration: BoxDecoration(
-          color: Theme.of(context).primaryColor,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              spreadRadius: 5,
-              blurRadius: 10,
-            ),
-          ], 
-        ),
-        child: SingleChildScrollView( 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () {
-                    Navigator.of(context).pop(); 
-                  },
-                ),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                'Add to the Inventory',
-                style: TextStyle(
-                  fontSize: 26, 
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 20), 
-              _buildInputField(
-                controller: recipeNameController,label: 'What is it? ',hint: 'Enter the name here...',
-              ),
-              const SizedBox(height: 15), 
-              _buildInputField(
-                controller: ingredientController,label: 'Amount',hint: 'Enter amount here...',
-              ),
-              const SizedBox(height: 15), 
-              const SizedBox(height: 20), 
-              Center(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32.0,
-                      vertical: 12.0,
-                    ), // Larger button
-                    textStyle: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () {
-                    _addNewRecipe(recipeNameController.text,ingredientController.text,equipmentController.text,instructionController.text,
-                    );
-                    Navigator.of(context).pop(); // Close dialog after adding
-                  },
-                  child: const Text('Finish!'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
-}
-
-// Build consistent input fields
-Widget _buildInputField({
-  required TextEditingController controller,
-  required String label,
-  required String hint,
-}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        label,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      const SizedBox(height: 8), // Add space between label and input
-      TextField(
-        controller: controller,
-        decoration: InputDecoration(
-          hintText: hint,
-          filled: true,
-          fillColor: Colors.grey[200], // Light grey background for input
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide.none, // Remove default border
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 14.0,
-            horizontal: 16.0,
-          ),
-        ),
-      ),
-    ],
-  );
-}
-
-
-// Define the function to handle adding the new recipe
-void _addNewRecipe(String recipeName, String ingredients, String equipment, String instructions) {
-}
+    );
+  }
 }

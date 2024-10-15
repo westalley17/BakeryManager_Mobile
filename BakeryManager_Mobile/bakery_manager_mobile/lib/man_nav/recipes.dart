@@ -158,18 +158,6 @@ class _RecipesPageState extends State<RecipesPage> {
     );
   }
 
-  Widget _buildExpansionTile({
-    required String title,
-    required IconData icon,
-    required List<Widget> children,
-  }) {
-    return ExpansionTile(
-      leading: Icon(icon),
-      title: Text(title),
-      children: children,
-    );
-  }
-
   Future<void> _getRecipeInfo(Recipe recipe) async {
     try {
       final url =
@@ -451,6 +439,7 @@ class _RecipesPageState extends State<RecipesPage> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       final sessionID = prefs.getString('SessionID');
+      await prefs.remove('SessionID');
       final url = Uri.parse('$baseURL/api/sessions');
       final response = await http.delete(
         url,

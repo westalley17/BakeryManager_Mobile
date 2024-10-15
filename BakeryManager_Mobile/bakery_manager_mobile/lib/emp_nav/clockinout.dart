@@ -1,3 +1,4 @@
+import 'package:bakery_manager_mobile/emp_nav/inventory.dart';
 import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
 import 'package:bakery_manager_mobile/emp_nav/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -93,6 +94,7 @@ class _ClockPageState extends State<ClockPage> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       final sessionID = prefs.getString('SessionID');
+      await prefs.remove('SessionID');
       final url = Uri.parse('$baseURL/api/sessions');
       final response = await http.delete(
         url,
@@ -297,6 +299,17 @@ class _ClockPageState extends State<ClockPage> {
     );
   }
 
+  Widget _buildInventoryTile(String title, IconData icon, String category) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: ListTile(
+        title: Text(title),
+        leading: Icon(icon),
+        onTap: () => _navigateToPage(InventoryPage(category: category)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -409,6 +422,18 @@ class _ClockPageState extends State<ClockPage> {
                 _buildRecipeTile('Bagels', Icons.cookie, 'Bagels'),
                 _buildRecipeTile('Pies', Icons.cookie, 'Pies'),
                 _buildRecipeTile('Brownies', Icons.cookie, 'Brownies'),
+              ],
+            ),
+            ExpansionTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: const Text('Inventory'),
+              children: [
+                _buildInventoryTile('Ingredients', Icons.egg, 'Ingredients'),
+                _buildInventoryTile(
+                    'Products', Icons.breakfast_dining_rounded, 'Products'),
+                _buildInventoryTile('Vendors', Icons.local_shipping, 'Vendors'),
+                _buildInventoryTile(
+                    'Equipment', Icons.kitchen_outlined, 'Equipment'),
               ],
             ),
             _buildDrawerTile(
@@ -534,7 +559,6 @@ class _ClockPageState extends State<ClockPage> {
                                   style: TextStyle(
                                     fontSize: 26,
                                     fontWeight: FontWeight.bold,
-                                   
                                   ),
                                 ),
                                 const Divider(
@@ -543,11 +567,11 @@ class _ClockPageState extends State<ClockPage> {
                                 ),
                                 // add EmpBiWeek info here
                                 _buildInfoRowWithBorder('Total Normal Hours',
-                                  '${_empBiWeeks!.totalNormalHours.toStringAsFixed(2)}'),
+                                    '${_empBiWeeks!.totalNormalHours.toStringAsFixed(2)}'),
                                 _buildInfoRowWithBorder('Total Overtime Hours',
-                                  '${_empBiWeeks!.totalOvertimeHours.toStringAsFixed(2)}'),
+                                    '${_empBiWeeks!.totalOvertimeHours.toStringAsFixed(2)}'),
                                 _buildInfoRowWithBorder('Total Holiday Hours',
-                                  '${_empBiWeeks!.totalHolidayHours.toStringAsFixed(2)}'),
+                                    '${_empBiWeeks!.totalHolidayHours.toStringAsFixed(2)}'),
                               ],
                             ),
                           ),
@@ -575,41 +599,42 @@ class _ClockPageState extends State<ClockPage> {
     );
   }
 }
+
 Widget _buildInfoRowWithBorder(String label, String value) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.black54, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.white.withOpacity(0.05),
-            spreadRadius: 2,
-            blurRadius: 8,
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    padding: const EdgeInsets.all(16.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: Colors.black54, width: 1.5),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.white.withOpacity(0.05),
+          spreadRadius: 2,
+          blurRadius: 8,
+        ),
+      ],
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 22,
+            color: Colors.black,
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 22,
-              color: Colors.black,
-            ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
           ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
