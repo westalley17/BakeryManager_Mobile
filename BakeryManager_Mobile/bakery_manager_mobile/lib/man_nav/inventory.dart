@@ -14,7 +14,7 @@ import 'dart:convert';
 
 import '../widgets/landing_page.dart';
 
-class IngredientInfo {
+class IngredientInfo extends StatelessWidget {
   final String vendorName;
   final String ingredientName;
   final String description;
@@ -24,6 +24,7 @@ class IngredientInfo {
   final String categoryName;
 
   const IngredientInfo({
+    super.key,
     required this.vendorName,
     required this.ingredientName,
     required this.description,
@@ -44,15 +45,82 @@ class IngredientInfo {
       categoryName: json['CategoryName'],
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          vendorName,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          ingredientName,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          description,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          measurement,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          allergen.toString(),
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          totalQuantity.toString(),
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          categoryName,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    );
+  }
 }
 
-class ProductInfo {
+class ProductInfo extends StatelessWidget {
   final String name;
   final String description;
   final int? shelfLife;
 
   const ProductInfo(
-      {required this.name, required this.description, required this.shelfLife});
+      {super.key,
+      required this.name,
+      required this.description,
+      required this.shelfLife});
 
   factory ProductInfo.fromJson(Map<String, dynamic> json) {
     return ProductInfo(
@@ -61,9 +129,41 @@ class ProductInfo {
       shelfLife: json['ShelfLife'],
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          name,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          description,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          shelfLife.toString(),
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    );
+  }
 }
 
-class VendorInfo {
+class VendorInfo extends StatelessWidget {
   final String vendorName;
   final String emailAddress;
   final bool emailValid;
@@ -76,7 +176,8 @@ class VendorInfo {
   final String ingredients;
 
   const VendorInfo(
-      {required this.vendorName,
+      {super.key,
+      required this.vendorName,
       required this.emailAddress,
       required this.emailValid,
       required this.areaCode,
@@ -101,16 +202,105 @@ class VendorInfo {
       ingredients: json['Ingredients'],
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          vendorName,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          emailAddress,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          emailValid.toString(),
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          areaCode,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          phoneNumber,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          phoneValid.toString(),
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          address,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          addressValid.toString(),
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          state,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          ingredients,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    );
+  }
 }
 
-class EquipmentInfo {
+class EquipmentInfo extends StatelessWidget {
   final String name;
   final String status;
   final String serial;
   final String notes;
 
   const EquipmentInfo(
-      {required this.name,
+      {super.key,
+      required this.name,
       required this.status,
       required this.serial,
       required this.notes});
@@ -121,6 +311,46 @@ class EquipmentInfo {
       status: json['Status'],
       serial: json['SerialNumber'],
       notes: json['Notes'],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          name,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          status,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          serial,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          notes,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -246,76 +476,110 @@ class _InventoryPageState extends State<InventoryPage> {
     InventoryItem invItem = inventoryItems[index];
     String? category = invItem.category;
     if (category == "Ingredients") {
-      _getIngredientInfo(invItem.itemID);
+      await _getIngredientInfo(invItem.itemID);
     } else if (category == "Products") {
-      _getProductInfo(invItem.itemID);
+      await _getProductInfo(invItem.itemID);
     } else if (category == "Vendors") {
-      _getVendorInfo(invItem.itemID);
+      await _getVendorInfo(invItem.itemID);
     } else if (category == "Equipment") {
-      _getEquipmentInfo(invItem.itemID);
+      await _getEquipmentInfo(invItem.itemID);
     }
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.95,
-          padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 20.0),
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(30),
-              topRight: Radius.circular(30),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                spreadRadius: 5,
-                blurRadius: 15,
+    if (mounted) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (BuildContext context) {
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.95,
+            padding:
+                const EdgeInsets.symmetric(vertical: 24.0, horizontal: 20.0),
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
               ),
-            ],
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  spreadRadius: 5,
+                  blurRadius: 15,
                 ),
-                const SizedBox(height: 15),
-                const Text(
-                  'Inventory Information',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const Divider(
-                  height: 40.0,
-                  thickness: 2.0,
-                  color: Colors.black,
-                ),
-                const SizedBox(height: 10),
-                // Addison, you will need to use the classes I have made at the top of this file
-                // to print out the contents in any way that you want. I just made the classes
-                // so that I could keep them organized asf, and you wouldn't have to worry
-                // about what all data you have. I am going to start the process of making
-                // Widgets out of each of the *Info classes so you can simply call and build them.
               ],
             ),
-          ),
-        );
-      },
-    );
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  const Text(
+                    'Inventory Information',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const Divider(
+                    height: 40.0,
+                    thickness: 2.0,
+                    color: Colors.black,
+                  ),
+                  const SizedBox(height: 10),
+                  if (category == 'Ingredients' && _ingredientInfo != null)
+                    IngredientInfo(
+                      vendorName: _ingredientInfo!.vendorName,
+                      ingredientName: _ingredientInfo!.ingredientName,
+                      description: _ingredientInfo!.description,
+                      measurement: _ingredientInfo!.measurement,
+                      allergen: _ingredientInfo!.allergen,
+                      totalQuantity: _ingredientInfo!.totalQuantity,
+                      categoryName: _ingredientInfo!.categoryName,
+                    )
+                  else if (category == "Products" && _productInfo != null)
+                    ProductInfo(
+                      name: _productInfo!.name,
+                      description: _productInfo!.description,
+                      shelfLife: _productInfo!.shelfLife,
+                    )
+                  else if (category == "Vendors" && _vendorInfo != null)
+                    VendorInfo(
+                      vendorName: _vendorInfo!.vendorName,
+                      emailAddress: _vendorInfo!.emailAddress,
+                      emailValid: _vendorInfo!.emailValid,
+                      areaCode: _vendorInfo!.areaCode,
+                      phoneNumber: _vendorInfo!.phoneNumber,
+                      phoneValid: _vendorInfo!.phoneValid,
+                      address: _vendorInfo!.address,
+                      addressValid: _vendorInfo!.addressValid,
+                      state: _vendorInfo!.state,
+                      ingredients: _vendorInfo!.ingredients,
+                    )
+                  else if (category == "Equipment" && _equipmentInfo != null)
+                    EquipmentInfo(
+                      name: _equipmentInfo!.name,
+                      status: _equipmentInfo!.status,
+                      serial: _equipmentInfo!.serial,
+                      notes: _equipmentInfo!.notes,
+                    )
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
   }
 
   Widget _buildInfoRowWithBorder(String label, String value) {
