@@ -1,19 +1,52 @@
-import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
-import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
-import 'package:bakery_manager_mobile/man_nav/inventory.dart';
-import 'package:bakery_manager_mobile/man_nav/settings.dart';
-import 'package:bakery_manager_mobile/man_nav/recipes.dart';
+import 'package:bakery_manager_mobile/emp_nav/inventory.dart';
+import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
+import 'package:bakery_manager_mobile/emp_nav/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bakery_manager_mobile/env/env_config.dart';
-import 'package:bakery_manager_mobile/man_nav/admin.dart';
+import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../widgets/landing_page.dart';
 import 'package:intl/intl.dart';
+import '../env/env_config.dart';
 import 'dart:convert';
 import 'dart:async';
+
+class EmpBiWeeks {
+  final String userID;
+  final String firstName;
+  final String lastName;
+  final String biWeekID;
+  final int biWeekNum;
+  final double totalNormalHours;
+  final double totalOvertimeHours;
+  final double totalHolidayHours;
+
+  const EmpBiWeeks({
+    required this.userID,
+    required this.firstName,
+    required this.lastName,
+    required this.biWeekID,
+    required this.biWeekNum,
+    required this.totalNormalHours,
+    required this.totalOvertimeHours,
+    required this.totalHolidayHours,
+  });
+
+  factory EmpBiWeeks.fromJson(Map<String, dynamic> json) {
+    return EmpBiWeeks(
+      userID: json['userID'],
+      firstName: json['FirstName'],
+      lastName: json['LastName'],
+      biWeekID: json['biWeekID'],
+      biWeekNum: json['biWeekNum'],
+      totalNormalHours: double.parse(json['TotalNormalHours']),
+      totalOvertimeHours: double.parse(json['TotalOvertimeHours']),
+      totalHolidayHours: double.parse(json['TotalHolidayHours']),
+    );
+  }
+}
 
 class ClockPage extends StatefulWidget {
   const ClockPage({super.key});
@@ -26,8 +59,9 @@ class _ClockPageState extends State<ClockPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   String _currentTime = '';
-  bool? _clockedIn; // Toggle between clocked in and out
+  bool _clockedIn = false; // Toggle between clocked in and out
   Timer? _timer;
+  EmpBiWeeks? _empBiWeeks;
 
   // Create a 2D list to keep track of selected cells
   List<List<bool>> selectedCells = List.generate(
@@ -35,44 +69,11 @@ class _ClockPageState extends State<ClockPage> {
     (index) => List.generate(2, (index) => false),
   );
 
-  Future<void> _getClockStatus() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? sessionID = prefs.getString('SessionID');
-      String? logID = prefs.getString('LogID');
-      if (sessionID == null) {
-        // somehow send them back to homescreen?
-      } else if (logID == null) {
-        _clockedIn = false;
-      } else {
-        final url =
-            Uri.parse('$baseURL/api/clock?sessionID=$sessionID&logID=$logID');
-        final response =
-            await http.get(url, headers: {'Content-Type': 'application/json'});
-        var parsed = jsonDecode(response.body);
-        if (response.statusCode == 200) {
-          // set _clockedIn to true ONLY IF STATUS RETURNS TRUE TO MAKE SURE
-          // THAT WE GENERATE A NEW LOGID FOR A NEW CLOCK TIME :)
-          if (parsed['status'] == 1) {
-            // aka they ARE clocked in because clockOutTime is null
-            _clockedIn = true;
-          } else {
-            // they are clocked out and we need to be able to generate a new log instance
-            _clockedIn = false;
-          }
-        } else {
-          // idk
-        }
-      }
-    } catch (error) {
-      print('Error logging out: $error');
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    _getClockStatus();
+    _getEmpHours();
+    //_startClock(); // Start the real-time clock
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {
@@ -122,15 +123,14 @@ class _ClockPageState extends State<ClockPage> {
         String? sessionID = prefs.getString('SessionID');
         if (sessionID == null) {
           // somehow send them back to homescreen?
+          print(sessionID);
         } else {
           final url = Uri.parse("$baseURL/api/clockin");
           final headers = {"Content-Type": "application/json"};
           final body = jsonEncode({'sessionID': sessionID});
           final response = await http.post(url, headers: headers, body: body);
-          var parsed = jsonDecode(response.body);
           if (response.statusCode == 200) {
             // Confirm clock in
-            await prefs.setString('LogID', parsed['logID']);
           }
         }
       } catch (error) {
@@ -151,8 +151,6 @@ class _ClockPageState extends State<ClockPage> {
           final response = await http.post(url, headers: headers, body: body);
           if (response.statusCode == 200) {
             // Confirm clock out
-            // remove logID from prefs
-            await prefs.remove('LogID');
           }
         }
       } catch (error) {
@@ -160,7 +158,7 @@ class _ClockPageState extends State<ClockPage> {
       }
     }
     setState(() {
-      _clockedIn = !_clockedIn!; // Toggle clock in/out state
+      _clockedIn = !_clockedIn; // Toggle clock in/out state
     });
   }
 
@@ -191,23 +189,29 @@ class _ClockPageState extends State<ClockPage> {
     );
   }
 
-  Widget _buildInventoryTile(String title, IconData icon, String category) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16.0),
-      child: ListTile(
-        title: Text(title),
-        leading: Icon(icon),
-        onTap: () => _navigateToPage(InventoryPage(category: category)),
-      ),
-    );
-  }
-
-  Future<void> _updateAvailability() async {
-    try {
-      final url = Uri.parse('$baseURL/api/updateAvailability');
-      
-    } catch (error) {
-      print(error);
+  Future<void> _getEmpHours() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? sessionID = prefs.getString('SessionID');
+    if (sessionID == null) {
+      // send back to home page?
+    } else {
+      final url =
+          Uri.parse('$baseURL/api/manager/employeeHours?sessionID=$sessionID');
+      final headers = {
+        'Content-Type': 'application/json',
+      };
+      try {
+        final response = await http.get(url, headers: headers);
+        var parsed = jsonDecode(response.body);
+        if (response.statusCode == 200) {
+          _empBiWeeks = EmpBiWeeks.fromJson(parsed[0]);
+          setState(() {});
+        } else {
+          setState(() {});
+        }
+      } catch (error) {
+        setState(() {});
+      }
     }
   }
 
@@ -221,9 +225,9 @@ class _ClockPageState extends State<ClockPage> {
               title: const Text('Change Availability'),
               content: SizedBox(
                 width:
-                    MediaQuery.of(context).size.width * 0.8, // Responsive width
+                    MediaQuery.of(context).size.width * 1.5, // Responsive width
                 height: MediaQuery.of(context).size.height *
-                    0.3, // Responsive height
+                    0.5, // Responsive height
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
@@ -281,33 +285,51 @@ class _ClockPageState extends State<ClockPage> {
               ),
               actions: [
                 Row(
-                  children: [
-                    Container(
-                      width: 140,
-                      height: 40,
-                      margin: const EdgeInsets.fromLTRB(0, 0, 50, 0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // need to send an update to the backend that updates all of the 14 shifts
-                          // but do we REALLYYYY
-                          _updateAvailability();
-                        },
-                        style: const ButtonStyle(
-                          backgroundColor: WidgetStatePropertyAll(Colors.green),
+                children: [
+                  Container(
+                    width: 130,
+                    height: 40,
+                    margin: const EdgeInsets.fromLTRB(0, 0, 50, 0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // need to send an update to the backend that updates all of the 14 shifts
+                        // but do we REALLYYYY
+                       Navigator.of(context).pop(); // Close the dialog
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12), // Rounded corners
                         ),
-                        child: const Text('Update'),
+                        elevation: 5, // Adds shadow for a lifted effect
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10), // Adds padding inside the button
+                      ),
+                      child: const Text(
+                        'Update',
+                        style: TextStyle(
+                          fontSize: 16, // Larger text
+                          fontWeight: FontWeight.bold, // Bold text
+                          color: Colors.white, // White text color for contrast
+                        ),
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Close the dialog
-                      },
-                      child: const Text('Close'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                      foregroundColor: Colors.red, // Red color for the text
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600, // Slightly bolder text
+                      ),
                     ),
-                  ],
-                )
-
-                // Optionally remove the Save button if not needed
+                    child: const Text('Close'),
+                  ),
+                ],
+              )
               ],
             );
           },
@@ -316,18 +338,19 @@ class _ClockPageState extends State<ClockPage> {
     );
   }
 
+  Widget _buildInventoryTile(String title, IconData icon, String category) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: ListTile(
+        title: Text(title),
+        leading: Icon(icon),
+        onTap: () => _navigateToPage(InventoryPage(category: category)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (_clockedIn == null) {
-      // Show a loading indicator while checking the clock status
-      return const MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
-      );
-    }
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -343,7 +366,6 @@ class _ClockPageState extends State<ClockPage> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              // Handle logout logic here
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
@@ -426,7 +448,7 @@ class _ClockPageState extends State<ClockPage> {
               ),
             ),
             _buildDrawerTile(
-                'Dashboard', Icons.house_outlined, const ManagerHomePage()),
+                'Dashboard', Icons.house_outlined, const EmployeeHomePage()),
             ExpansionTile(
               leading: const Icon(Icons.restaurant_menu),
               title: const Text('Recipes'),
@@ -454,11 +476,6 @@ class _ClockPageState extends State<ClockPage> {
               ],
             ),
             _buildDrawerTile(
-              'Time Sheets',
-              Icons.access_time,
-              const TimePage(),
-            ),
-            _buildDrawerTile(
               'Clock In/Out',
               Icons.lock_clock,
               const ClockPage(),
@@ -467,11 +484,6 @@ class _ClockPageState extends State<ClockPage> {
               'Settings',
               Icons.settings_outlined,
               const SettingsPage(),
-            ),
-            _buildDrawerTile(
-              'Admin',
-              Icons.admin_panel_settings_sharp,
-              const AdminPage(),
             ),
           ],
         ),
@@ -505,15 +517,11 @@ class _ClockPageState extends State<ClockPage> {
                     _toggleClockInOut, // This function toggles the clock in/out state
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 60), // Adjust height
-                  backgroundColor: (_clockedIn != null && _clockedIn! == true)
-                      ? Colors.red
-                      : Colors.green,
+                  backgroundColor: _clockedIn ? Colors.red : Colors.green,
                 ),
                 child: Text(
-                  (_clockedIn != null && _clockedIn! == true)
-                      ? 'Clock Out'
-                      : 'Clock In',
-                  style: const TextStyle(color: Colors.white, fontSize: 20),
+                  _clockedIn ? 'Clock Out' : 'Clock In',
+                  style: const TextStyle(color: Colors.white, fontSize: 22),
                 ),
               ),
             ),
@@ -532,27 +540,92 @@ class _ClockPageState extends State<ClockPage> {
                 ),
                 child: const Text(
                   'Change Availability',
-                  style: TextStyle(color: Colors.white, fontSize: 20),
+                  style: TextStyle(color: Colors.white, fontSize: 22),
                 ),
               ),
             ),
 
             const SizedBox(height: 10), // Add spacing between buttons
 
-            // Change Hours button
+            // View Hours button
             SizedBox(
               width: 300, // Adjust the width as needed
               child: ElevatedButton(
                 onPressed: () {
-                  // Implement your change hours functionality
+                  // Implement your View hours functionality
+                  // same thing as the Timesheets view but just for the ONE user
+                  if (_empBiWeeks != null) {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled:
+                          true, // Allows the sheet to take up the full screen - dark magic helped with this part :)
+                      backgroundColor: Colors.transparent,
+                      builder: (BuildContext context) {
+                        return Container(
+                          height: MediaQuery.of(context).size.height * 0.95,
+                          padding: const EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(20),
+                              topRight: Radius.circular(20),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                spreadRadius: 5,
+                                blurRadius: 10,
+                              ),
+                            ],
+                          ),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Align(
+                                  alignment: Alignment.topRight,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.close),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  textAlign: TextAlign.center,
+                                  'Clocked Hours',
+                                  style: TextStyle(
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Divider(
+                                  height: 30.0,
+                                  color: Colors.black,
+                                ),
+                                // add EmpBiWeek info here
+                                _buildInfoRowWithBorder('Total Normal Hours',
+                                    '${_empBiWeeks!.totalNormalHours.toStringAsFixed(2)}'),
+                                _buildInfoRowWithBorder('Total Overtime Hours',
+                                    '${_empBiWeeks!.totalOvertimeHours.toStringAsFixed(2)}'),
+                                _buildInfoRowWithBorder('Total Holiday Hours',
+                                    '${_empBiWeeks!.totalHolidayHours.toStringAsFixed(2)}'),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 60), // Adjust height
                   backgroundColor: Colors.orange, // Customize the color
                 ),
                 child: const Text(
-                  'Change Hours',
-                  style: TextStyle(color: Colors.white, fontSize: 20),
+                  'View Hours',
+                  style: TextStyle(color: Colors.white, fontSize: 22),
                 ),
               ),
             ),
@@ -564,4 +637,43 @@ class _ClockPageState extends State<ClockPage> {
       ),
     );
   }
+}
+
+Widget _buildInfoRowWithBorder(String label, String value) {
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    padding: const EdgeInsets.all(16.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: Colors.black54, width: 1.5),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.white.withOpacity(0.05),
+          spreadRadius: 2,
+          blurRadius: 8,
+        ),
+      ],
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 22,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    ),
+  );
 }

@@ -46,69 +46,69 @@ class IngredientInfo extends StatelessWidget {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
+@override
+Widget build(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildInfoRowWithBorder('Vendor:', vendorName),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Ingredient:', ingredientName),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Description:', description),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Measurement:', measurement),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Allergen:', allergen.toString()),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Total Quantity:', totalQuantity.toString()),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Category:', categoryName),
+      ],
+    ),
+  );
+}
+
+Widget _buildInfoRowWithBorder(String label, String value) {
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    padding: const EdgeInsets.all(16.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: Colors.black54, width: 1.5),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          spreadRadius: 2,
+          blurRadius: 8,
+        ),
+      ],
+    ),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          vendorName,
+          label,
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 20, // Adjusted the size for consistency
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
         ),
         Text(
-          ingredientName,
+          value,
           style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          description,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          measurement,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          allergen.toString(),
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          totalQuantity.toString(),
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          categoryName,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
+            fontSize: 18,
             color: Colors.black,
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
 }
 
 class ProductInfo extends StatelessWidget {
@@ -131,36 +131,68 @@ class ProductInfo extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
+Widget build(BuildContext context) {
+  return Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          name,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          description,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          shelfLife.toString(),
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
+        _buildInfoRowWithBorder('Product Name:', name),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Description:', description), // Updated description row
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Shelf Life:', shelfLife != null ? '$shelfLife days' : 'No Shelf Life Info'),
       ],
-    );
-  }
+    ),
+  );
+}
+
+Widget _buildInfoRowWithBorder(String label, String value) {
+  return ConstrainedBox(
+    constraints: const BoxConstraints(minHeight: 100), // Set a minimum height for all boxes
+    child: Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black54, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            spreadRadius: 2,
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start, // Align text properly
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          const SizedBox(width: 8), // Space between label and value
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 18,
+                color: Colors.black,
+              ),
+              softWrap: true, // Enable text wrapping
+              overflow: TextOverflow.visible, // Avoid overflow
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 }
 
 class VendorInfo extends StatelessWidget {
@@ -204,92 +236,77 @@ class VendorInfo extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
+ Widget build(BuildContext context) {
+  return Column(
+    children: [
+      _buildInfoRowWithBorder('Vendor Name:', vendorName),
+      const SizedBox(height: 8),
+      _buildInfoRowWithBorder('Email Address:', emailAddress),
+      const SizedBox(height: 8),
+      _buildInfoRowWithBorder('Email Valid:', emailValid.toString()),
+      const SizedBox(height: 8),
+      _buildInfoRowWithBorder('Area Code:', areaCode),
+      const SizedBox(height: 8),
+      _buildInfoRowWithBorder('Phone Number:', phoneNumber),
+      const SizedBox(height: 8),
+      _buildInfoRowWithBorder('Phone Valid:', phoneValid.toString()),
+      const SizedBox(height: 8),
+      _buildInfoRowWithBorder('Address:', address),
+      const SizedBox(height: 8),
+      _buildInfoRowWithBorder('Address Valid:', addressValid.toString()),
+      const SizedBox(height: 8),
+      _buildInfoRowWithBorder('State:', state),
+      const SizedBox(height: 8),
+      _buildInfoRowWithBorder('Ingredients:', ingredients),
+    ],
+  );
+}
+
+Widget _buildInfoRowWithBorder(String label, String value) {
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    padding: const EdgeInsets.all(12.0), // Adjusted padding
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: Colors.black54, width: 1.5),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          spreadRadius: 2,
+          blurRadius: 8,
+        ),
+      ],
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start, // Align text properly
       children: [
         Text(
-          vendorName,
+          label,
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
         ),
-        Text(
-          emailAddress,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          emailValid.toString(),
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          areaCode,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          phoneNumber,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          phoneValid.toString(),
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          address,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          addressValid.toString(),
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          state,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          ingredients,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+        const SizedBox(width: 8), // Space between label and value
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.black,
+            ),
+            softWrap: true, // Enable text wrapping
+            overflow: TextOverflow.visible, // Avoid overflow
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
+
+
 }
 
 class EquipmentInfo extends StatelessWidget {
@@ -316,43 +333,62 @@ class EquipmentInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+  return Column(
+    children: [
+      _buildInfoRowWithBorder('Name:', name),
+      const SizedBox(height: 8),
+      _buildInfoRowWithBorder('Status:', status),
+      const SizedBox(height: 8),
+      _buildInfoRowWithBorder('Serial:', serial),
+      const SizedBox(height: 8),
+      _buildInfoRowWithBorder('Notes:', notes),
+    ],
+  );
+}
+
+  Widget _buildInfoRowWithBorder(String label, String value) {
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    padding: const EdgeInsets.all(12.0), // Adjusted padding
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: Colors.black54, width: 1.5),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          spreadRadius: 2,
+          blurRadius: 8,
+        ),
+      ],
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start, // Align text at the start
       children: [
         Text(
-          name,
+          label,
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 20, // Increased font size for better readability
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
         ),
-        Text(
-          status,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          serial,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        Text(
-          notes,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+        const SizedBox(width: 8), // Space between label and value
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 18, // Match font size with label
+              color: Colors.black,
+            ),
+            softWrap: true, // Enable text wrapping
+            overflow: TextOverflow.visible, // Avoid overflow
           ),
         ),
       ],
-    );
-  }
+    ),
+  );
+}
 }
 
 class InventoryItem {
@@ -524,7 +560,7 @@ class _InventoryPageState extends State<InventoryPage> {
                   ),
                   const SizedBox(height: 15),
                   const Text(
-                    'Inventory Information',
+                    'Inventory Information:',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,

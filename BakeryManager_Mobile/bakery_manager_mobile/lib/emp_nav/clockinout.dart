@@ -225,9 +225,9 @@ class _ClockPageState extends State<ClockPage> {
               title: const Text('Change Availability'),
               content: SizedBox(
                 width:
-                    MediaQuery.of(context).size.width * 0.8, // Responsive width
+                    MediaQuery.of(context).size.width * 1.5, // Responsive width
                 height: MediaQuery.of(context).size.height *
-                    0.6, // Responsive height
+                    0.5, // Responsive height
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
@@ -284,13 +284,52 @@ class _ClockPageState extends State<ClockPage> {
                 ),
               ),
               actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                  child: const Text('Close'),
-                ),
-                // Optionally remove the Save button if not needed
+                Row(
+                children: [
+                  Container(
+                    width: 130,
+                    height: 40,
+                    margin: const EdgeInsets.fromLTRB(0, 0, 50, 0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // need to send an update to the backend that updates all of the 14 shifts
+                        // but do we REALLYYYY
+                       Navigator.of(context).pop(); // Close the dialog
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12), // Rounded corners
+                        ),
+                        elevation: 5, // Adds shadow for a lifted effect
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10), // Adds padding inside the button
+                      ),
+                      child: const Text(
+                        'Update',
+                        style: TextStyle(
+                          fontSize: 16, // Larger text
+                          fontWeight: FontWeight.bold, // Bold text
+                          color: Colors.white, // White text color for contrast
+                        ),
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                      foregroundColor: Colors.red, // Red color for the text
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600, // Slightly bolder text
+                      ),
+                    ),
+                    child: const Text('Close'),
+                  ),
+                ],
+              )
               ],
             );
           },
