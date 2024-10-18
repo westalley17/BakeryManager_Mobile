@@ -202,6 +202,15 @@ class _ClockPageState extends State<ClockPage> {
     );
   }
 
+  Future<void> _updateAvailability() async {
+    try {
+      final url = Uri.parse('$baseURL/api/updateAvailability');
+      
+    } catch (error) {
+      print(error);
+    }
+  }
+
   void _showAvailabilityPopup() {
     showDialog(
       context: context,
@@ -214,7 +223,7 @@ class _ClockPageState extends State<ClockPage> {
                 width:
                     MediaQuery.of(context).size.width * 0.8, // Responsive width
                 height: MediaQuery.of(context).size.height *
-                    0.6, // Responsive height
+                    0.3, // Responsive height
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
@@ -271,12 +280,33 @@ class _ClockPageState extends State<ClockPage> {
                 ),
               ),
               actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Close the dialog
-                  },
-                  child: const Text('Close'),
-                ),
+                Row(
+                  children: [
+                    Container(
+                      width: 140,
+                      height: 40,
+                      margin: const EdgeInsets.fromLTRB(0, 0, 50, 0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // need to send an update to the backend that updates all of the 14 shifts
+                          // but do we REALLYYYY
+                          _updateAvailability();
+                        },
+                        style: const ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(Colors.green),
+                        ),
+                        child: const Text('Update'),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                      child: const Text('Close'),
+                    ),
+                  ],
+                )
+
                 // Optionally remove the Save button if not needed
               ],
             );
