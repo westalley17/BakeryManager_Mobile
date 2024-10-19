@@ -1,7 +1,9 @@
 import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
-import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
-import 'package:bakery_manager_mobile/emp_nav/settings.dart';
-import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
+import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
+import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
+import 'package:bakery_manager_mobile/man_nav/settings.dart';
+import 'package:bakery_manager_mobile/man_nav/recipes.dart';
+import 'package:bakery_manager_mobile/man_nav/admin.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:http/http.dart' as http;
@@ -12,7 +14,7 @@ import 'dart:convert';
 
 import '../widgets/landing_page.dart';
 
-class IngredientInfo {
+class IngredientInfo extends StatelessWidget {
   final String vendorName;
   final String ingredientName;
   final String description;
@@ -22,6 +24,7 @@ class IngredientInfo {
   final String categoryName;
 
   const IngredientInfo({
+    super.key,
     required this.vendorName,
     required this.ingredientName,
     required this.description,
@@ -42,15 +45,83 @@ class IngredientInfo {
       categoryName: json['CategoryName'],
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildInfoRowWithBorder('Vendor:', vendorName),
+          const SizedBox(height: 8),
+          _buildInfoRowWithBorder('Ingredient:', ingredientName),
+          const SizedBox(height: 8),
+          _buildInfoRowWithBorder('Description:', description),
+          const SizedBox(height: 8),
+          _buildInfoRowWithBorder('Measurement:', measurement),
+          const SizedBox(height: 8),
+          _buildInfoRowWithBorder('Allergen:', allergen.toString()),
+          const SizedBox(height: 8),
+          _buildInfoRowWithBorder(
+              'Total Quantity:', totalQuantity.toStringAsFixed(2)),
+          const SizedBox(height: 8),
+          _buildInfoRowWithBorder('Category:', categoryName),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRowWithBorder(String label, String value) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black54, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            spreadRadius: 2,
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 20, // Adjusted the size for consistency
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class ProductInfo {
+class ProductInfo extends StatelessWidget {
   final String name;
   final String description;
   final int? shelfLife;
 
   const ProductInfo(
-      {required this.name, required this.description, required this.shelfLife});
+      {super.key,
+      required this.name,
+      required this.description,
+      required this.shelfLife});
 
   factory ProductInfo.fromJson(Map<String, dynamic> json) {
     return ProductInfo(
@@ -59,9 +130,76 @@ class ProductInfo {
       shelfLife: json['ShelfLife'],
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          _buildInfoRowWithBorder('Product Name:', name),
+          const SizedBox(height: 8),
+          _buildInfoRowWithBorder(
+              'Description:', description), // Updated description row
+          const SizedBox(height: 8),
+          _buildInfoRowWithBorder('Shelf Life:',
+              shelfLife != null ? '$shelfLife days' : 'No Shelf Life Info'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRowWithBorder(String label, String value) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+          minHeight: 100), // Set a minimum height for all boxes
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        padding: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: Colors.black54, width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              spreadRadius: 2,
+              blurRadius: 8,
+            ),
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start, // Align text properly
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(width: 8), // Space between label and value
+            Expanded(
+              child: Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: Colors.black,
+                ),
+                softWrap: true, // Enable text wrapping
+                overflow: TextOverflow.visible, // Avoid overflow
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-class VendorInfo {
+class VendorInfo extends StatelessWidget {
   final String vendorName;
   final String emailAddress;
   final bool emailValid;
@@ -74,7 +212,8 @@ class VendorInfo {
   final String ingredients;
 
   const VendorInfo(
-      {required this.vendorName,
+      {super.key,
+      required this.vendorName,
       required this.emailAddress,
       required this.emailValid,
       required this.areaCode,
@@ -99,16 +238,88 @@ class VendorInfo {
       ingredients: json['Ingredients'],
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _buildInfoRowWithBorder('Vendor Name:', vendorName),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Email Address:', emailAddress),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Email Valid:', emailValid.toString()),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Area Code:', areaCode),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Phone Number:', phoneNumber),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Phone Valid:', phoneValid.toString()),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Address:', address),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Address Valid:', addressValid.toString()),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('State:', state),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Ingredients:', ingredients),
+      ],
+    );
+  }
+
+  Widget _buildInfoRowWithBorder(String label, String value) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.all(12.0), // Adjusted padding
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black54, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            spreadRadius: 2,
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start, // Align text properly
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          const SizedBox(width: 8), // Space between label and value
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 18,
+                color: Colors.black,
+              ),
+              softWrap: true, // Enable text wrapping
+              overflow: TextOverflow.visible, // Avoid overflow
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class EquipmentInfo {
+class EquipmentInfo extends StatelessWidget {
   final String name;
   final String status;
   final String serial;
   final String notes;
 
   const EquipmentInfo(
-      {required this.name,
+      {super.key,
+      required this.name,
       required this.status,
       required this.serial,
       required this.notes});
@@ -119,6 +330,65 @@ class EquipmentInfo {
       status: json['Status'],
       serial: json['SerialNumber'],
       notes: json['Notes'],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _buildInfoRowWithBorder('Name:', name),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Status:', status),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Serial:', serial),
+        const SizedBox(height: 8),
+        _buildInfoRowWithBorder('Notes:', notes),
+      ],
+    );
+  }
+
+  Widget _buildInfoRowWithBorder(String label, String value) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.all(12.0), // Adjusted padding
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.black54, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            spreadRadius: 2,
+            blurRadius: 8,
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start, // Align text at the start
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 20, // Increased font size for better readability
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          const SizedBox(width: 8), // Space between label and value
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 18, // Match font size with label
+                color: Colors.black,
+              ),
+              softWrap: true, // Enable text wrapping
+              overflow: TextOverflow.visible, // Avoid overflow
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -244,76 +514,110 @@ class _InventoryPageState extends State<InventoryPage> {
     InventoryItem invItem = inventoryItems[index];
     String? category = invItem.category;
     if (category == "Ingredients") {
-      _getIngredientInfo(invItem.itemID);
+      await _getIngredientInfo(invItem.itemID);
     } else if (category == "Products") {
-      _getProductInfo(invItem.itemID);
+      await _getProductInfo(invItem.itemID);
     } else if (category == "Vendors") {
-      _getVendorInfo(invItem.itemID);
+      await _getVendorInfo(invItem.itemID);
     } else if (category == "Equipment") {
-      _getEquipmentInfo(invItem.itemID);
+      await _getEquipmentInfo(invItem.itemID);
     }
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.95,
-          padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 20.0),
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(30),
-              topRight: Radius.circular(30),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                spreadRadius: 5,
-                blurRadius: 15,
+    if (mounted) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (BuildContext context) {
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.95,
+            padding:
+                const EdgeInsets.symmetric(vertical: 24.0, horizontal: 20.0),
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
               ),
-            ],
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  spreadRadius: 5,
+                  blurRadius: 15,
                 ),
-                const SizedBox(height: 15),
-                const Text(
-                  'Inventory Information',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const Divider(
-                  height: 40.0,
-                  thickness: 2.0,
-                  color: Colors.black,
-                ),
-                const SizedBox(height: 10),
-                // Addison, you will need to use the classes I have made at the top of this file
-                // to print out the contents in any way that you want. I just made the classes
-                // so that I could keep them organized asf, and you wouldn't have to worry
-                // about what all data you have. I am going to start the process of making
-                // Widgets out of each of the *Info classes so you can simply call and build them.
               ],
             ),
-          ),
-        );
-      },
-    );
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  const Text(
+                    'Inventory Information:',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const Divider(
+                    height: 40.0,
+                    thickness: 2.0,
+                    color: Colors.black,
+                  ),
+                  const SizedBox(height: 10),
+                  if (category == 'Ingredients' && _ingredientInfo != null)
+                    IngredientInfo(
+                      vendorName: _ingredientInfo!.vendorName,
+                      ingredientName: _ingredientInfo!.ingredientName,
+                      description: _ingredientInfo!.description,
+                      measurement: _ingredientInfo!.measurement,
+                      allergen: _ingredientInfo!.allergen,
+                      totalQuantity: _ingredientInfo!.totalQuantity,
+                      categoryName: _ingredientInfo!.categoryName,
+                    )
+                  else if (category == "Products" && _productInfo != null)
+                    ProductInfo(
+                      name: _productInfo!.name,
+                      description: _productInfo!.description,
+                      shelfLife: _productInfo!.shelfLife,
+                    )
+                  else if (category == "Vendors" && _vendorInfo != null)
+                    VendorInfo(
+                      vendorName: _vendorInfo!.vendorName,
+                      emailAddress: _vendorInfo!.emailAddress,
+                      emailValid: _vendorInfo!.emailValid,
+                      areaCode: _vendorInfo!.areaCode,
+                      phoneNumber: _vendorInfo!.phoneNumber,
+                      phoneValid: _vendorInfo!.phoneValid,
+                      address: _vendorInfo!.address,
+                      addressValid: _vendorInfo!.addressValid,
+                      state: _vendorInfo!.state,
+                      ingredients: _vendorInfo!.ingredients,
+                    )
+                  else if (category == "Equipment" && _equipmentInfo != null)
+                    EquipmentInfo(
+                      name: _equipmentInfo!.name,
+                      status: _equipmentInfo!.status,
+                      serial: _equipmentInfo!.serial,
+                      notes: _equipmentInfo!.notes,
+                    )
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    }
   }
 
   Widget _buildInfoRowWithBorder(String label, String value) {
@@ -729,6 +1033,11 @@ class _InventoryPageState extends State<InventoryPage> {
               ],
             ),
             _buildDrawerTile(
+              'Time Sheets',
+              Icons.access_time,
+              const TimePage(),
+            ),
+            _buildDrawerTile(
               'Clock In/Out',
               Icons.lock_clock,
               const ClockPage(),
@@ -737,6 +1046,11 @@ class _InventoryPageState extends State<InventoryPage> {
               'Settings',
               Icons.settings_outlined,
               const SettingsPage(),
+            ),
+            _buildDrawerTile(
+              'Admin',
+              Icons.admin_panel_settings_sharp,
+              const AdminPage(),
             ),
           ],
         ),
@@ -776,6 +1090,159 @@ class _InventoryPageState extends State<InventoryPage> {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showFullScreenAddRecipe();
+        },
+        backgroundColor: Colors.white, // Button background color white
+        child: const Icon(
+          Icons.add,
+          size: 36, // Adjust the icon size
+          color: Colors.black, // Icon color black
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
+
+// Define the full-screen pop-up function
+  void _showFullScreenAddRecipe() {
+    final TextEditingController recipeNameController = TextEditingController();
+    final TextEditingController ingredientController = TextEditingController();
+    final TextEditingController equipmentController = TextEditingController();
+    final TextEditingController instructionController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled:
+          true, // Allows the sheet to take up the full screen - dark magic helped with this part :)
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.95,
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 5,
+                blurRadius: 10,
+              ),
+            ],
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Add to the Inventory',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildInputField(
+                  controller: recipeNameController,
+                  label: 'What is it? ',
+                  hint: 'Enter the name here...',
+                ),
+                const SizedBox(height: 15),
+                _buildInputField(
+                  controller: ingredientController,
+                  label: 'Amount',
+                  hint: 'Enter amount here...',
+                ),
+                const SizedBox(height: 15),
+                const SizedBox(height: 20),
+                Center(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32.0,
+                        vertical: 12.0,
+                      ), // Larger button
+                      textStyle: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () {
+                      _addNewRecipe(
+                        recipeNameController.text,
+                        ingredientController.text,
+                        equipmentController.text,
+                        instructionController.text,
+                      );
+                      Navigator.of(context).pop(); // Close dialog after adding
+                    },
+                    child: const Text('Finish!'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+// Build consistent input fields
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 8), // Add space between label and input
+        TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: hint,
+            filled: true,
+            fillColor: Colors.grey[200], // Light grey background for input
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+              borderSide: BorderSide.none, // Remove default border
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 14.0,
+              horizontal: 16.0,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+// Define the function to handle adding the new recipe
+  void _addNewRecipe(String recipeName, String ingredients, String equipment,
+      String instructions) {}
 }

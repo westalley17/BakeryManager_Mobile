@@ -63,7 +63,7 @@ Widget build(BuildContext context) {
         const SizedBox(height: 8),
         _buildInfoRowWithBorder('Allergen:', allergen.toString()),
         const SizedBox(height: 8),
-        _buildInfoRowWithBorder('Total Quantity:', totalQuantity.toString()),
+        _buildInfoRowWithBorder('Total Quantity:', totalQuantity.toStringAsFixed(2)),
         const SizedBox(height: 8),
         _buildInfoRowWithBorder('Category:', categoryName),
       ],
