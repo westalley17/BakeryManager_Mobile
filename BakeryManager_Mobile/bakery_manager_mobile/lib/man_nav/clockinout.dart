@@ -62,6 +62,7 @@ class _ClockPageState extends State<ClockPage> {
   bool _clockedIn = false; // Toggle between clocked in and out
   Timer? _timer;
   EmpBiWeeks? _empBiWeeks;
+  bool _noHours = true; // default true until we RETRIEVE hours from backend
 
   // Create a 2D list to keep track of selected cells
   List<List<bool>> selectedCells = List.generate(
@@ -196,7 +197,7 @@ class _ClockPageState extends State<ClockPage> {
       // send back to home page?
     } else {
       final url =
-          Uri.parse('$baseURL/api/manager/employeeHours?sessionID=$sessionID');
+          Uri.parse('$baseURL/api/employee/employeeHours?sessionID=$sessionID');
       final headers = {
         'Content-Type': 'application/json',
       };
@@ -204,9 +205,11 @@ class _ClockPageState extends State<ClockPage> {
         final response = await http.get(url, headers: headers);
         var parsed = jsonDecode(response.body);
         if (response.statusCode == 200) {
-          _empBiWeeks = EmpBiWeeks.fromJson(parsed[0]);
+          _empBiWeeks = EmpBiWeeks.fromJson(parsed);
+          _noHours = false;
           setState(() {});
-        } else {
+        } else if (response.statusCode == 404) {
+          _noHours = true;
           setState(() {});
         }
       } catch (error) {
@@ -285,51 +288,56 @@ class _ClockPageState extends State<ClockPage> {
               ),
               actions: [
                 Row(
-                children: [
-                  Container(
-                    width: 130,
-                    height: 40,
-                    margin: const EdgeInsets.fromLTRB(0, 0, 50, 0),
-                    child: ElevatedButton(
+                  children: [
+                    Container(
+                      width: 110,
+                      height: 40,
+                      margin: const EdgeInsets.fromLTRB(0, 0, 50, 0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // need to send an update to the backend that updates all of the 14 shifts
+                          // but do we REALLYYYY
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(12), // Rounded corners
+                          ),
+                          elevation: 5, // Adds shadow for a lifted effect
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10,
+                              horizontal: 10), // Adds padding inside the button
+                        ),
+                        child: const Text(
+                          'Update',
+                          style: TextStyle(
+                            fontSize: 16, // Larger text
+                            fontWeight: FontWeight.bold, // Bold text
+                            color:
+                                Colors.white, // White text color for contrast
+                          ),
+                        ),
+                      ),
+                    ),
+                    TextButton(
                       onPressed: () {
-                        // need to send an update to the backend that updates all of the 14 shifts
-                        // but do we REALLYYYY
-                       Navigator.of(context).pop(); // Close the dialog
+                        Navigator.of(context).pop(); // Close the dialog
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12), // Rounded corners
-                        ),
-                        elevation: 5, // Adds shadow for a lifted effect
-                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10), // Adds padding inside the button
-                      ),
-                      child: const Text(
-                        'Update',
-                        style: TextStyle(
-                          fontSize: 16, // Larger text
-                          fontWeight: FontWeight.bold, // Bold text
-                          color: Colors.white, // White text color for contrast
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 10),
+                        foregroundColor: Colors.red, // Red color for the text
+                        textStyle: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600, // Slightly bolder text
                         ),
                       ),
+                      child: const Text('Close'),
                     ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close the dialog
-                    },
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                      foregroundColor: Colors.red, // Red color for the text
-                      textStyle: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600, // Slightly bolder text
-                      ),
-                    ),
-                    child: const Text('Close'),
-                  ),
-                ],
-              )
+                  ],
+                )
               ],
             );
           },
