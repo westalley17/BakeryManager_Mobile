@@ -70,10 +70,38 @@ class _ClockPageState extends State<ClockPage> {
     (index) => List.generate(2, (index) => false),
   );
 
+  Future<void> _getClockStatus() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? sessionID = prefs.getString('SessionID');
+      String? logID = prefs.getString('LogID');
+      if (logID == null || sessionID == null) {
+        // do nothing
+      } else {
+        final url =
+            Uri.parse('$baseURL/api/clock?sessionID=$sessionID&logID=$logID');
+        final response =
+            await http.get(url, headers: {"Content-Type": "application/json"});
+        final parsed = jsonDecode(response.body);
+        if (response.statusCode == 200) {
+          if (parsed["status"] == 1) {
+            _clockedIn = true;
+          } else {
+            _clockedIn = false;
+          }
+          setState(() {});
+        }
+      }
+    } catch (error) {
+      print(error);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _getEmpHours();
+    _getClockStatus();
     //_startClock(); // Start the real-time clock
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
@@ -130,8 +158,10 @@ class _ClockPageState extends State<ClockPage> {
           final headers = {"Content-Type": "application/json"};
           final body = jsonEncode({'sessionID': sessionID});
           final response = await http.post(url, headers: headers, body: body);
+          final parsed = jsonDecode(response.body);
           if (response.statusCode == 200) {
             // Confirm clock in
+            await prefs.setString("LogID", parsed["logID"]);
           }
         }
       } catch (error) {
@@ -152,6 +182,7 @@ class _ClockPageState extends State<ClockPage> {
           final response = await http.post(url, headers: headers, body: body);
           if (response.statusCode == 200) {
             // Confirm clock out
+            await prefs.remove('LogID');
           }
         }
       } catch (error) {
@@ -613,12 +644,36 @@ class _ClockPageState extends State<ClockPage> {
                                   color: Colors.black,
                                 ),
                                 // add EmpBiWeek info here
-                                _buildInfoRowWithBorder('Total Normal Hours',
-                                    _empBiWeeks!.totalNormalHours.toStringAsFixed(2)),
-                                _buildInfoRowWithBorder('Total Overtime Hours',
-                                    _empBiWeeks!.totalOvertimeHours.toStringAsFixed(2)),
-                                _buildInfoRowWithBorder('Total Holiday Hours',
-                                    _empBiWeeks!.totalHolidayHours.toStringAsFixed(2)),
+                                if (!_noHours)
+                                  _buildInfoRowWithBorder(
+                                    'Total Normal Hours',
+                                    '${_empBiWeeks!.totalNormalHours.toStringAsFixed(2)}',
+                                  )
+                                else
+                                  _buildInfoRowWithBorder(
+                                    'Total Normal Hours',
+                                    '0.00',
+                                  ),
+                                if (!_noHours)
+                                  _buildInfoRowWithBorder(
+                                    'Total Overtime Hours',
+                                    '${_empBiWeeks!.totalOvertimeHours.toStringAsFixed(2)}',
+                                  )
+                                else
+                                  _buildInfoRowWithBorder(
+                                    'Total Overtime Hours',
+                                    '0.00',
+                                  ),
+                                if (!_noHours)
+                                  _buildInfoRowWithBorder(
+                                    'Total Holiday Hours',
+                                    '${_empBiWeeks!.totalHolidayHours.toStringAsFixed(2)}',
+                                  )
+                                else
+                                  _buildInfoRowWithBorder(
+                                    'Total Holiday Hours',
+                                    '0.00',
+                                  ),
                               ],
                             ),
                           ),
