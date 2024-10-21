@@ -1,4 +1,4 @@
-import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
+import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
 import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
 import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
 import 'package:bakery_manager_mobile/man_nav/settings.dart';
@@ -1005,7 +1005,7 @@ class _InventoryPageState extends State<InventoryPage> {
               ),
             ),
             _buildDrawerTile(
-                'Dashboard', Icons.house_outlined, const ManagerHomePage()),
+                'Dashboard', Icons.house_outlined, const EmployeeHomePage()),
             ExpansionTile(
               leading: const Icon(Icons.restaurant_menu),
               title: const Text('Recipes'),
