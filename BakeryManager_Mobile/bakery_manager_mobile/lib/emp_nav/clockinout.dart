@@ -1,5 +1,5 @@
-import 'package:bakery_manager_mobile/emp_nav/inventory.dart';
 import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
+import 'package:bakery_manager_mobile/emp_nav/inventory.dart';
 import 'package:bakery_manager_mobile/emp_nav/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
@@ -616,7 +616,7 @@ class _ClockPageState extends State<ClockPage> {
                               if (!_noHours)
                                 _buildInfoRowWithBorder(
                                   'Total Normal Hours',
-                                  '${_empBiWeeks!.totalNormalHours.toStringAsFixed(2)}',
+                                  _empBiWeeks!.totalNormalHours.toStringAsFixed(2),
                                 )
                               else
                                 _buildInfoRowWithBorder(
@@ -626,7 +626,7 @@ class _ClockPageState extends State<ClockPage> {
                               if (!_noHours)
                                 _buildInfoRowWithBorder(
                                   'Total Overtime Hours',
-                                  '${_empBiWeeks!.totalOvertimeHours.toStringAsFixed(2)}',
+                                  _empBiWeeks!.totalOvertimeHours.toStringAsFixed(2),
                                 )
                               else
                                 _buildInfoRowWithBorder(
@@ -636,7 +636,7 @@ class _ClockPageState extends State<ClockPage> {
                               if (!_noHours)
                                 _buildInfoRowWithBorder(
                                   'Total Holiday Hours',
-                                  '${_empBiWeeks!.totalHolidayHours.toStringAsFixed(2)}',
+                                  _empBiWeeks!.totalHolidayHours.toStringAsFixed(2),
                                 )
                               else
                                 _buildInfoRowWithBorder(

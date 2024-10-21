@@ -1,8 +1,8 @@
-import 'package:bakery_manager_mobile/emp_nav/inventory.dart';
-import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
-import 'package:bakery_manager_mobile/emp_nav/settings.dart';
+import 'package:bakery_manager_mobile/man_nav/inventory.dart';
+import 'package:bakery_manager_mobile/widgets/manager_home_page.dart';
+import 'package:bakery_manager_mobile/man_nav/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
+import 'package:bakery_manager_mobile/man_nav/recipes.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
@@ -456,7 +456,7 @@ class _ClockPageState extends State<ClockPage> {
               ),
             ),
             _buildDrawerTile(
-                'Dashboard', Icons.house_outlined, const EmployeeHomePage()),
+                'Dashboard', Icons.house_outlined, const ManagerHomePage()),
             ExpansionTile(
               leading: const Icon(Icons.restaurant_menu),
               title: const Text('Recipes'),
@@ -614,11 +614,11 @@ class _ClockPageState extends State<ClockPage> {
                                 ),
                                 // add EmpBiWeek info here
                                 _buildInfoRowWithBorder('Total Normal Hours',
-                                    '${_empBiWeeks!.totalNormalHours.toStringAsFixed(2)}'),
+                                    _empBiWeeks!.totalNormalHours.toStringAsFixed(2)),
                                 _buildInfoRowWithBorder('Total Overtime Hours',
-                                    '${_empBiWeeks!.totalOvertimeHours.toStringAsFixed(2)}'),
+                                    _empBiWeeks!.totalOvertimeHours.toStringAsFixed(2)),
                                 _buildInfoRowWithBorder('Total Holiday Hours',
-                                    '${_empBiWeeks!.totalHolidayHours.toStringAsFixed(2)}'),
+                                    _empBiWeeks!.totalHolidayHours.toStringAsFixed(2)),
                               ],
                             ),
                           ),

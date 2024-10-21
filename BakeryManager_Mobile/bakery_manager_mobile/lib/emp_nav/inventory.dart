@@ -1,9 +1,7 @@
 import 'package:bakery_manager_mobile/widgets/employee_home_page.dart';
-import 'package:bakery_manager_mobile/man_nav/clockinout.dart';
-import 'package:bakery_manager_mobile/man_nav/timesheets.dart';
-import 'package:bakery_manager_mobile/man_nav/settings.dart';
-import 'package:bakery_manager_mobile/man_nav/recipes.dart';
-import 'package:bakery_manager_mobile/man_nav/admin.dart';
+import 'package:bakery_manager_mobile/emp_nav/clockinout.dart';
+import 'package:bakery_manager_mobile/emp_nav/settings.dart';
+import 'package:bakery_manager_mobile/emp_nav/recipes.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:http/http.dart' as http;
